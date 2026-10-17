@@ -1311,7 +1311,13 @@ function standaloneExtras(){
   let framed=true; try{ framed=window.top!==window.self; }catch(e){}
   if(framed||/claude/.test(location.hostname)||!(location.protocol==='https:'||location.hostname==='localhost')) return;
   const l=document.createElement('link'); l.rel='manifest'; l.href='manifest.webmanifest'; document.head.appendChild(l);
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if(!('serviceWorker' in navigator)) return;
+  /* check for a new version on launch and whenever the app comes back to the front; reload once it takes over */
+  const had=!!navigator.serviceWorker.controller; let reloading=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(!had||reloading) return; reloading=true; if(!sheet) location.reload(); });
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{
+    document.addEventListener('visibilitychange',()=>{ if(!document.hidden) reg.update().catch(()=>{}); });
+  }).catch(()=>{});
 }
 
 /* ---------- boot ---------- */
