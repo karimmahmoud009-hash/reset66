@@ -126,6 +126,21 @@ svg.i{ width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; 
 .cell.c-upcoming{ background:transparent; border:1.5px dashed var(--line); color:var(--muted); }
 .cell.c-rest{ background:var(--surface-2); }
 .cell.c-today{ box-shadow:inset 0 0 0 2.5px var(--text); }
+.cell .sh{ position:absolute; top:4px; right:4px; color:var(--accent); line-height:0; }
+.cell .sh svg,svg.lg-sh{ width:12px; height:12px; stroke-width:2.6; }
+svg.lg-sh{ color:var(--accent); margin-right:6px; vertical-align:-1px; }
+.track .s-shield{ background:color-mix(in srgb,var(--accent) 50%,var(--line)); height:16px; }
+.shields{ display:inline-flex; align-items:center; gap:2px; margin-left:6px; color:var(--accent); font-weight:650; }
+.shields svg{ width:13px; height:13px; stroke-width:2.6; }
+.shield-row{ display:flex; gap:8px; }
+.shield-row svg{ width:30px; height:30px; color:var(--line); }
+.shield-row svg.on{ color:var(--accent); fill:color-mix(in srgb,var(--accent) 25%,transparent); }
+.mini66 .m-part{ background:var(--accent-soft); } .mini66 .m-shield{ background:color-mix(in srgb,var(--accent) 50%,var(--line)); }
+.season{ width:100%; display:block; text-align:left; background:var(--surface); border-radius:20px; padding:14px; }
+.season + .season{ margin-top:8px; }
+.season .row{ margin-bottom:12px; }
+.season .lt{ width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-family:var(--dirt); font-size:22px; background:var(--rc); color:#0b0d14; flex:none; }
+.season .grow{ flex:1; min-width:0; }
 
 /* stats */
 .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
@@ -342,7 +357,8 @@ right:'<path d="m9 18 6-6-6-6"/>',download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 
 upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
 rotate:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
 cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
-copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'
+copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'
 };
 const ic=(n,cls)=>'<svg class="i'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true">'+(P[n]||P.star)+'</svg>';
 const HABIT_ICONS=['dumbbell','run','book','droplet','leaf','apple','moon','cap','pen','heart','sun','music','phone','target','zap','star'];
@@ -384,7 +400,11 @@ const rankOf=l=>{ let k=RANKS[0]; for(const r of RANKS) if(l>=r.min) k=r; return
 const nextRank=l=>RANKS.find(r=>r.min>l)||null;
 const STATS=[['STR','Strength',['Fitness']],['VIT','Vitality',['Health']],['INT','Intelligence',['Learning']],['FOC','Focus',['Mind']],['WIL','Willpower',['Productivity','Creativity','Other']]];
 function hunterStats(){
-  const out={}; for(const [k] of STATS) out[k]=10;
+  const out=seasonStats(); for(const [k] of STATS){ out[k]+=10; for(const e of S.history) out[k]+=e.stats[k]||0; }
+  return out;
+}
+function seasonStats(){
+  const out={}; for(const [k] of STATS) out[k]=0;
   if(!S.startDate) return out;
   const t=today(), cat={}; for(const h of S.habits) cat[h.id]=h.category;
   for(let i=0;i<TOTAL;i++){ const d=addDays(S.startDate,i); if(d>t) break;
@@ -441,7 +461,7 @@ function auraCard(c){
    '<div class="lv"><span>Level '+c.level+'</span><span class="num">'+c.intoLevel+' / '+XP_LEVEL+' XP</span></div><div class="bar"><i style="width:'+(c.intoLevel/XP_LEVEL*100)+'%"></i></div>'+
    '<div class="sub" style="margin-top:8px">'+sub+'</div></div></button>';
 }
-const XP_HABIT=20, XP_PERFECT=50, XP_STREAK7=100, XP_LEVEL=500, TOTAL=66;
+const XP_HABIT=20, XP_PERFECT=50, XP_STREAK7=100, XP_LEVEL=500, TOTAL=66, MAX_SHIELDS=3;
 const WD=['S','M','T','W','T','F','S'], WDL=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 /* ---------- dates (local calendar, never UTC) ---------- */
@@ -459,7 +479,7 @@ const uid=()=>'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const n=x=>Number(x).toLocaleString('en-US');
 
 /* ---------- state ---------- */
-const blank=()=>({v:1,onboarded:false,startDate:null,goals:[],habits:[],completions:{},theme:'dark',updatedAt:0});
+const blank=()=>({v:1,onboarded:false,startDate:null,goals:[],habits:[],completions:{},theme:'dark',updatedAt:0,season:1,history:[]});
 let S=blank();
 
 function scheduled(h,date){
@@ -476,28 +496,29 @@ function dayData(date){
 }
 function compute(){
   const t=today(), start=S.startDate;
-  const r={day:0,started:false,finished:false,xp:0,cur:0,best:0,perfectDays:0,anyDone:false,days:[],todayPct:0,day66perfect:false};
+  const r={day:0,started:false,finished:false,xp:0,cur:0,best:0,perfectDays:0,anyDone:false,days:[],todayPct:0,day66perfect:false,shields:0,shieldsEarned:0,shieldsUsed:0};
   if(!start) return r;
   r.day=diff(start,t)+1; r.started=r.day>=1; r.finished=r.day>TOTAL;
-  let run=0;
+  let run=0, sh=0;
   for(let i=0;i<TOTAL;i++){
     const date=addDays(start,i), dd=dayData(date);
-    let status;
+    let status, shield=false;
     if(date>t) status='upcoming';
     else{
       const perfect=dd.total>0&&dd.done===dd.total;
       if(dd.done>0) r.anyDone=true;
       r.xp+=dd.done*XP_HABIT;
-      if(perfect){ r.xp+=XP_PERFECT; r.perfectDays++; run++; if(run%7===0) r.xp+=XP_STREAK7; if(i===TOTAL-1) r.day66perfect=true; }
-      else if(dd.total>0&&date<t){ run=0; }
+      if(perfect){ r.xp+=XP_PERFECT; r.perfectDays++; run++; if(run%7===0){ r.xp+=XP_STREAK7; r.shieldsEarned++; if(sh<MAX_SHIELDS) sh++; } if(i===TOTAL-1) r.day66perfect=true; }
+      else if(dd.total>0&&date<t){ if(sh>0){ sh--; r.shieldsUsed++; shield=true; } else run=0; }
       r.best=Math.max(r.best,run);
       status=dd.total===0?'rest':perfect?'done':dd.done>0?'partial':(date===t?'open':'missed');
     }
-    r.days.push({i:i+1,date,status,done:dd.done,total:dd.total,isToday:date===t});
+    r.days.push({i:i+1,date,status,shield,done:dd.done,total:dd.total,isToday:date===t});
   }
-  r.cur=run;
+  r.cur=run; r.shields=sh;
   if(r.started&&!r.finished){ const dd=dayData(t); r.todayPct=dd.total?Math.round(dd.done/dd.total*100):0; }
-  r.level=Math.floor(r.xp/XP_LEVEL)+1; r.intoLevel=r.xp%XP_LEVEL;
+  r.carry=S.history.reduce((a,e)=>a+e.xp,0); r.lifeXP=r.carry+r.xp;
+  r.level=Math.floor(r.lifeXP/XP_LEVEL)+1; r.intoLevel=r.lifeXP%XP_LEVEL;
   const reached=Math.min(Math.max(r.day,0),TOTAL);
   r.ach={first:r.anyDone,perfect:r.perfectDays>0,s7:r.best>=7,s14:r.best>=14,s21:r.best>=21,xp1000:r.xp>=1000,half:reached>=33,master:r.day66perfect};
   r.progress=Math.round(reached/TOTAL*100);
@@ -620,8 +641,28 @@ function migrate(o){
       if(isDate(d)&&Array.isArray(arr)){ const c=[...new Set(arr.filter(x=>ids.has(x)))]; if(c.length) s.completions[d]=c; }
     }
   }
+  s.season=Number.isInteger(o.season)&&o.season>0?o.season:1;
+  s.history=Array.isArray(o.history)?o.history.map(cleanSeason).filter(Boolean):[];
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
+}
+function cleanSeason(e){
+  if(!e||typeof e!=='object'||!isDate(e.startDate)) return null;
+  const num=x=>Math.max(0,Math.floor(Number(x)||0)), stats={};
+  for(const [k] of STATS) stats[k]=num(e.stats&&e.stats[k]);
+  return {season:num(e.season)||1,startDate:e.startDate,endedOn:isDate(e.endedOn)?e.endedOn:e.startDate,
+    daysReached:Math.min(TOTAL,num(e.daysReached)),xp:num(e.xp),level:num(e.level)||1,perfectDays:num(e.perfectDays),best:num(e.best),
+    shieldsUsed:num(e.shieldsUsed),ach:num(e.ach),days:typeof e.days==='string'?e.days.replace(/[^dpmrsu]/g,'').slice(0,TOTAL):'',stats,
+    habits:Array.isArray(e.habits)?e.habits.filter(h=>h&&typeof h.name==='string').slice(0,40).map(h=>({name:h.name.slice(0,60),icon:HABIT_ICONS.includes(h.icon)?h.icon:'star',done:num(h.done),sched:num(h.sched)})):[]};
+}
+/* save the current season into history (called just before a new season starts) */
+function archiveSeason(c){
+  const code={done:'d',partial:'p',missed:'m',rest:'r',upcoming:'u'};
+  S.history.push({season:S.season,startDate:S.startDate,endedOn:c.finished?addDays(S.startDate,TOTAL-1):today(),
+    daysReached:Math.min(Math.max(c.day,0),TOTAL),xp:c.xp,level:c.level,perfectDays:c.perfectDays,best:c.best,
+    shieldsUsed:c.shieldsUsed,ach:ACH.filter(a=>c.ach[a.k]).length,stats:seasonStats(),
+    days:c.days.map(d=>d.shield?'s':d.status==='open'?(d.done?'p':'u'):code[d.status]).join(''),
+    habits:S.habits.map(h=>{ const x=habitStats(h); return {name:h.name,icon:h.icon,done:x.done,sched:x.sched}; }).filter(h=>h.sched>0)});
 }
 
 /* ---------- feedback ---------- */
@@ -641,8 +682,9 @@ let baseline=null;
 function feedback(rect){
   const after=compute(), before=baseline||after;
   const d=after.xp-before.xp; floatXP(rect,d);
-  if(after.level>before.level){ if(rankOf(after.level)!==rankOf(before.level)) openSheet('rank',{level:after.level}); else openSheet('level',{level:after.level,xp:after.xp}); }
+  if(after.level>before.level){ if(rankOf(after.level)!==rankOf(before.level)) openSheet('rank',{level:after.level}); else openSheet('level',{level:after.level,xp:after.lifeXP}); }
   for(const a of ACH) if(after.ach[a.k]&&!before.ach[a.k]) toast('Achievement unlocked: '+a.n,a.i,true);
+  if(after.shieldsEarned>before.shieldsEarned&&after.shields>before.shields) toast('Streak shield earned. It saves your streak if you miss a day.','shield',true);
   const tq=today(), bd=before.days.find(x=>x.date===tq), ad=after.days.find(x=>x.date===tq);
   if(ad&&bd&&ad.status==='done'&&bd.status!=='done') toast('Daily quest cleared. +50 XP','check',true);
   baseline=after;
@@ -678,6 +720,7 @@ function message(c){
   if(!c.started) return ['The clock starts soon.','Set yourself up today: pick a time for each habit.'];
   if(c.todayPct===100) return ['Today is done. That’s a perfect day.','Rest well. Tomorrow keeps the run going.'];
   const y=c.days[c.day-2];
+  if(y&&y.shield) return ['Your shield saved your streak.',c.shields?'The run continues. '+c.shields+' shield'+(c.shields>1?'s':'')+' left.':'The run continues, but you have no shields left. Make today count.'];
   if(y&&y.status==='missed') return ['You missed yesterday. That’s fine.','The rule is simple: never miss twice. Clear one habit now.'];
   const MS={1:['Day one. The path opens.','Start with the easiest habit.'],7:['One week in.','Seven days of showing up. Keep the streak alive.'],21:['Three weeks.','This is where habits start to stick.'],33:['Halfway.','Thirty-three days behind you. Thirty-three to go.'],50:['Day 50.','Sixteen days left. Finish strong.'],66:['Final day.','Clear this quest and the challenge is yours.']};
   if(MS[c.day]) return MS[c.day];
@@ -686,7 +729,7 @@ function message(c){
 }
 function trackHTML(c){
   return '<div class="track" role="img" aria-label="'+c.perfectDays+' perfect days out of 66">'+c.days.map(d=>{
-    const s=d.status==='done'?'s-done':d.status==='partial'?'s-partial':d.status==='missed'?'s-missed':d.status==='rest'?'s-rest':'';
+    const s=d.shield?'s-shield':d.status==='done'?'s-done':d.status==='partial'?'s-partial':d.status==='missed'?'s-missed':d.status==='rest'?'s-rest':'';
     return '<span class="'+s+(d.isToday?' s-today':'')+'"></span>';}).join('')+'</div>';
 }
 function habitRow(h,date,locked){
@@ -703,16 +746,16 @@ function viewToday(c){
   }else if(c.finished){
     hero='<div class="hero"><div class="hero-label">Challenge complete</div><div class="hero-day"><span class="big num">66</span><span class="of">of 66</span></div></div>'+trackHTML(c)+'<div class="track-meta"><span>'+c.perfectDays+' perfect days</span><span>Best streak '+c.best+'</span></div>';
   }else{
-    hero='<div class="hero"><div class="hero-label">Day</div><div class="hero-day" aria-label="Day '+c.day+' of 66"><span class="big num">'+c.day+'</span><span class="of">of 66</span></div></div>'+trackHTML(c)+'<div class="track-meta"><span>'+c.progress+'% of the challenge</span><span>'+(TOTAL-c.day)+' days to go</span></div>';
+    hero='<div class="hero"><div class="hero-label">'+(S.season>1?'Season '+S.season+' · Day':'Day')+'</div><div class="hero-day" aria-label="Day '+c.day+' of 66"><span class="big num">'+c.day+'</span><span class="of">of 66</span></div></div>'+trackHTML(c)+'<div class="track-meta"><span>'+c.progress+'% of the challenge</span><span>'+(TOTAL-c.day)+' days to go</span></div>';
   }
   const stats='<div class="stats3"><div class="stat"><div class="v num">'+(c.started&&!c.finished?c.todayPct+'%':'–')+'</div><div class="k">Today</div></div>'+
-    '<div class="stat"><div class="v num">'+ic('flame')+c.cur+'</div><div class="k">Day streak</div></div>'+
-    '<div class="stat"><div class="v num">'+n(c.xp)+'</div><div class="k">Total XP</div></div></div>'+
+    '<div class="stat"><div class="v num">'+ic('flame')+c.cur+'</div><div class="k">Day streak'+(c.shields?'<span class="shields" aria-label="'+c.shields+' streak shield'+(c.shields>1?'s':'')+'">'+ic('shield')+c.shields+'</span>':'')+'</div></div>'+
+    '<div class="stat"><div class="v num">'+n(c.lifeXP)+'</div><div class="k">Total XP</div></div></div>'+
     auraCard(c)+
     '<div class="card" style="margin-top:10px"><p class="quote" style="margin:0">'+esc(m1)+(m2?'<span class="muted">'+esc(m2)+'</span>':'')+'</p></div>';
   let list='';
   if(c.finished){
-    list='<div class="card empty"><h3 style="color:var(--text)">You finished RESET / 66</h3><p>Your history stays here. Start a new 66 days whenever you’re ready.</p><button class="btn btn-primary" data-a="newChallenge">Start a new challenge</button></div>';
+    list='<div class="card empty"><h3 style="color:var(--text)">Season '+S.season+' complete</h3><p>It’s saved on your Progress page. Your rank and level carry into the next 66 days.</p><button class="btn btn-primary" data-a="newSeason">Start Season '+(S.season+1)+'</button></div>';
   }else{
     const date=c.started?t:S.startDate;
     const active=S.habits.filter(h=>!h.archivedOn);
@@ -736,11 +779,11 @@ function viewCalendar(c){
   for(const d of c.days){
     const cls={done:'c-done',partial:'c-partial',missed:'c-missed',upcoming:'c-upcoming',rest:'c-rest',open:'c-open'}[d.status]||'';
     const fill=(d.status==='partial'||(d.status==='open'&&d.done>0))&&d.total?'<span class="fill" style="height:'+Math.round(d.done/d.total*100)+'%"></span>':'';
-    const label='Day '+d.i+', '+nice(d.date,{day:'numeric',month:'long'})+', '+({done:'completed',partial:d.done+' of '+d.total+' done',missed:'missed',upcoming:'upcoming',rest:'nothing scheduled',open:d.done+' of '+d.total+' done so far'}[d.status]);
-    cells+='<button class="cell '+cls+(d.isToday?' c-today':'')+'" data-a="day" data-date="'+d.date+'" aria-label="'+label+'">'+fill+'<b>'+d.i+'</b><small>'+parse(d.date).getDate()+' '+parse(d.date).toLocaleDateString('en-GB',{month:'short'})+'</small></button>';
+    const label='Day '+d.i+', '+nice(d.date,{day:'numeric',month:'long'})+', '+({done:'completed',partial:d.done+' of '+d.total+' done',missed:'missed',upcoming:'upcoming',rest:'nothing scheduled',open:d.done+' of '+d.total+' done so far'}[d.status])+(d.shield?', streak saved by a shield':'');
+    cells+='<button class="cell '+cls+(d.isToday?' c-today':'')+'" data-a="day" data-date="'+d.date+'" aria-label="'+label+'">'+fill+(d.shield?'<span class="sh">'+ic('shield')+'</span>':'')+'<b>'+d.i+'</b><small>'+parse(d.date).getDate()+' '+parse(d.date).toLocaleDateString('en-GB',{month:'short'})+'</small></button>';
   }
   return '<h1 class="page-title">66 days</h1>'+
-   '<div class="legend"><span><i style="background:var(--accent)"></i>Completed</span><span><i style="background:var(--accent-soft)"></i>Partly done</span><span><i style="background:var(--surface-2)"></i>Missed</span><span><i style="border:1.5px dashed var(--line)"></i>Upcoming</span><span><i style="box-shadow:inset 0 0 0 2px var(--text)"></i>Today</span></div>'+
+   '<div class="legend"><span><i style="background:var(--accent)"></i>Completed</span><span><i style="background:var(--accent-soft)"></i>Partly done</span><span><i style="background:var(--surface-2)"></i>Missed</span><span><i style="border:1.5px dashed var(--line)"></i>Upcoming</span><span><i style="box-shadow:inset 0 0 0 2px var(--text)"></i>Today</span><span>'+ic('shield','lg-sh')+'Saved by a shield</span></div>'+
    '<div class="cal-head">'+WD.map(w=>'<span>'+w+'</span>').join('')+'</div><div class="cal">'+cells+'</div>'+
    '<p class="note">Tap any day to see what you did. You can fix a past day if you forgot to check something off.</p>';
 }
@@ -773,12 +816,24 @@ function viewStats(c){
     sw='<div class="grid2" style="margin-top:10px"><div class="card"><div class="muted small">Strongest</div><h3 style="margin-top:4px">'+esc(best.h.name)+'</h3><div class="muted small num">'+Math.round(best.st.rate*100)+'% of scheduled days</div></div><div class="card"><div class="muted small">Needs attention</div><h3 style="margin-top:4px">'+esc(worst.h.name)+'</h3><div class="muted small num">'+Math.round(worst.st.rate*100)+'% of scheduled days</div></div></div>'; }
   const ach='<div class="ach">'+ACH.map(a=>'<div class="'+(c.ach[a.k]?'on':'off')+'"><div class="badge">'+ic(c.ach[a.k]?a.i:'lock')+'</div><div class="t">'+a.n+'</div><div class="d">'+a.d+'</div></div>').join('')+'</div>';
   return '<h1 class="page-title">Progress</h1>'+
-   '<div class="card"><div class="row between"><div><div class="muted small">Challenge</div><div style="font-size:34px;font-weight:800;letter-spacing:-.04em" class="num">'+c.progress+'%</div></div><div style="text-align:right"><div class="muted small">Level '+c.level+'</div><div style="font-size:34px;font-weight:800;letter-spacing:-.04em" class="num">'+n(c.xp)+' <span class="muted" style="font-size:16px;font-weight:600">XP</span></div></div></div><div class="bar" style="margin-top:12px"><i style="width:'+c.progress+'%"></i></div></div>'+
+   '<div class="card"><div class="row between"><div><div class="muted small">Challenge</div><div style="font-size:34px;font-weight:800;letter-spacing:-.04em" class="num">'+c.progress+'%</div></div><div style="text-align:right"><div class="muted small">Level '+c.level+'</div><div style="font-size:34px;font-weight:800;letter-spacing:-.04em" class="num">'+n(c.lifeXP)+' <span class="muted" style="font-size:16px;font-weight:600">XP</span></div></div></div><div class="bar" style="margin-top:12px"><i style="width:'+c.progress+'%"></i></div></div>'+
    '<div class="stats3" style="margin-top:10px"><div class="stat"><div class="v num">'+ic('flame')+c.cur+'</div><div class="k">Current streak</div></div><div class="stat"><div class="v num">'+c.best+'</div><div class="k">Longest streak</div></div><div class="stat"><div class="v num">'+c.perfectDays+'</div><div class="k">Perfect days</div></div></div>'+
+   '<div class="card row" style="margin-top:10px"><div class="grow"><div class="muted small">Streak shields</div><h3 style="margin-top:4px" class="num">'+c.shields+' of '+MAX_SHIELDS+'</h3><div class="muted small">'+(c.shieldsUsed?'Saved your streak '+c.shieldsUsed+(c.shieldsUsed===1?' time':' times'):'Earn one with every 7-day streak')+'</div></div><div class="shield-row" aria-hidden="true">'+Array.from({length:MAX_SHIELDS},(_,i)=>ic('shield',i<c.shields?'on':'')).join('')+'</div></div>'+
    '<div class="section-head"><h2>Weekly performance</h2><span class="muted small">% of habits done</span></div><div class="card">'+svg+'</div>'+
    '<div class="section-head"><h2>Habit completion</h2></div><div class="card">'+rates+'</div>'+sw+
-   '<div class="section-head"><h2>Achievements</h2><span class="muted small num">'+ACH.filter(a=>c.ach[a.k]).length+' of '+ACH.length+'</span></div>'+ach+
-   '<div class="section-head"><h2>How XP works</h2></div><div class="card small muted" style="line-height:1.7">+20 XP for each habit you complete<br>+50 XP when every habit for the day is done<br>+100 XP each time your streak hits a multiple of 7<br>A new level every 500 XP<br>Unchecking a habit takes its XP back, so totals always match your record.</div>';
+   '<div class="section-head"><h2>Achievements</h2><span class="muted small num">'+ACH.filter(a=>c.ach[a.k]).length+' of '+ACH.length+'</span></div>'+ach+seasonsHTML()+
+   '<div class="section-head"><h2>How XP works</h2></div><div class="card small muted" style="line-height:1.7">+20 XP for each habit you complete<br>+50 XP when every habit for the day is done<br>+100 XP and a streak shield each time your streak hits a multiple of 7<br>You can hold up to '+MAX_SHIELDS+' shields. One is used automatically to keep your streak alive when you miss a day.<br>A new level every 500 XP. Your level and rank carry over between seasons.<br>Unchecking a habit takes its XP back, so totals always match your record.</div>';
+}
+function miniGrid(codes){
+  const m={d:'m-done',p:'m-part',m:'m-miss',r:'m-off',s:'m-shield',u:''};
+  return '<div class="mini66" aria-hidden="true">'+Array.from({length:TOTAL},(_,i)=>'<span class="'+(m[codes[i]]||'')+'"></span>').join('')+'</div>';
+}
+function seasonsHTML(){
+  if(!S.history.length) return '';
+  return '<div class="section-head"><h2>Past seasons</h2><span class="muted small num">'+S.history.length+'</span></div>'+
+    S.history.map((e,i)=>({e,i})).reverse().map(({e,i})=>{ const rk=rankOf(e.level);
+      return '<button class="season" data-a="seasonView" data-i="'+i+'" style="--rc:'+rk.c+'" aria-label="Season '+e.season+', open details"><div class="row"><span class="lt">'+rk.r+'</span><span class="grow"><h3>Season '+e.season+'</h3><div class="muted small">'+nice(e.startDate,{day:'numeric',month:'short'})+' to '+nice(e.endedOn,{day:'numeric',month:'short',year:'numeric'})+(e.daysReached<TOTAL?', ended on Day '+e.daysReached:'')+'</div></span>'+ic('right')+'</div>'+
+        miniGrid(e.days)+'<div class="muted small num" style="margin-top:10px">'+e.perfectDays+' perfect days, best streak '+e.best+', '+n(e.xp)+' XP</div></button>'; }).join('');
 }
 function viewSettings(){
   const cloud=Cloud.ref?(Cloud.status==='error'?'Couldn’t reach your Claude account. Your progress is still saved on this device.':'Your progress is also backed up to your Claude account.'):'Progress is saved on this device only.';
@@ -786,14 +841,15 @@ function viewSettings(){
   '<div class="section-head"><h2>Appearance</h2></div><div class="list"><div class="item"><span class="grow">Theme</span><div class="seg" role="group" aria-label="Theme"><button data-a="theme" data-v="dark" aria-pressed="'+(S.theme==='dark')+'">Dark</button><button data-a="theme" data-v="light" aria-pressed="'+(S.theme==='light')+'">Light</button></div></div></div>'+
   '<div class="section-head"><h2>Challenge</h2></div><div class="list">'+
    '<button class="item" data-a="editStart">'+ic('calendar')+'<span class="grow">Start date<div class="sub">'+nice(S.startDate,{weekday:'short',day:'numeric',month:'long',year:'numeric'})+'</div></span>'+ic('right')+'</button>'+
-   '<button class="item" data-a="go" data-to="habits">'+ic('list')+'<span class="grow">Manage habits<div class="sub">'+S.habits.filter(h=>!h.archivedOn).length+' active</div></span>'+ic('right')+'</button></div>'+
+   '<button class="item" data-a="go" data-to="habits">'+ic('list')+'<span class="grow">Manage habits<div class="sub">'+S.habits.filter(h=>!h.archivedOn).length+' active</div></span>'+ic('right')+'</button>'+
+   '<button class="item" data-a="newSeason">'+ic('flame')+'<span class="grow">Start a new season<div class="sub">Save Season '+S.season+' and begin a fresh 66 days</div></span>'+ic('right')+'</button></div>'+
   '<div class="section-head"><h2>Backup</h2></div><div class="list">'+
    '<button class="item" data-a="export">'+ic('download')+'<span class="grow">Export progress<div class="sub">Save a JSON backup file</div></span></button>'+
    '<button class="item" data-a="import">'+ic('upload')+'<span class="grow">Import progress<div class="sub">Restore from a backup file</div></span></button>'+
    '<button class="item" data-a="copyBackup">'+ic('copy')+'<span class="grow">Copy backup as text<div class="sub">For pasting into Notes or an email</div></span></button>'+
   '</div><p class="note">'+cloud+' Clearing Safari’s website data can erase progress stored on this device, so export a backup now and then.</p>'+
   '<div class="section-head"><h2>Start over</h2></div><div class="list">'+
-   '<button class="item" data-a="reset" style="color:var(--danger)">'+ic('rotate')+'<span class="grow">Reset challenge<div class="sub">Clears habits, history and XP</div></span></button>'+
+   '<button class="item" data-a="reset" style="color:var(--danger)">'+ic('rotate')+'<span class="grow">Reset challenge<div class="sub">Clears habits, history, past seasons and XP</div></span></button>'+
    '<button class="item" data-a="restorePrev">'+ic('archive')+'<span class="grow">Restore previous version<div class="sub">Undo the last reset or import</div></span></button></div>'+
   '<p class="note" style="text-align:center;padding-top:26px">RESET / 66</p>';
 }
@@ -808,7 +864,7 @@ function renderOnboarding(){
   let body='',foot='';
   if(st===0){
     body='<div class="welcome-mark num">66<span>.</span></div><h1>Sixty-six days to reset.</h1><p class="lead">It takes about 66 days for a new behaviour to start feeling automatic. Pick a few habits, show up every day, and watch the calendar fill in.</p>'+
-     '<div class="rules"><div><span class="ico">'+ic('check')+'</span><span><b>Check off your habits daily</b><span class="muted small">Each one earns 20 XP.</span></span></div><div><span class="ico">'+ic('flame')+'</span><span><b>Finish every habit to build a streak</b><span class="muted small">Perfect days add a 50 XP bonus.</span></span></div><div><span class="ico">'+ic('zap')+'</span><span><b>Level up every 500 XP</b><span class="muted small">Streak milestones unlock achievements.</span></span></div></div>';
+     '<div class="rules"><div><span class="ico">'+ic('check')+'</span><span><b>Check off your habits daily</b><span class="muted small">Each one earns 20 XP.</span></span></div><div><span class="ico">'+ic('flame')+'</span><span><b>Finish every habit to build a streak</b><span class="muted small">Perfect days add a 50 XP bonus. Every 7 in a row earns a shield that saves your streak if you slip.</span></span></div><div><span class="ico">'+ic('zap')+'</span><span><b>Level up every 500 XP</b><span class="muted small">Streak milestones unlock achievements.</span></span></div></div>';
     foot='<button class="btn btn-primary" data-a="obNext">Get started</button>';
   }else if(st===1){
     body='<h1>What do you want to improve?</h1><p class="lead">Choose as many as you like. We’ll suggest habits to match.</p><div class="chips">'+GOALS.map(g=>'<button class="chip" data-a="obGoal" data-k="'+g.k+'" aria-pressed="'+OB.goals.has(g.k)+'">'+g.n+'</button>').join('')+'</div>';
@@ -868,10 +924,12 @@ const SHEETS={
   day(date){
     const t=today(), idx=diff(S.startDate,date)+1, dd=dayData(date);
     const list=S.habits.filter(h=>scheduled(h,date));
+    const cd=compute().days.find(x=>x.date===date);
     const status=dd.total===0?'Nothing was scheduled':dd.done===dd.total?'Perfect day':dd.done===0?(date===t?'Not started yet':'Missed'):dd.done+' of '+dd.total+' done';
+    const saved=cd&&cd.shield?'<p class="note" style="padding:0 2px 14px">'+ic('shield','lg-sh')+'A streak shield was used on this day, so your streak kept going.</p>':'';
     const xp=dd.done*XP_HABIT+(dd.total&&dd.done===dd.total?XP_PERFECT:0);
     return head('Day '+idx)+'<p class="muted" style="margin:-8px 0 16px">'+nice(date,{weekday:'long',day:'numeric',month:'long'})+'</p>'+
-     '<div class="grid2" style="margin-bottom:16px"><div class="stat"><div class="v" style="font-size:19px">'+status+'</div><div class="k">Result</div></div><div class="stat"><div class="v num" style="font-size:19px">+'+xp+' XP</div><div class="k">Earned this day</div></div></div>'+
+     '<div class="grid2" style="margin-bottom:16px"><div class="stat"><div class="v" style="font-size:19px">'+status+'</div><div class="k">Result</div></div><div class="stat"><div class="v num" style="font-size:19px">+'+xp+' XP</div><div class="k">Earned this day</div></div></div>'+saved+
      (list.length?list.map(h=>habitRow(h,date,false)).join(''):'<div class="card empty">No habits were scheduled on this day.</div>')+
      (date<t&&list.length?'<p class="note">Forgot to check something off? Tap it to fix the record.</p>':'');
   },
@@ -914,7 +972,7 @@ const SHEETS={
   path(){
     const c=compute(), rk=rankOf(c.level), st=hunterStats(), mx=Math.max(...Object.values(st),20);
     const ladder=RANKS.map(r=>{ const on=c.level>=r.min, cur=r===rk; const need=(r.min-1)*XP_LEVEL;
-      return '<div class="'+(on?'on':'')+(cur?' cur':'')+'" style="--rc:'+r.c+'"><span class="lt">'+r.r+'</span><span class="grow"><b>'+r.t+'</b><div class="muted small">'+(cur?'You are here':on?'Cleared':'Level '+r.min+', '+n(Math.max(0,need-c.xp))+' XP to go')+'</div></span>'+(on?ic(cur?'flame':'check'):ic('lock'))+'</div>'; }).reverse().join('');
+      return '<div class="'+(on?'on':'')+(cur?' cur':'')+'" style="--rc:'+r.c+'"><span class="lt">'+r.r+'</span><span class="grow"><b>'+r.t+'</b><div class="muted small">'+(cur?'You are here':on?'Cleared':'Level '+r.min+', '+n(Math.max(0,need-c.lifeXP))+' XP to go')+'</div></span>'+(on?ic(cur?'flame':'check'):ic('lock'))+'</div>'; }).reverse().join('');
     return head('Hunter path')+
      '<div class="rank-hero" style="--aura:'+rk.c+'">'+auraSVG(c.level)+'<div class="rank-letter" style="font-size:64px">'+rk.r+'</div><div style="font-weight:700;font-size:18px">'+rk.t+', Level '+c.level+'</div><div class="small" style="color:#9aa4bd;margin-top:2px">'+rk.d+'</div></div>'+
      '<label class="f">Stats</label><div class="card">'+STATS.map(([k,nm])=>'<div class="statrow"><b>'+nm+'</b><div class="bar"><i style="width:'+Math.round(st[k]/mx*100)+'%"></i></div><span class="num" style="text-align:right">'+st[k]+'</span></div>').join('')+
@@ -926,6 +984,28 @@ const SHEETS={
   },
   text(o){
     return head(o.title)+'<p class="muted" style="margin:-4px 0 12px">'+o.body+'</p><textarea class="input" id="tx" '+(o.readonly?'readonly':'placeholder="Paste your backup here"')+'>'+esc(o.value||'')+'</textarea><p class="note" id="tx-err" style="color:var(--danger)"></p><div class="actions">'+(o.readonly?'<button class="btn btn-primary" data-a="copyText">'+ic('copy')+'Copy</button>':'<button class="btn btn-primary" data-a="importText">Import pasted backup</button><button class="btn btn-ghost" data-a="pickFile">'+ic('upload')+'Choose a file instead</button>')+'</div>';
+  },
+  newSeason(){
+    const c=compute(), active=S.habits.filter(h=>!h.archivedOn);
+    const f=sheet.form||(sheet.form={keep:active.map(h=>h.id),start:'today'});
+    const nx=S.season+1;
+    const early=c.started&&!c.finished?'<div class="warn">You’re on Day '+c.day+' of Season '+S.season+'. Starting now saves it as it is, ending on Day '+c.day+'.</div>':'';
+    return head('Season '+nx)+early+'<p class="muted" style="margin:-4px 0 0">Season '+S.season+' is saved on your Progress page. Your rank, level and XP carry over, and the 66-day calendar starts fresh.</p>'+
+     '<label class="f">Habits to keep</label>'+(active.length?active.map(h=>'<button class="pick" data-a="nsPick" data-id="'+h.id+'" aria-pressed="'+f.keep.includes(h.id)+'"><span class="ico">'+ic(h.icon)+'</span><span class="grow">'+esc(h.name)+'<div class="muted small" style="font-weight:500">'+esc(h.category)+'</div></span><span class="check">'+ic('check')+'</span></button>').join(''):'<p class="muted small">You have no active habits. You can add some after you start.</p>')+
+     '<p class="note">You can add new habits once the season starts.</p>'+
+     '<label class="f">Day 1</label><div class="chips"><button class="chip" data-a="nsStart" data-v="today" aria-pressed="'+(f.start==='today')+'">Today</button><button class="chip" data-a="nsStart" data-v="tomorrow" aria-pressed="'+(f.start==='tomorrow')+'">Tomorrow</button></div>'+
+     '<p class="note" id="ns-err" style="color:var(--danger)"></p>'+
+     '<div class="actions"><button class="btn btn-primary" data-a="nsGo">Start Season '+nx+'</button></div>';
+  },
+  seasonView(i){
+    const e=S.history[i]; if(!e) return null;
+    const rk=rankOf(e.level), hs=[...e.habits].sort((a,b)=>b.done/b.sched-a.done/a.sched);
+    return head('Season '+e.season)+'<p class="muted" style="margin:-8px 0 16px">'+nice(e.startDate,{day:'numeric',month:'long',year:'numeric'})+' to '+nice(e.endedOn,{day:'numeric',month:'long',year:'numeric'})+'</p>'+
+     '<div class="grid2"><div class="stat" style="--rc:'+rk.c+'"><div class="v" style="color:'+rk.c+'">'+rk.r+'</div><div class="k">Rank at the end, Level '+e.level+'</div></div><div class="stat"><div class="v num">'+n(e.xp)+'</div><div class="k">XP this season</div></div>'+
+     '<div class="stat"><div class="v num">'+e.perfectDays+'</div><div class="k">Perfect days</div></div><div class="stat"><div class="v num">'+e.best+'</div><div class="k">Best streak</div></div></div>'+
+     '<label class="f">66 days</label><div class="card">'+miniGrid(e.days)+'<div class="legend" style="margin:12px 0 0"><span><i style="background:var(--accent)"></i>Perfect</span><span><i style="background:var(--accent-soft)"></i>Partly done</span><span><i style="background:var(--line)"></i>Missed</span><span><i style="background:color-mix(in srgb,var(--accent) 50%,var(--line))"></i>Shield used</span></div></div>'+
+     (hs.length?'<label class="f">Habits</label><div class="card hbar">'+hs.map(h=>'<span>'+esc(h.name)+'</span><span class="num muted small">'+h.done+'/'+h.sched+'</span><div class="bar"><i style="width:'+Math.round(h.done/h.sched*100)+'%"></i></div>').join('')+'</div>':'')+
+     '<p class="note">'+e.ach+' of '+ACH.length+' achievements unlocked'+(e.shieldsUsed?', '+e.shieldsUsed+' shield'+(e.shieldsUsed>1?'s':'')+' used':'')+(e.daysReached<TOTAL?'. Ended early on Day '+e.daysReached:'')+'.</p>';
   }
 };
 let pendingConfirm=null;
@@ -1008,6 +1088,21 @@ const A={
   reset(){ ask({title:'Reset the challenge?',body:'This clears your habits, history, XP and achievements, then takes you back to the start. Your current progress is kept as a previous version you can restore from Settings.',yes:'Reset everything',danger:true},async()=>{
       await keepPrevious(); const theme=S.theme; S=blank(); S.theme=theme; persist(); baseline=null; obInit(); closeSheet(); route='today'; render(); window.scrollTo(0,0); }); },
   newChallenge(){ A.reset(); },
+  newSeason(){ openSheet('newSeason'); },
+  nsPick(el){ const k=sheet.form.keep, id=el.dataset.id, i=k.indexOf(id); i>=0?k.splice(i,1):k.push(id); renderSheet(false,true); },
+  nsStart(el){ sheet.form.start=el.dataset.v; renderSheet(false,true); },
+  async nsGo(){
+    const f=sheet.form, keep=new Set(f.keep);
+    if(S.habits.some(h=>!h.archivedOn)&&!keep.size){ document.getElementById('ns-err').textContent='Keep at least one habit. You can add new ones after you start.'; return; }
+    await keepPrevious();
+    const c=compute(), nx=S.season+1, start=f.start==='tomorrow'?addDays(today(),1):today();
+    if(c.day>=1) archiveSeason(c);
+    S.season=nx; S.startDate=start; S.completions={};
+    S.habits=S.habits.filter(h=>!h.archivedOn&&keep.has(h.id)).map(h=>Object.assign({},h,{createdOn:null,archivedOn:null}));
+    persist(); baseline=compute(); closeSheet(); route='today'; render(); window.scrollTo(0,0);
+    toast('Season '+nx+' started. Day 1 begins '+(start===today()?'now':'tomorrow'),'flame');
+  },
+  seasonView(el){ openSheet('seasonView',+el.dataset.i); },
   async restorePrev(){
     let p=null; if(Store.idb) p=await idbGet(PREV); if(!p&&lsOK) p=lsGet(PREV);
     if(!p){ toast('There’s no previous version to restore','archive'); return; }
@@ -1048,7 +1143,7 @@ document.addEventListener('change',e=>{
 });
 /* re-render when the day changes (e.g. app left open past midnight) */
 let lastDay=today();
-function dayCheck(){ if(today()!==lastDay){ lastDay=today(); if(S.onboarded){ baseline=compute(); render(); } } }
+function dayCheck(){ if(today()!==lastDay){ lastDay=today(); if(S.onboarded){ const prev=baseline; baseline=compute(); if(prev&&baseline.shieldsUsed>prev.shieldsUsed) toast('A streak shield saved your streak','shield',true); render(); } } }
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) dayCheck(); });
 setInterval(dayCheck,30000);
 
