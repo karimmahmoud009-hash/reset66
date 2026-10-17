@@ -104,6 +104,11 @@ svg.i{ width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:2; 
 .habit.done .ico{ color:var(--accent); }
 .habit.locked{ opacity:.55; cursor:default; }
 .habit .chev{ color:var(--muted); }
+.habit.soon .ico{ color:var(--muted); }
+.habit.soon .name{ color:var(--muted); }
+.coach-cta{ margin-bottom:14px; border-color:color-mix(in srgb,var(--accent) 40%,transparent); }
+.coach-cta .ico{ color:var(--accent); }
+.coach-cta > svg{ color:var(--muted); }
 .empty{ text-align:center; padding:28px 18px; color:var(--muted); }
 .empty .btn{ margin-top:14px; }
 .pop{ animation:pop .35s ease; }
@@ -201,6 +206,26 @@ textarea.input{ min-height:120px; font-size:13px; font-family:ui-monospace,Menlo
 .mini66 span{ aspect-ratio:1; border-radius:4px; background:var(--faint); }
 .mini66 .m-done{ background:var(--accent); } .mini66 .m-miss{ background:var(--line); } .mini66 .m-off{ background:transparent; border:1px solid var(--faint); } .mini66 .m-today{ box-shadow:inset 0 0 0 2px var(--text); }
 
+/* coach */
+.bot{ display:flex; gap:10px; align-items:flex-end; margin-top:12px; }
+.bot .av{ width:34px; height:34px; border-radius:11px; display:grid; place-items:center; flex:none; background:linear-gradient(160deg,#121a2c,#0c101b); border:1px solid rgba(110,185,255,.55); color:#7cc4ff; box-shadow:0 0 14px rgba(80,160,255,.2); }
+.bot .av svg{ width:18px; height:18px; }
+.bubble{ background:var(--surface); border-radius:18px 18px 18px 6px; padding:11px 14px; font-size:15px; max-width:85%; }
+.me{ display:flex; justify-content:flex-end; margin-top:12px; }
+.me .bubble{ background:var(--accent); color:var(--accent-ink); border-radius:18px 18px 6px 18px; font-weight:600; }
+.co-opts{ display:grid; gap:8px; margin-top:14px; }
+.co-opts .pick + .pick{ margin-top:0; }
+.co-opts .pick > svg{ color:var(--muted); }
+.plan-item{ background:var(--surface); border-radius:18px; padding:12px 12px 12px 14px; margin-top:8px; }
+.bot + .plan-item{ margin-top:14px; }
+.plan-item .ico{ width:40px; height:40px; border-radius:12px; display:grid; place-items:center; background:var(--surface-2); color:var(--accent); flex:none; }
+.plan-item .grow{ flex:1; min-width:0; }
+.plan-item .x{ width:34px; height:34px; background:var(--surface-2); }
+.plan-item .x svg{ width:16px; height:16px; }
+.plan-item ol{ list-style:none; margin:10px 0 0; padding:0 0 0 52px; font-size:13px; color:var(--muted); }
+.plan-item li + li{ margin-top:3px; }
+.plan-item li b{ color:var(--text); font-weight:600; }
+
 /* onboarding */
 .ob{ position:fixed; inset:0; z-index:30; background:var(--bg); overflow:auto; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
 .ob-in{ max-width:480px; margin:0 auto; min-height:100%; padding:22px 20px 28px; display:flex; flex-direction:column; }
@@ -262,6 +287,11 @@ svg.aura{ width:100%; height:auto; display:block; overflow:visible; }
 .quest h2{ font-size:20px; margin-top:4px; color:#fff; }
 .quest p{ margin:4px 0 0; font-size:13.5px; color:#a9bad6; }
 .quest .qn{ font-size:26px; font-weight:800; color:#7cc4ff; }
+.quest.sysup{ margin-top:22px; margin-bottom:0; }
+.quest.sysup + .quest{ margin-top:10px; }
+.quest.sysup p{ display:flex; align-items:center; gap:8px; color:#e6f1ff; margin-top:8px; }
+.quest.sysup p svg{ width:18px; height:18px; color:#7cc4ff; }
+.quest.sysup .was{ color:#a9bad6; font-size:12.5px; }
 .quest.clear{ border-color:var(--accent); box-shadow:0 0 26px color-mix(in srgb,var(--accent) 30%,transparent); }
 .quest.clear .tag,.quest.clear .qn{ color:var(--accent); }
 .toast.sys{ background:linear-gradient(160deg,#121a2c,#0c101b); color:#e6f1ff; border:1px solid rgba(110,185,255,.55); box-shadow:0 0 20px rgba(80,160,255,.25); }
@@ -273,6 +303,13 @@ svg.aura{ width:100%; height:auto; display:block; overflow:visible; }
 .rank-hero{ border-radius:24px; overflow:hidden; background:radial-gradient(90% 70% at 50% 60%, color-mix(in srgb,var(--aura) 26%,transparent), transparent 70%), linear-gradient(170deg,#141826,#08090f); padding:6px 22px 18px; text-align:center; color:#eef3ff; }
 .rank-hero svg.aura{ max-width:200px; margin:0 auto; }
 .ladder{ display:grid; gap:8px; }
+.ladder-plan > div{ display:flex; align-items:center; gap:12px; padding:8px 0; }
+.ladder-plan > div + div{ border-top:1px solid var(--line); }
+.ladder-plan span{ width:56px; flex:none; font-size:13px; color:var(--muted); }
+.ladder-plan b{ flex:1; font-weight:600; font-size:15px; }
+.ladder-plan .past b{ color:var(--muted); text-decoration:line-through; text-decoration-thickness:1px; }
+.ladder-plan .now b{ color:var(--accent); }
+.ladder-plan em{ font-style:normal; font-size:12px; font-weight:700; color:var(--accent-ink); background:var(--accent); padding:3px 8px; border-radius:99px; }
 .ladder > div{ display:flex; align-items:center; gap:14px; padding:12px 14px; border-radius:18px; background:var(--surface); }
 .ladder .lt{ width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-weight:800; font-size:22px; background:var(--surface-2); color:var(--muted); flex:none; }
 .ladder .on .lt{ background:var(--rc); color:#0b0d14; box-shadow:0 0 16px color-mix(in srgb,var(--rc) 60%,transparent); }
@@ -377,6 +414,40 @@ const SUGGESTED=[
  {k:'learn',name:'Learn something new',icon:'cap',category:'Learning'},
  {k:'journal',name:'Write in my journal',icon:'pen',category:'Mind'}
 ];
+/* coach: each habit has 4 levels, easiest first */
+const LIB={
+ exercise:{icon:'dumbbell',category:'Fitness',l:['Move for 10 minutes','Exercise for 20 minutes','Exercise for 30 minutes','Exercise for 45 minutes']},
+ steps:{icon:'run',category:'Fitness',l:['Walk 4,000 steps','Walk 6,000 steps','Walk 8,000 steps','Walk 10,000 steps']},
+ water:{icon:'droplet',category:'Health',l:['Drink 1 litre of water','Drink 1.5 litres of water','Drink 2 litres of water','Drink 2.5 litres of water']},
+ eat:{icon:'apple',category:'Health',l:['Eat one serving of vegetables','Eat a healthy lunch','Eat two healthy meals','No junk food all day']},
+ meditate:{icon:'leaf',category:'Mind',l:['Meditate for 2 minutes','Meditate for 5 minutes','Meditate for 10 minutes','Meditate for 15 minutes']},
+ journal:{icon:'pen',category:'Mind',l:['Write one line in my journal','Write 3 things I’m grateful for','Journal for 5 minutes','Journal for 10 minutes']},
+ read:{icon:'book',category:'Learning',l:['Read 2 pages','Read 5 pages','Read 10 pages','Read 20 pages']},
+ learn:{icon:'cap',category:'Learning',l:['Learn something for 5 minutes','Learn for 10 minutes','Learn for 20 minutes','Learn for 30 minutes']},
+ sleep:{icon:'moon',category:'Health',l:['In bed by midnight','In bed by 11:30 pm','In bed by 11 pm','In bed by 10:30 pm']},
+ phone:{icon:'phone',category:'Productivity',l:['No phone for 10 min after waking','No phone for 30 min after waking','No phone for 1 hour after waking','No phone 1 hour after waking and before bed']}
+};
+const GOAL_LIB={fit:['exercise','steps'],eat:['water','eat'],calm:['meditate','journal'],learn:['read','learn'],sleep:['sleep','phone'],disc:['phone','exercise','journal']};
+const COACH_TIME=[['10','About 10 minutes',3],['30','20 to 30 minutes',4],['45','45 minutes or more',5]];
+const COACH_LEVEL=['Starting from zero','Somewhat active','Already consistent'];
+const UNLOCK_GAP=14;
+/* base = the challenge day the plan starts on; returns habits with absolute unlock days and level-up days */
+function buildPlan(goals,time,level,base){
+  const lists=(goals.length?goals:['eat','fit','learn']).map(g=>GOAL_LIB[g]||[]), keys=[];
+  for(let i=0;i<3;i++) for(const l of lists) if(l[i]&&!keys.includes(l[i])) keys.push(l[i]);
+  const max=(COACH_TIME.find(x=>x[0]===time)||COACH_TIME[0])[2], plan=[];
+  for(const k of keys){
+    if(plan.length>=max) break;
+    const unlock=plan.length<2?base:base+UNLOCK_GAP*(plan.length-1);
+    if(unlock>TOTAL-7) break;
+    plan.push(planItem(k,level,unlock));
+  }
+  return plan;
+}
+function planItem(k,level,unlock){
+  const L=LIB[k], span=TOTAL-unlock+1, names=L.l.slice(level,level+1+Math.floor((span-1)/UNLOCK_GAP));
+  return {k,icon:L.icon,category:L.category,unlock,ladder:names.map((name,i)=>({d:unlock+Math.round(i*span/names.length),name}))};
+}
 const ACH=[
  {k:'first',n:'First Step',d:'Complete your first habit',i:'check'},
  {k:'perfect',n:'Perfect Day',d:'Complete all of a day’s habits',i:'star'},
@@ -485,8 +556,22 @@ let S=blank();
 function scheduled(h,date){
   if(h.createdOn&&date<h.createdOn) return false;
   if(h.archivedOn&&date>=h.archivedOn) return false;
+  if(h.unlock&&S.startDate&&dayNum(date)<h.unlock) return false;
   const d=h.days||[]; if(d.length===0||d.length===7) return true;
   return d.includes(parse(date).getDay());
+}
+const dayNum=date=>diff(S.startDate,date)+1;
+const locked=h=>!!(h.unlock&&S.startDate&&dayNum(today())<h.unlock);
+/* the habit's name at its level on a given date */
+function stageOf(h,date){ if(!h.ladder||!S.startDate) return -1; const dn=dayNum(date); let k=0; h.ladder.forEach((s,i)=>{ if(s.d<=dn) k=i; }); return k; }
+function hName(h,date){ const k=stageOf(h,date||today()); return k<0?h.name:h.ladder[k].name; }
+/* what changes on a given day: new habits and level-ups */
+function changesOn(date){
+  const dn=dayNum(date), out=[];
+  for(const h of S.habits){ if(h.archivedOn) continue;
+    if(h.unlock===dn) out.push({t:'new',h,name:hName(h,date)});
+    else if(h.ladder){ const k=h.ladder.findIndex(s=>s.d===dn); if(k>0) out.push({t:'up',h,from:h.ladder[k-1].name,name:h.ladder[k].name,lv:k+1,of:h.ladder.length}); } }
+  return out;
 }
 function dayData(date){
   const sched=S.habits.filter(h=>scheduled(h,date));
@@ -633,7 +718,8 @@ function migrate(o){
     id:h.id,name:h.name.slice(0,60),icon:HABIT_ICONS.includes(h.icon)?h.icon:'star',
     category:CATEGORIES.includes(h.category)?h.category:'Other',
     days:Array.isArray(h.days)?h.days.filter(d=>Number.isInteger(d)&&d>=0&&d<=6):[],
-    createdOn:isDate(h.createdOn)?h.createdOn:null,archivedOn:isDate(h.archivedOn)?h.archivedOn:null
+    createdOn:isDate(h.createdOn)?h.createdOn:null,archivedOn:isDate(h.archivedOn)?h.archivedOn:null,
+    unlock:Number.isInteger(h.unlock)&&h.unlock>1&&h.unlock<=TOTAL?h.unlock:null,ladder:cleanLadder(h.ladder)
   })):[];
   const ids=new Set(s.habits.map(h=>h.id));
   if(o.completions&&typeof o.completions==='object'){
@@ -645,6 +731,11 @@ function migrate(o){
   s.history=Array.isArray(o.history)?o.history.map(cleanSeason).filter(Boolean):[];
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
+}
+function cleanLadder(l){
+  if(!Array.isArray(l)) return null;
+  const s=l.filter(x=>x&&Number.isInteger(x.d)&&x.d>=1&&x.d<=TOTAL&&typeof x.name==='string'&&x.name.trim()).map(x=>({d:x.d,name:x.name.slice(0,60)})).sort((a,b)=>a.d-b.d);
+  return s.length>1?s:null;
 }
 function cleanSeason(e){
   if(!e||typeof e!=='object'||!isDate(e.startDate)) return null;
@@ -662,7 +753,7 @@ function archiveSeason(c){
     daysReached:Math.min(Math.max(c.day,0),TOTAL),xp:c.xp,level:c.level,perfectDays:c.perfectDays,best:c.best,
     shieldsUsed:c.shieldsUsed,ach:ACH.filter(a=>c.ach[a.k]).length,stats:seasonStats(),
     days:c.days.map(d=>d.shield?'s':d.status==='open'?(d.done?'p':'u'):code[d.status]).join(''),
-    habits:S.habits.map(h=>{ const x=habitStats(h); return {name:h.name,icon:h.icon,done:x.done,sched:x.sched}; }).filter(h=>h.sched>0)});
+    habits:S.habits.map(h=>{ const x=habitStats(h); return {name:hName(h,today()),icon:h.icon,done:x.done,sched:x.sched}; }).filter(h=>h.sched>0)});
 }
 
 /* ---------- feedback ---------- */
@@ -733,9 +824,9 @@ function trackHTML(c){
     return '<span class="'+s+(d.isToday?' s-today':'')+'"></span>';}).join('')+'</div>';
 }
 function habitRow(h,date,locked){
-  const done=(S.completions[date]||[]).includes(h.id);
-  return '<button class="habit'+(done?' done':'')+(locked?' locked':'')+'" '+(locked?'disabled aria-disabled="true"':'data-a="toggle" data-id="'+h.id+'" data-date="'+date+'"')+' aria-pressed="'+done+'" aria-label="'+esc(h.name)+(done?', completed':', not completed')+'">'+
-    '<span class="ico">'+ic(h.icon)+'</span><span class="txt"><span class="name" style="display:block">'+esc(h.name)+'</span><span class="cat">'+esc(h.category)+'</span></span><span class="check">'+ic('check')+'</span></button>';
+  const done=(S.completions[date]||[]).includes(h.id), nm=hName(h,date), k=stageOf(h,date);
+  return '<button class="habit'+(done?' done':'')+(locked?' locked':'')+'" '+(locked?'disabled aria-disabled="true"':'data-a="toggle" data-id="'+h.id+'" data-date="'+date+'"')+' aria-pressed="'+done+'" aria-label="'+esc(nm)+(done?', completed':', not completed')+'">'+
+    '<span class="ico">'+ic(h.icon)+'</span><span class="txt"><span class="name" style="display:block">'+esc(nm)+'</span><span class="cat">'+esc(h.category)+(k>=0?', level '+(k+1)+' of '+h.ladder.length:'')+'</span></span><span class="check">'+ic('check')+'</span></button>';
 }
 function viewToday(c){
   const t=today(), [m1,m2]=message(c);
@@ -760,14 +851,19 @@ function viewToday(c){
     const date=c.started?t:S.startDate;
     const active=S.habits.filter(h=>!h.archivedOn);
     const todays=active.filter(h=>scheduled(h,date));
-    const off=active.length-todays.length;
+    const later=active.filter(h=>h.unlock&&dayNum(date)<h.unlock).sort((a,b)=>a.unlock-b.unlock);
+    const off=active.length-later.length-todays.length;
     const qd=dayData(date), clear=c.started&&qd.total>0&&qd.done===qd.total;
-    list='<div class="quest'+(clear?' clear':'')+'"><div class="qh"><div><div class="tag">'+(clear?'QUEST CLEARED':'DAILY QUEST')+'</div><h2>'+(c.started?(clear?'Reward claimed: +50 XP':'Clear every habit today'):'Your first quest')+'</h2><p>'+(clear?'Come back tomorrow for the next quest.':'+20 XP each, +50 XP for a full clear')+'</p></div><div class="qn num">'+qd.done+'/'+qd.total+'</div></div></div>'+
+    const ch=c.started&&c.day>1?changesOn(date):[];
+    list=(ch.length?'<div class="quest sysup"><div class="tag">SYSTEM · DIFFICULTY UP</div><h2>'+(ch.some(x=>x.t==='new')?'New quest unlocked':'Your habits leveled up')+'</h2>'+
+      ch.map(x=>'<p>'+ic(x.t==='new'?'plus':'zap')+(x.t==='new'?'New habit: <b>'+esc(x.name)+'</b>':'<b>'+esc(x.name)+'</b> <span class="was">was '+esc(x.from)+'</span>')+'</p>').join('')+'</div>':'')+
+      '<div class="quest'+(clear?' clear':'')+'"><div class="qh"><div><div class="tag">'+(clear?'QUEST CLEARED':'DAILY QUEST')+'</div><h2>'+(c.started?(clear?'Reward claimed: +50 XP':'Clear every habit today'):'Your first quest')+'</h2><p>'+(clear?'Come back tomorrow for the next quest.':'+20 XP each, +50 XP for a full clear')+'</p></div><div class="qn num">'+qd.done+'/'+qd.total+'</div></div></div>'+
       '<div class="row between" style="margin:0 2px 8px"><span class="muted small">'+(c.started?'Today’s habits':'Your habits')+'</span><button class="link" data-a="go" data-to="habits">Edit</button></div>';
     if(!active.length) list+='<div class="card empty">You have no habits yet.<br><button class="btn btn-primary" data-a="newHabit">'+ic('plus')+'Add a habit</button></div>';
     else if(!todays.length) list+='<div class="card empty">Nothing is scheduled '+(c.started?'today':'on day one')+'. Enjoy the rest.</div>';
     else list+=todays.map(h=>habitRow(h,date,!c.started)).join('');
     if(off>0) list+='<p class="note">'+off+' '+(off===1?'habit isn’t':'habits aren’t')+' scheduled today.</p>';
+    if(later.length) list+='<p class="note">'+ic('lock','lg-sh')+'Next unlock: <b style="color:var(--text)">'+esc(hName(later[0],addDays(S.startDate,later[0].unlock-1)))+'</b> on Day '+later[0].unlock+(later.length>1?', then '+(later.length-1)+' more':'')+'.</p>';
     if(!c.started) list+='<p class="note">You can check habits off once the challenge starts.</p>';
   }
   return '<div class="top"><div class="date-line">'+nice(t)+'</div><button class="level-pill" data-a="path">'+ic('zap')+'Rank '+rankOf(c.level).r+', Lv '+c.level+'</button></div>'+hero+stats+list;
@@ -788,10 +884,15 @@ function viewCalendar(c){
    '<p class="note">Tap any day to see what you did. You can fix a past day if you forgot to check something off.</p>';
 }
 function viewHabits(){
-  const active=S.habits.filter(h=>!h.archivedOn), arch=S.habits.filter(h=>h.archivedOn);
-  const row=h=>{const st=habitStats(h);return '<button class="habit" data-a="habit" data-id="'+h.id+'"><span class="ico">'+ic(h.icon)+'</span><span class="txt"><span class="name" style="display:block">'+esc(h.name)+'</span><span class="cat">'+esc(h.category)+', '+freqLabel(h)+(st.sched?', '+Math.round(st.rate*100)+'% done':'')+'</span></span><span class="chev">'+ic('right')+'</span></button>';};
+  const all=S.habits.filter(h=>!h.archivedOn), arch=S.habits.filter(h=>h.archivedOn);
+  const soon=all.filter(locked).sort((a,b)=>a.unlock-b.unlock), active=all.filter(h=>!locked(h));
+  const row=h=>{const st=habitStats(h), k=stageOf(h,today()), lk=locked(h);
+    const sub=lk?'Unlocks on Day '+h.unlock+', '+nice(addDays(S.startDate,h.unlock-1),{day:'numeric',month:'short'}):esc(h.category)+', '+freqLabel(h)+(k>=0?', level '+(k+1)+' of '+h.ladder.length:'')+(st.sched?', '+Math.round(st.rate*100)+'% done':'');
+    return '<button class="habit'+(lk?' soon':'')+'" data-a="habit" data-id="'+h.id+'"><span class="ico">'+ic(lk?'lock':h.icon)+'</span><span class="txt"><span class="name" style="display:block">'+esc(lk?hName(h,addDays(S.startDate,h.unlock-1)):hName(h))+'</span><span class="cat">'+sub+'</span></span><span class="chev">'+ic('right')+'</span></button>';};
   return '<div class="row between"><h1 class="page-title">Habits</h1><button class="btn btn-primary" style="min-height:44px;padding:0 16px" data-a="newHabit">'+ic('plus')+'Add</button></div>'+
+    '<button class="pick coach-cta" data-a="coach"><span class="ico">'+ic('zap')+'</span><span class="grow">Plan with the coach<div class="muted small" style="font-weight:500">Answer 3 questions. Get a plan that starts easy and levels up.</div></span>'+ic('right')+'</button>'+
     (active.length?active.map(row).join(''):'<div class="card empty">No active habits. Add one to keep your challenge going.</div>')+
+    (soon.length?'<div class="section-head"><h2>Unlocking later</h2></div>'+soon.map(row).join('')+'<p class="note">New habits unlock one at a time, so the challenge grows with you.</p>':'')+
     (arch.length?'<div class="section-head"><h2>Archived</h2></div>'+arch.map(row).join('')+'<p class="note">Archived habits keep their history but no longer appear in your daily list.</p>':'');
 }
 function freqLabel(h){ const d=h.days||[]; if(!d.length||d.length===7) return 'Every day'; return [...d].sort().map(x=>WDL[x]).join(', '); }
@@ -810,10 +911,10 @@ function viewStats(c){
     svg+='<text x="'+(x+bw/2)+'" y="'+(H+16)+'" text-anchor="middle" font-size="10" fill="var(--muted)">W'+wk.w+'</text>'; });
   svg+='</svg>';
   const hs=S.habits.map(h=>({h,st:habitStats(h)})).filter(x=>x.st.sched>0).sort((a,b)=>b.st.rate-a.st.rate);
-  const rates=hs.length?'<div class="hbar">'+hs.map(x=>'<span>'+esc(x.h.name)+(x.h.archivedOn?' <span class="muted small">(archived)</span>':'')+'</span><span class="num muted small">'+x.st.done+'/'+x.st.sched+'</span><div class="bar"><i style="width:'+Math.round(x.st.rate*100)+'%"></i></div>').join('')+'</div>':'<p class="muted">Rates appear after your first day.</p>';
+  const rates=hs.length?'<div class="hbar">'+hs.map(x=>'<span>'+esc(hName(x.h))+(x.h.archivedOn?' <span class="muted small">(archived)</span>':'')+'</span><span class="num muted small">'+x.st.done+'/'+x.st.sched+'</span><div class="bar"><i style="width:'+Math.round(x.st.rate*100)+'%"></i></div>').join('')+'</div>':'<p class="muted">Rates appear after your first day.</p>';
   let sw='';
   if(hs.length>=2&&hs[0].st.rate!==hs[hs.length-1].st.rate){ const best=hs[0], worst=hs[hs.length-1];
-    sw='<div class="grid2" style="margin-top:10px"><div class="card"><div class="muted small">Strongest</div><h3 style="margin-top:4px">'+esc(best.h.name)+'</h3><div class="muted small num">'+Math.round(best.st.rate*100)+'% of scheduled days</div></div><div class="card"><div class="muted small">Needs attention</div><h3 style="margin-top:4px">'+esc(worst.h.name)+'</h3><div class="muted small num">'+Math.round(worst.st.rate*100)+'% of scheduled days</div></div></div>'; }
+    sw='<div class="grid2" style="margin-top:10px"><div class="card"><div class="muted small">Strongest</div><h3 style="margin-top:4px">'+esc(hName(best.h))+'</h3><div class="muted small num">'+Math.round(best.st.rate*100)+'% of scheduled days</div></div><div class="card"><div class="muted small">Needs attention</div><h3 style="margin-top:4px">'+esc(hName(worst.h))+'</h3><div class="muted small num">'+Math.round(worst.st.rate*100)+'% of scheduled days</div></div></div>'; }
   const ach='<div class="ach">'+ACH.map(a=>'<div class="'+(c.ach[a.k]?'on':'off')+'"><div class="badge">'+ic(c.ach[a.k]?a.i:'lock')+'</div><div class="t">'+a.n+'</div><div class="d">'+a.d+'</div></div>').join('')+'</div>';
   return '<h1 class="page-title">Progress</h1>'+
    '<div class="card"><div class="row between"><div><div class="muted small">Challenge</div><div style="font-size:34px;font-weight:800;letter-spacing:-.04em" class="num">'+c.progress+'%</div></div><div style="text-align:right"><div class="muted small">Level '+c.level+'</div><div style="font-size:34px;font-weight:800;letter-spacing:-.04em" class="num">'+n(c.lifeXP)+' <span class="muted" style="font-size:16px;font-weight:600">XP</span></div></div></div><div class="bar" style="margin-top:12px"><i style="width:'+c.progress+'%"></i></div></div>'+
@@ -865,7 +966,8 @@ function renderOnboarding(){
   if(st===0){
     body='<div class="welcome-mark num">66<span>.</span></div><h1>Sixty-six days to reset.</h1><p class="lead">It takes about 66 days for a new behaviour to start feeling automatic. Pick a few habits, show up every day, and watch the calendar fill in.</p>'+
      '<div class="rules"><div><span class="ico">'+ic('check')+'</span><span><b>Check off your habits daily</b><span class="muted small">Each one earns 20 XP.</span></span></div><div><span class="ico">'+ic('flame')+'</span><span><b>Finish every habit to build a streak</b><span class="muted small">Perfect days add a 50 XP bonus. Every 7 in a row earns a shield that saves your streak if you slip.</span></span></div><div><span class="ico">'+ic('zap')+'</span><span><b>Level up every 500 XP</b><span class="muted small">Streak milestones unlock achievements.</span></span></div></div>';
-    foot='<button class="btn btn-primary" data-a="obNext">Get started</button>';
+    foot='<button class="btn btn-ghost" data-a="obNext">Pick myself</button><button class="btn btn-primary" data-a="coach">Build my plan</button>';
+    body+='<p class="note" style="padding-top:16px">'+ic('zap','lg-sh')+'Not sure where to start? The coach asks 3 quick questions and builds a plan that starts easy and grows with you.</p>';
   }else if(st===1){
     body='<h1>What do you want to improve?</h1><p class="lead">Choose as many as you like. We’ll suggest habits to match.</p><div class="chips">'+GOALS.map(g=>'<button class="chip" data-a="obGoal" data-k="'+g.k+'" aria-pressed="'+OB.goals.has(g.k)+'">'+g.n+'</button>').join('')+'</div>';
     foot='<button class="btn btn-ghost" data-a="obBack">Back</button><button class="btn btn-primary" data-a="obNext">'+(OB.goals.size?'Continue':'Skip')+'</button>';
@@ -881,7 +983,7 @@ function renderOnboarding(){
     body='<h1>When do you start?</h1><p class="lead">Day 1 is your start date. Day 66 lands on '+nice(addDays(OB.start,65),{day:'numeric',month:'long',year:'numeric'})+'.</p>'+
      '<div class="chips"><button class="chip" data-a="obStart" data-v="today" aria-pressed="'+(OB.startMode==='today')+'">Today</button><button class="chip" data-a="obStart" data-v="tomorrow" aria-pressed="'+(OB.startMode==='tomorrow')+'">Tomorrow</button><button class="chip" data-a="obStart" data-v="custom" aria-pressed="'+(OB.startMode==='custom')+'">Pick a date</button></div>'+
      (OB.startMode==='custom'?'<label class="f" for="ob-date">Start date</label><input class="input" type="date" id="ob-date" value="'+OB.start+'" min="'+addDays(t,-65)+'">':'')+
-     '<div class="card" style="margin-top:22px"><div class="muted small">Your plan</div><h3 style="margin:4px 0 2px">'+(OB.picked.size+OB.custom.length)+' habits, 66 days</h3><div class="muted small">'+nice(OB.start,{day:'numeric',month:'short'})+' to '+nice(addDays(OB.start,65),{day:'numeric',month:'short',year:'numeric'})+'</div></div>';
+     '<div class="card" style="margin-top:22px"><div class="muted small">Your plan</div><h3 style="margin:4px 0 2px">'+(OB.plan?OB.plan.length+' habits, starting with '+Math.min(2,OB.plan.length):(OB.picked.size+OB.custom.length)+' habits')+', 66 days</h3><div class="muted small">'+nice(OB.start,{day:'numeric',month:'short'})+' to '+nice(addDays(OB.start,65),{day:'numeric',month:'short',year:'numeric'})+'</div></div>';
     foot='<button class="btn btn-ghost" data-a="obBack">Back</button><button class="btn btn-primary" data-a="obFinish">Start the challenge</button>';
   }
   return '<div class="ob"><div class="ob-in">'+bar+'<div class="grow">'+body+'</div><div class="ob-foot">'+foot+'</div></div></div>';
@@ -896,6 +998,7 @@ function obFinish(){
   const habits=[];
   for(const s of SUGGESTED) if(OB.picked.has(s.k)) habits.push({id:uid(),name:s.name,icon:s.icon,category:s.category,days:[],createdOn:null,archivedOn:null});
   for(const c of OB.custom) habits.push({id:uid(),name:c.name,icon:c.icon,category:c.category,days:[],createdOn:null,archivedOn:null});
+  if(OB.plan){ habits.length=0; for(const p of OB.plan) habits.push(planHabit(p,1,null)); }
   S=blank(); S.theme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark';
   S.onboarded=true; S.startDate=OB.start; S.goals=[...OB.goals]; S.habits=habits;
   OB=null; route='today'; persist(); baseline=compute(); render(); window.scrollTo(0,0);
@@ -936,12 +1039,16 @@ const SHEETS={
   habit(id){
     const h=S.habits.find(x=>x.id===id); if(!h) return null;
     const st=habitStats(h), t=today();
-    let grid='<div class="mini66" aria-label="History for '+esc(h.name)+'">';
+    const lk=locked(h), k=lk?-1:stageOf(h,t);
+    let grid='<div class="mini66" aria-label="History for '+esc(hName(h))+'">';
     for(let i=0;i<TOTAL;i++){ const d=addDays(S.startDate,i); let c='';
       if(d>t) c=''; else if(!scheduled(h,d)) c='m-off'; else c=(S.completions[d]||[]).includes(h.id)?'m-done':(d===t?'':'m-miss');
       grid+='<span class="'+c+(d===t?' m-today':'')+'" title="Day '+(i+1)+'"></span>'; }
     grid+='</div>';
-    return head(esc(h.name))+'<p class="muted" style="margin:-8px 0 16px">'+esc(h.category)+', '+freqLabel(h)+(h.archivedOn?', archived':'')+'</p>'+
+    const plan=h.ladder?'<label class="f">Level plan</label><div class="card ladder-plan">'+h.ladder.map((s,i)=>'<div class="'+(i<k?'past':i===k?'now':'')+'"><span class="num">Day '+s.d+'</span><b>'+esc(s.name)+'</b>'+(i===k?'<em>Now</em>':'')+'</div>').join('')+'</div>':'';
+    return head(esc(lk?hName(h,addDays(S.startDate,h.unlock-1)):hName(h)))+'<p class="muted" style="margin:-8px 0 16px">'+esc(h.category)+', '+freqLabel(h)+(k>=0?', level '+(k+1)+' of '+h.ladder.length:'')+(h.archivedOn?', archived':'')+'</p>'+
+     (lk?'<div class="quest sysup" style="margin:0 0 14px"><div class="tag">LOCKED</div><h2>Unlocks on Day '+h.unlock+'</h2><p>'+nice(addDays(S.startDate,h.unlock-1),{weekday:'long',day:'numeric',month:'long'})+'. Ready sooner? You can start it now.</p></div><div class="actions" style="margin:0 0 14px"><button class="btn btn-primary" data-a="unlockNow" data-id="'+h.id+'">'+ic('zap')+'Unlock now</button></div>':'')+
+     plan+
      '<div class="grid2"><div class="stat"><div class="v num">'+Math.round(st.rate*100)+'%</div><div class="k">Completion rate</div></div><div class="stat"><div class="v num">'+st.done+'</div><div class="k">Times done</div></div></div>'+
      '<label class="f">Completion history</label><div class="card">'+grid+'<div class="legend" style="margin:12px 0 0"><span><i style="background:var(--accent)"></i>Done</span><span><i style="background:var(--line)"></i>Missed</span><span><i style="border:1px solid var(--line)"></i>Not scheduled</span></div></div>'+
      '<div class="actions">'+(h.archivedOn?'<button class="btn btn-primary" data-a="unarchive" data-id="'+h.id+'">'+ic('rotate')+'Restore habit</button>':'<button class="btn btn-primary" data-a="editHabit" data-id="'+h.id+'">'+ic('pen')+'Edit habit</button><button class="btn btn-ghost" data-a="archive" data-id="'+h.id+'">'+ic('archive')+'Archive</button>')+
@@ -949,9 +1056,10 @@ const SHEETS={
   },
   editor(arg){
     const h=arg&&arg.id?S.habits.find(x=>x.id===arg.id):null;
-    const f=sheet.form||(sheet.form={name:h?h.name:'',icon:h?h.icon:'star',category:h?h.category:'Health',days:h?[...(h.days||[])]:[],mode:h&&h.days&&h.days.length&&h.days.length<7?'some':'daily'});
+    const f=sheet.form||(sheet.form={stages:h&&h.ladder?h.ladder.map(s=>s.name):null,name:h?h.name:'',icon:h?h.icon:'star',category:h?h.category:'Health',days:h?[...(h.days||[])]:[],mode:h&&h.days&&h.days.length&&h.days.length<7?'some':'daily'});
     return head(h?'Edit habit':'New habit')+
-     '<label class="f" for="hf-name">Name</label><input class="input" id="hf-name" maxlength="60" value="'+esc(f.name)+'" placeholder="e.g. Walk 8,000 steps" autofocus>'+
+     (f.stages?'<label class="f">Level plan</label><p class="muted small" style="margin:-4px 2px 0">The habit steps up on these days.</p>'+h.ladder.map((s,i)=>'<label class="f" for="hf-st-'+i+'" style="margin-top:10px">From Day '+s.d+'</label><input class="input" id="hf-st-'+i+'" maxlength="60" value="'+esc(f.stages[i])+'">').join(''):
+     '<label class="f" for="hf-name">Name</label><input class="input" id="hf-name" maxlength="60" value="'+esc(f.name)+'" placeholder="e.g. Walk 8,000 steps" autofocus>')+
      '<label class="f">Icon</label><div class="icons" role="group" aria-label="Icon">'+HABIT_ICONS.map(i=>'<button data-a="hfIcon" data-v="'+i+'" aria-pressed="'+(f.icon===i)+'" aria-label="'+i+'">'+ic(i)+'</button>').join('')+'</div>'+
      '<label class="f" for="hf-cat">Category</label><select class="input" id="hf-cat">'+CATEGORIES.map(c=>'<option'+(c===f.category?' selected':'')+'>'+c+'</option>').join('')+'</select>'+
      '<label class="f">How often</label><div class="seg" role="group" aria-label="Frequency" style="margin-bottom:10px"><button data-a="hfMode" data-v="daily" aria-pressed="'+(f.mode==='daily')+'">Every day</button><button data-a="hfMode" data-v="some" aria-pressed="'+(f.mode==='some')+'">Specific days</button></div>'+
@@ -984,6 +1092,30 @@ const SHEETS={
   },
   text(o){
     return head(o.title)+'<p class="muted" style="margin:-4px 0 12px">'+o.body+'</p><textarea class="input" id="tx" '+(o.readonly?'readonly':'placeholder="Paste your backup here"')+'>'+esc(o.value||'')+'</textarea><p class="note" id="tx-err" style="color:var(--danger)"></p><div class="actions">'+(o.readonly?'<button class="btn btn-primary" data-a="copyText">'+ic('copy')+'Copy</button>':'<button class="btn btn-primary" data-a="importText">Import pasted backup</button><button class="btn btn-ghost" data-a="pickFile">'+ic('upload')+'Choose a file instead</button>')+'</div>';
+  },
+  coach(){
+    const f=sheet.form||(sheet.form={step:0,goals:[],time:null,level:null,plan:null});
+    const bot=t=>'<div class="bot"><span class="av">'+ic('zap')+'</span><div class="bubble">'+t+'</div></div>';
+    const me=t=>'<div class="me"><div class="bubble">'+esc(t)+'</div></div>';
+    const opt=(a,v,label,sub)=>'<button class="pick" data-a="'+a+'" data-v="'+v+'"><span class="grow">'+label+(sub?'<div class="muted small" style="font-weight:500">'+sub+'</div>':'')+'</span>'+ic('right')+'</button>';
+    let h=head('Your coach')+bot('I’ll build you a 66-day plan that starts easy and levels up as you do. What do you want to improve? Pick up to 3.');
+    if(f.step===0){
+      h+='<div class="chips" style="margin-top:14px">'+GOALS.map(g=>'<button class="chip" data-a="coGoal" data-k="'+g.k+'" aria-pressed="'+f.goals.includes(g.k)+'">'+g.n+'</button>').join('')+'</div>'+
+        '<div class="actions"><button class="btn btn-primary" data-a="coNext">'+(f.goals.length?'Next':'Not sure, skip')+'</button></div>';
+      return h;
+    }
+    h+=me(f.goals.length?f.goals.map(k=>GOALS.find(g=>g.k===k).n).join(', '):'Not sure yet')+bot('How much time can you give this each day, in total?');
+    if(f.step===1) return h+'<div class="co-opts">'+COACH_TIME.map(([v,l,mx])=>opt('coTime',v,l,'Up to '+mx+' habits')).join('')+'</div><div class="actions"><button class="btn btn-ghost" data-a="coBack">Back</button></div>';
+    h+=me(COACH_TIME.find(x=>x[0]===f.time)[1])+bot('Where are you starting from?');
+    if(f.step===2) return h+'<div class="co-opts">'+COACH_LEVEL.map((l,i)=>opt('coLevel',i,l,['I’ll start with the smallest steps','I’ll start one step up','I’ll start two steps up'][i])).join('')+'</div><div class="actions"><button class="btn btn-ghost" data-a="coBack">Back</button></div>';
+    h+=me(COACH_LEVEL[f.level]);
+    if(!f.plan.length) return h+bot('There aren’t enough days left in this season for a new plan. Start a new season from Settings, then come back and I’ll plan it.')+'<div class="actions"><button class="btn btn-ghost" data-a="close">Close</button></div>';
+    const base=f.plan[0].unlock;
+    h+=bot('Here’s your plan. You start with '+Math.min(2,f.plan.length)+' easy '+(f.plan.length===1?'habit':'habits')+(f.plan.length>2?', and a new one unlocks every 2 weeks':'')+'. Each habit steps up a level as you go, so it never feels like too much at once.');
+    h+=f.plan.map((p,i)=>'<div class="plan-item"><div class="row"><span class="ico">'+ic(p.icon)+'</span><span class="grow"><b>'+esc(p.ladder[0].name)+'</b><div class="small" style="color:'+(p.unlock>base?'#7cc4ff':'var(--muted)')+'">'+(p.unlock>base?'Unlocks on Day '+p.unlock:'Starts '+(base>1?'today':'on Day 1'))+'</div></span>'+(f.plan.length>1?'<button class="x" data-a="coDrop" data-i="'+i+'" aria-label="Remove '+esc(p.ladder[0].name)+'">'+ic('x')+'</button>':'')+'</div>'+
+      (p.ladder.length>1?'<ol>'+p.ladder.slice(1).map(s=>'<li>Day '+s.d+': <b>'+esc(s.name)+'</b></li>').join('')+'</ol>':'')+'</div>').join('');
+    if(S.onboarded) h+='<p class="note">Your current habits move to Archived and keep their history, so your streak and XP so far stay the same.</p>';
+    return h+'<div class="actions"><button class="btn btn-primary" data-a="coUse">Use this plan</button><button class="btn btn-ghost" data-a="coRestart">Start over</button></div>';
   },
   newSeason(){
     const c=compute(), active=S.habits.filter(h=>!h.archivedOn);
@@ -1056,21 +1188,24 @@ const A={
   hfDay(el){ syncForm(); const v=+el.dataset.v, d=sheet.form.days; const i=d.indexOf(v); i>=0?d.splice(i,1):d.push(v); renderSheet(false,true); },
   hfSave(){
     syncForm(); const f=sheet.form, err=document.getElementById('hf-err');
-    const name=f.name.trim();
+    const stages=f.stages?f.stages.map(v=>v.trim()):null;
+    if(stages&&stages.some(v=>!v)){ err.textContent='Give every level a name.'; return; }
+    const name=stages?stages[0]:f.name.trim();
     if(!name){ err.textContent='Give your habit a name.'; document.getElementById('hf-name').focus(); return; }
     if(f.mode==='some'&&!f.days.length){ err.textContent='Choose at least one day, or switch to every day.'; return; }
     const days=f.mode==='some'?[...f.days].sort():[];
     const id=sheet.arg&&sheet.arg.id;
     commit(()=>{
-      if(id){ const h=S.habits.find(x=>x.id===id); if(h){ h.name=name; h.icon=f.icon; h.category=f.category; h.days=days; } }
+      if(id){ const h=S.habits.find(x=>x.id===id); if(h){ h.name=name; h.icon=f.icon; h.category=f.category; h.days=days; if(stages&&h.ladder) h.ladder=h.ladder.map((s,i)=>({d:s.d,name:stages[i]})); } }
       else{ const t=today(); S.habits.push({id:uid(),name,icon:f.icon,category:f.category,days,createdOn:S.startDate&&t>S.startDate?t:null,archivedOn:null}); }
     });
     closeSheet(); toast(id?'Habit updated':'Habit added');
   },
+  unlockNow(el){ const id=el.dataset.id; commit(()=>{ const h=S.habits.find(x=>x.id===id); if(h){ h.unlock=null; if(S.startDate&&today()>S.startDate) h.createdOn=today(); } }); closeSheet(); toast('Habit unlocked. It’s on today’s list.','zap'); },
   archive(el){ const id=el.dataset.id; commit(()=>{ const h=S.habits.find(x=>x.id===id); if(h) h.archivedOn=today(); }); closeSheet(); toast('Habit archived','archive'); },
   unarchive(el){ const id=el.dataset.id; commit(()=>{ const h=S.habits.find(x=>x.id===id); if(h) h.archivedOn=null; }); toast('Habit restored','rotate'); },
   askDelete(el){ const id=el.dataset.id, h=S.habits.find(x=>x.id===id); if(!h) return;
-    ask({title:'Delete this habit?',body:'“'+esc(h.name)+'” and its whole history will be removed, along with the XP it earned. Archive it instead if you want to keep the record.',yes:'Delete habit',danger:true},()=>{
+    ask({title:'Delete this habit?',body:'“'+esc(hName(h))+'” and its whole history will be removed, along with the XP it earned. Archive it instead if you want to keep the record.',yes:'Delete habit',danger:true},()=>{
       commit(()=>{ S.habits=S.habits.filter(x=>x.id!==id); for(const d of Object.keys(S.completions)){ const a=S.completions[d].filter(x=>x!==id); if(a.length) S.completions[d]=a; else delete S.completions[d]; } });
       closeSheet(); toast('Habit deleted','trash'); }); },
   confirmYes(){ const fn=pendingConfirm; pendingConfirm=null; if(fn) fn(); },
@@ -1097,12 +1232,32 @@ const A={
     await keepPrevious();
     const c=compute(), nx=S.season+1, start=f.start==='tomorrow'?addDays(today(),1):today();
     if(c.day>=1) archiveSeason(c);
+    S.habits=S.habits.filter(h=>!h.archivedOn&&keep.has(h.id)).map(h=>Object.assign({},h,{name:hName(h),createdOn:null,archivedOn:null,unlock:null,ladder:null}));
     S.season=nx; S.startDate=start; S.completions={};
-    S.habits=S.habits.filter(h=>!h.archivedOn&&keep.has(h.id)).map(h=>Object.assign({},h,{createdOn:null,archivedOn:null}));
     persist(); baseline=compute(); closeSheet(); route='today'; render(); window.scrollTo(0,0);
     toast('Season '+nx+' started. Day 1 begins '+(start===today()?'now':'tomorrow'),'flame');
   },
   seasonView(el){ openSheet('seasonView',+el.dataset.i); },
+  coach(){ openSheet('coach'); },
+  coGoal(el){ const g=sheet.form.goals, k=el.dataset.k, i=g.indexOf(k); if(i>=0) g.splice(i,1); else if(g.length<3) g.push(k); else{ toast('Pick up to 3 for now. You can add more later.','target'); return; } renderSheet(false,true); },
+  coNext(){ sheet.form.step=1; coachRender(); },
+  coTime(el){ sheet.form.time=el.dataset.v; sheet.form.step=2; coachRender(); },
+  coLevel(el){ const f=sheet.form; f.level=+el.dataset.v; f.plan=buildPlan(f.goals,f.time,f.level,coachBase()); f.step=3; coachRender(); },
+  coBack(){ const f=sheet.form; f.step=Math.max(0,f.step-1); f.plan=null; renderSheet(false,true); },
+  coRestart(){ sheet.form=null; renderSheet(false,true); document.querySelector('.sheet').scrollTop=0; },
+  coDrop(el){ const f=sheet.form; f.plan.splice(+el.dataset.i,1); const base=coachBase();
+    f.plan=f.plan.map((p,i)=>planItem(p.k,f.level,i<2?base:base+UNLOCK_GAP*(i-1))).filter(p=>p.unlock<=TOTAL-7); renderSheet(false,true); },
+  coUse(){
+    const plan=sheet.form.plan;
+    if(!S.onboarded){ OB.plan=plan; OB.step=3; closeSheet(); render(); window.scrollTo(0,0); const o=document.querySelector('.ob'); if(o) o.scrollTop=0; return; }
+    const t=today(), c=compute(), dn=Math.max(1,c.day);
+    commit(()=>{
+      if(!c.started) S.habits=S.habits.filter(h=>h.archivedOn); /* nothing to keep before Day 1 */
+      for(const h of S.habits) if(!h.archivedOn) h.archivedOn=t;
+      for(const p of plan) S.habits.push(planHabit(p,dn,c.started&&t>S.startDate?t:null));
+    });
+    closeSheet(); route='today'; render(); window.scrollTo(0,0); toast('Your plan is set. Start with the first '+Math.min(2,plan.length)+'.','zap');
+  },
   async restorePrev(){
     let p=null; if(Store.idb) p=await idbGet(PREV); if(!p&&lsOK) p=lsGet(PREV);
     if(!p){ toast('There’s no previous version to restore','archive'); return; }
@@ -1113,7 +1268,7 @@ const A={
   obNext(){ if(OB.step===1){ for(const g of GOALS) if(OB.goals.has(g.k)) g.h.forEach(k=>OB.picked.add(k)); }
     if(OB.step===2){ const el=document.getElementById('ob-custom'); if(el&&el.value.trim()) OB.custom.push({name:el.value.trim().slice(0,60),icon:'star',category:'Other'}); }
     OB.step=Math.min(3,OB.step+1); render(); window.scrollTo(0,0); const o=document.querySelector('.ob'); if(o) o.scrollTop=0; },
-  obBack(){ OB.step=Math.max(0,OB.step-1); render(); },
+  obBack(){ if(OB.plan&&OB.step===3){ OB.plan=null; OB.step=0; } else OB.step=Math.max(0,OB.step-1); render(); },
   obGoal(el){ const k=el.dataset.k; OB.goals.has(k)?OB.goals.delete(k):OB.goals.add(k); keepScroll(render); },
   obPick(el){ const k=el.dataset.k; OB.picked.has(k)?OB.picked.delete(k):OB.picked.add(k); keepScroll(render); },
   obAddCustom(){ keepScroll(obAddCustom); },
@@ -1121,9 +1276,13 @@ const A={
   obStart(el){ const v=el.dataset.v; OB.startMode=v; if(v==='today') OB.start=today(); if(v==='tomorrow') OB.start=addDays(today(),1); keepScroll(render); },
   obFinish(){ if(OB.startMode==='custom'){ const v=document.getElementById('ob-date').value; if(isDate(v)) OB.start=v; } obFinish(); }
 };
+function coachBase(){ if(!S.onboarded||!S.startDate) return 1; const c=compute(); return Math.max(1,c.day); }
+function coachRender(){ renderSheet(false,true); const s=document.querySelector('.sheet'); if(s) s.scrollTop=s.scrollHeight; }
+function planHabit(p,dn,createdOn){ return {id:uid(),name:p.ladder[0].name,icon:p.icon,category:p.category,days:[],createdOn,archivedOn:null,unlock:p.unlock>dn?p.unlock:null,ladder:p.ladder.length>1?p.ladder:null}; }
 function keepScroll(fn){ const o=document.querySelector('.ob'), y=o?o.scrollTop:0; fn(); const o2=document.querySelector('.ob'); if(o2) o2.scrollTop=y; }
 function noAnim(){ const s=document.querySelector('.sheet'); if(s) s.style.animation='none'; const sc=document.querySelector('.scrim'); if(sc) sc.style.animation='none'; }
-function syncForm(){ if(!sheet||!sheet.form) return; const nm=document.getElementById('hf-name'), ct=document.getElementById('hf-cat'); if(nm) sheet.form.name=nm.value; if(ct) sheet.form.category=ct.value; }
+function syncForm(){ if(!sheet||!sheet.form) return; const nm=document.getElementById('hf-name'), ct=document.getElementById('hf-cat'); if(nm) sheet.form.name=nm.value; if(ct) sheet.form.category=ct.value;
+  if(sheet.form.stages) sheet.form.stages=sheet.form.stages.map((v,i)=>{ const el=document.getElementById('hf-st-'+i); return el?el.value:v; }); }
 
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-a]'); if(!el) return;
