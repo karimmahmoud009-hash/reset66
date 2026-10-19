@@ -9,6 +9,44 @@
       "icon": "sun",
       "category": "Productivity",
       "startsOn": "2026-10-20"
-    }
+    },
+    {
+      "id": "2026-10-19-wake-up-ramp",
+      "forStart": "2026-10-18",
+      "op": "editHabit",
+      "match": "Wake up at 7 am",
+      "ladder": [
+        { "d": 3, "name": "Wake up by 8:00 am" },
+        { "d": 8, "name": "Wake up by 7:45 am" },
+        { "d": 13, "name": "Wake up by 7:30 am" },
+        { "d": 18, "name": "Wake up by 7:15 am" },
+        { "d": 23, "name": "Wake up by 7:00 am" }
+      ]
+    },
+    {
+      "id": "2026-10-19-morning-shower",
+      "forStart": "2026-10-18",
+      "op": "addHabit",
+      "name": "Take a morning shower",
+      "icon": "droplet",
+      "category": "Health",
+      "unlock": 8,
+      "ladder": [
+        { "d": 8, "name": "Take a morning shower" },
+        { "d": 22, "name": "Morning shower, last 30 seconds cold" }
+      ]
+    },
+    {
+      "id": "2026-10-19-plan-day",
+      "forStart": "2026-10-18",
+      "op": "addHabit",
+      "name": "Plan your day for 5 minutes",
+      "icon": "pen",
+      "category": "Productivity",
+      "unlock": 23
+    },
+    { "id": "2026-10-19-side-sunlight", "forStart": "2026-10-18", "op": "addSideQuest", "text": "Get 5 minutes of sunlight within an hour of waking" },
+    { "id": "2026-10-19-side-bed", "forStart": "2026-10-18", "op": "addSideQuest", "text": "Make your bed right after you get up" },
+    { "id": "2026-10-19-side-breakfast", "forStart": "2026-10-18", "op": "addSideQuest", "text": "Eat breakfast before 9 am" }
   ]
 }
