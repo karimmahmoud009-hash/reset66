@@ -1,0 +1,14 @@
+{
+  "about": "Commands Claude sends to the RESET / 66 app. Each runs once, only for the challenge whose start date matches forStart.",
+  "commands": [
+    {
+      "id": "2026-10-19-wake-up-7",
+      "forStart": "2026-10-18",
+      "op": "addHabit",
+      "name": "Wake up at 7 am",
+      "icon": "sun",
+      "category": "Productivity",
+      "startsOn": "2026-10-20"
+    }
+  ]
+}

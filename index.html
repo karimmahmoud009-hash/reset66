@@ -611,7 +611,7 @@ const uid=()=>'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const n=x=>Number(x).toLocaleString('en-US');
 
 /* ---------- state ---------- */
-const blank=()=>({v:1,onboarded:false,startDate:null,goals:[],habits:[],completions:{},bonus:{daily:{},weekly:{},custom:[]},theme:'dark',updatedAt:0,season:1,history:[]});
+const blank=()=>({v:1,onboarded:false,startDate:null,goals:[],habits:[],completions:{},bonus:{daily:{},weekly:{},custom:[]},theme:'dark',updatedAt:0,season:1,history:[],applied:[]});
 let S=blank();
 
 function scheduled(h,date){
@@ -799,6 +799,7 @@ function migrate(o){
   if(bo.daily&&typeof bo.daily==='object') for(const [d,v] of Object.entries(bo.daily)){ if(isDate(d)&&str(v)) s.bonus.daily[d]=str(v); }
   if(bo.weekly&&typeof bo.weekly==='object') for(const [d,v] of Object.entries(bo.weekly)){ if(isDate(d)&&str(v)) s.bonus.weekly[d]=str(v); }
   if(Array.isArray(bo.custom)) s.bonus.custom=bo.custom.map(str).filter(Boolean).slice(0,30);
+  s.applied=Array.isArray(o.applied)?o.applied.filter(x=>typeof x==='string').slice(-300):[];
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
 }
@@ -1410,6 +1411,57 @@ function standaloneExtras(){
   }).catch(()=>{});
 }
 
+/* ---------- coach inbox: changes Claude pushes to inbox.json in the repo ----------
+   Each command runs once (its id is remembered) and only for the challenge whose
+   start date matches "forStart". The result goes through migrate(), so a bad
+   command can't break saved progress. */
+const INBOX_OPS={
+  addHabit(c){
+    if(typeof c.name!=='string'||!c.name.trim()) return null;
+    const nm=c.name.trim().slice(0,60).toLowerCase();
+    if(S.habits.some(h=>!h.archivedOn&&h.name.toLowerCase()===nm)) return null;
+    const t=today(), ladder=cleanLadder(c.ladder);
+    const h={id:uid(),name:ladder?ladder[0].name:c.name.trim(),icon:c.icon,category:c.category,days:c.days||[],
+      createdOn:isDate(c.startsOn)&&c.startsOn>t?c.startsOn:(S.startDate&&t>S.startDate?t:null),archivedOn:null,unlock:c.unlock||null,ladder};
+    S.habits.push(h); return 'New habit added: '+hName(h);
+  },
+  editHabit(c){ const h=findHabit(c.match); if(!h) return null;
+    if(typeof c.name==='string'&&c.name.trim()) h.name=c.name.trim();
+    if(HABIT_ICONS.includes(c.icon)) h.icon=c.icon;
+    if(CATEGORIES.includes(c.category)) h.category=c.category;
+    for(const k of ['days','unlock','ladder']) if(k in c) h[k]=c[k];
+    if(h.ladder) h.name=(cleanLadder(h.ladder)||[{name:h.name}])[0].name;
+    return 'Habit updated: '+hName(h); },
+  archiveHabit(c){ const h=findHabit(c.match); if(!h) return null; h.archivedOn=today(); return 'Habit archived: '+hName(h); },
+  unarchiveHabit(c){ const h=findHabit(c.match,true); if(!h) return null; h.archivedOn=null; return 'Habit restored: '+hName(h); },
+  addSideQuest(c){ if(typeof c.text!=='string'||!c.text.trim()||S.bonus.custom.includes(c.text.trim())) return null; S.bonus.custom.push(c.text.trim()); return 'New side quest idea: '+c.text.trim(); },
+  removeSideQuest(c){ const i=S.bonus.custom.indexOf(c.text); if(i<0) return null; S.bonus.custom.splice(i,1); return 'Side quest removed: '+c.text; }
+};
+function findHabit(m,archived){
+  if(typeof m!=='string') return null; const l=m.trim().toLowerCase();
+  return S.habits.find(h=>!!h.archivedOn===!!archived&&(h.id===m||h.name.toLowerCase()===l||(h.ladder||[]).some(s=>s.name.toLowerCase()===l)))||null;
+}
+let inboxBusy=false;
+async function checkInbox(){
+  if(inboxBusy||!S.onboarded||!/^https?:$/.test(location.protocol)) return;
+  inboxBusy=true;
+  try{
+    const res=await fetch('inbox.json?t='+Date.now(),{cache:'no-store'}); if(!res.ok) return;
+    const data=await res.json(), cmds=Array.isArray(data&&data.commands)?data.commands:[];
+    const seen=new Set(S.applied), msgs=[]; let changed=false;
+    for(const c of cmds){
+      if(!c||typeof c.id!=='string'||seen.has(c.id)||c.forStart!==S.startDate||!INBOX_OPS[c.op]) continue;
+      let m=null; try{ m=INBOX_OPS[c.op](c); }catch(e){ m=null; }
+      S.applied.push(c.id); seen.add(c.id); changed=true; if(m) msgs.push(m);
+    }
+    if(!changed) return;
+    S=migrate(JSON.parse(JSON.stringify(S)));
+    persist(); feedback(); render();
+    msgs.slice(0,3).forEach(m=>toast(m,'zap',true));
+  }catch(e){}finally{ inboxBusy=false; }
+}
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) checkInbox(); });
+
 /* ---------- boot ---------- */
 (async function boot(){
   root.innerHTML='<main class="app"><p class="muted" style="padding-top:40vh;text-align:center">Loading…</p></main>';
@@ -1419,6 +1471,7 @@ function standaloneExtras(){
   applyTheme(); baseline=S.onboarded?compute():null; render();
   standaloneExtras();
   cloudInit();
+  checkInbox();
   window.__reset66={state:()=>S,compute,store:()=>Store.mode,aura:auraSVG};
 })();
 })();
