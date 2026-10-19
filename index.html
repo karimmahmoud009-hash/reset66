@@ -206,6 +206,30 @@ textarea.input{ min-height:120px; font-size:13px; font-family:ui-monospace,Menlo
 .mini66 span{ aspect-ratio:1; border-radius:4px; background:var(--faint); }
 .mini66 .m-done{ background:var(--accent); } .mini66 .m-miss{ background:var(--line); } .mini66 .m-off{ background:transparent; border:1px solid var(--faint); } .mini66 .m-today{ box-shadow:inset 0 0 0 2px var(--text); }
 
+/* System briefing */
+.brief-btn{ display:inline-flex; align-items:center; gap:6px; padding:6px 0; }
+.brief-btn svg{ width:16px; height:16px; color:#7cc4ff; }
+.brief .sysbox{ text-align:left; padding:18px; }
+.brief .sysbox .n{ font-size:68px; line-height:1; margin-top:4px; }
+.brief .warnbox{ border-color:rgba(255,107,107,.6); box-shadow:0 0 30px rgba(255,107,107,.2), inset 0 0 22px rgba(255,107,107,.08); }
+.brief .warnbox .tag{ color:#ff8a8a; }
+.bf-row{ display:flex; gap:12px; align-items:flex-start; background:var(--surface); border-radius:16px; padding:12px 14px; margin-top:8px; font-size:14.5px; line-height:1.45; }
+.bf-row > svg{ width:20px; height:20px; color:var(--accent); flex:none; margin-top:1px; }
+.bf-row.up{ background:linear-gradient(160deg,#121a2c,#0c101b); border:1px solid rgba(110,185,255,.45); color:#e6f1ff; }
+.bf-row.up > svg{ color:#7cc4ff; }
+.bf-row.warn2 > svg{ color:var(--danger); }
+.bf-row.soft{ background:transparent; border:1px dashed var(--line); }
+.bf-list{ background:var(--surface); border-radius:18px; padding:2px 14px; }
+.bf-list > div{ display:flex; align-items:center; gap:12px; padding:11px 0; font-weight:600; font-size:15px; }
+.bf-list > div + div{ border-top:1px solid var(--line); }
+.bf-list svg{ width:20px; height:20px; color:var(--muted); flex:none; }
+.bf-list span{ flex:1; min-width:0; }
+.bf-list em{ font-style:normal; font-family:var(--sport); font-size:19px; letter-spacing:1px; color:var(--accent); }
+.bf-list .bonusline svg,.bf-list .bonusline em{ color:#ffd166; }
+.bf-list .done span{ color:var(--muted); text-decoration:line-through; }
+.bf-list .done svg{ color:var(--accent); }
+:root:not([data-theme="light"]) .sheet:has(.brief){ background:linear-gradient(rgba(11,15,26,.55),#0b0f1a 420px), #0b0f1a url(art/bg-levelup.webp) center top / 100% auto no-repeat; }
+
 /* coach */
 .bot{ display:flex; gap:10px; align-items:flex-end; margin-top:12px; }
 .bot .av{ width:34px; height:34px; border-radius:11px; display:grid; place-items:center; flex:none; background:linear-gradient(160deg,#121a2c,#0c101b); border:1px solid rgba(110,185,255,.55); color:#7cc4ff; box-shadow:0 0 14px rgba(80,160,255,.2); }
@@ -611,7 +635,7 @@ const uid=()=>'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const n=x=>Number(x).toLocaleString('en-US');
 
 /* ---------- state ---------- */
-const blank=()=>({v:1,onboarded:false,startDate:null,goals:[],habits:[],completions:{},bonus:{daily:{},weekly:{},custom:[]},theme:'dark',updatedAt:0,season:1,history:[],applied:[]});
+const blank=()=>({v:1,onboarded:false,startDate:null,goals:[],habits:[],completions:{},bonus:{daily:{},weekly:{},custom:[]},theme:'dark',updatedAt:0,season:1,history:[],applied:[],seen:{brief:null,eve:null}});
 let S=blank();
 
 function scheduled(h,date){
@@ -630,7 +654,7 @@ function hName(h,date){ const k=stageOf(h,date||today()); return k<0?h.name:h.la
 function changesOn(date){
   const dn=dayNum(date), out=[];
   for(const h of S.habits){ if(h.archivedOn) continue;
-    if(h.unlock===dn) out.push({t:'new',h,name:hName(h,date)});
+    if(h.unlock===dn||(h.createdOn===date&&!h.unlock)) out.push({t:'new',h,name:hName(h,date)});
     else if(h.ladder){ const k=h.ladder.findIndex(s=>s.d===dn); if(k>0) out.push({t:'up',h,from:h.ladder[k-1].name,name:h.ladder[k].name,lv:k+1,of:h.ladder.length}); } }
   return out;
 }
@@ -799,6 +823,7 @@ function migrate(o){
   if(bo.daily&&typeof bo.daily==='object') for(const [d,v] of Object.entries(bo.daily)){ if(isDate(d)&&str(v)) s.bonus.daily[d]=str(v); }
   if(bo.weekly&&typeof bo.weekly==='object') for(const [d,v] of Object.entries(bo.weekly)){ if(isDate(d)&&str(v)) s.bonus.weekly[d]=str(v); }
   if(Array.isArray(bo.custom)) s.bonus.custom=bo.custom.map(str).filter(Boolean).slice(0,30);
+  s.seen={brief:o.seen&&isDate(o.seen.brief)?o.seen.brief:null,eve:o.seen&&isDate(o.seen.eve)?o.seen.eve:null};
   s.applied=Array.isArray(o.applied)?o.applied.filter(x=>typeof x==='string').slice(-300):[];
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
@@ -840,6 +865,34 @@ function floatXP(rect,delta){
   el.style.left=Math.max(8,rect.left+rect.width-110)+'px'; el.style.top=(rect.top+rect.height/2-12)+'px';
   document.body.appendChild(el); setTimeout(()=>el.remove(),1000);
 }
+/* ---------- daily System briefing ---------- */
+function xpOnDay(c,date){
+  const d=c.days.find(x=>x.date===date); if(!d) return 0;
+  return d.done*XP_HABIT+(d.status==='done'?XP_PERFECT:0)+(S.bonus.daily[date]?XP_SIDE:0);
+}
+/* the habit most often missed over the last 7 days (needs at least 3 scheduled days, under 70%) */
+function weakPoint(){
+  const t=today(); let worst=null;
+  for(const h of S.habits){
+    if(h.archivedOn||locked(h)) continue; let s=0,dn=0;
+    for(let i=1;i<=7;i++){ const d=addDays(t,-i); if(d<S.startDate) break; if(!scheduled(h,d)) continue; s++; if((S.completions[d]||[]).includes(h.id)) dn++; }
+    if(s>=3&&dn/s<0.7&&(!worst||dn/s<worst.dn/worst.s)) worst={h,dn,s};
+  }
+  return worst;
+}
+function nextEvents(limit){
+  const out=[];
+  for(let i=1;out.length<limit;i++){ const d=addDays(today(),i); if(dayNum(d)>TOTAL) break; for(const x of changesOn(d)) out.push(Object.assign({date:d,day:dayNum(d)},x)); }
+  return out.slice(0,limit);
+}
+/* show the briefing on the first open of each day, and a warning on the first open after 7 pm if the day isn't done */
+function maybeBrief(){
+  if(!S.onboarded||sheet) return;
+  const c=compute(), t=today(); if(!c.started||c.finished) return;
+  if(S.seen.brief!==t){ S.seen.brief=t; persist(); openSheet('brief'); return; }
+  const dd=dayData(t);
+  if(new Date().getHours()>=19&&S.seen.eve!==t&&dd.total>0&&dd.done<dd.total){ S.seen.eve=t; persist(); openSheet('evening'); }
+}
 let baseline=null;
 function feedback(rect){
   const after=compute(), before=baseline||after;
@@ -848,7 +901,7 @@ function feedback(rect){
   for(const a of ACH) if(after.ach[a.k]&&!before.ach[a.k]) toast('Achievement unlocked: '+a.n,a.i,true);
   if(after.shieldsEarned>before.shieldsEarned&&after.shields>before.shields) toast('Streak shield earned. It saves your streak if you miss a day.','shield',true);
   const tq=today(), bd=before.days.find(x=>x.date===tq), ad=after.days.find(x=>x.date===tq);
-  if(ad&&bd&&ad.status==='done'&&bd.status!=='done') toast('Daily quest cleared. +50 XP','check',true);
+  if(ad&&bd&&ad.status==='done'&&bd.status!=='done'){ if(!sheet){ baseline=after; openSheet('debrief'); } else toast('Daily quest cleared. +50 XP','check',true); }
   baseline=after;
 }
 function commit(fn,rect){ fn(); persist(); feedback(rect); render(); }
@@ -944,7 +997,7 @@ function viewToday(c){
         '<button class="bonus boss'+(bd?' done':'')+'" data-a="boss" aria-pressed="'+bd+'" aria-label="Boss quest of the week: '+esc(bq)+(bd?', completed':'')+'"><span class="bq-tag">BOSS QUEST, WEEK '+(w+1)+'</span><span class="bq-name">'+esc(bq)+'</span><span class="bq-xp num">+'+XP_BOSS+' XP</span><span class="bq-sub">'+(bd?'Defeated':'Ends '+nice(wEnd,{weekday:'short',day:'numeric',month:'short'}))+'</span><span class="check">'+ic('check')+'</span></button>';
     }
   }
-  return '<div class="top"><div class="date-line">'+nice(t)+'</div><button class="level-pill" data-a="path">'+ic('zap')+'Rank '+rankOf(c.level).r+', Lv '+c.level+'</button></div>'+hero+stats+list;
+  return '<div class="top">'+(c.started&&!c.finished?'<button class="date-line brief-btn" data-a="brief" aria-label="Open today’s System briefing">'+ic('zap')+nice(t)+'</button>':'<div class="date-line">'+nice(t)+'</div>')+'<button class="level-pill" data-a="path">'+ic('zap')+'Rank '+rankOf(c.level).r+', Lv '+c.level+'</button></div>'+hero+stats+list;
 }
 function viewCalendar(c){
   const startDow=parse(S.startDate).getDay();
@@ -1152,6 +1205,47 @@ const SHEETS={
   confirm(o){
     return head(o.title)+'<p class="muted" style="margin:-4px 0 0">'+o.body+'</p><div class="actions"><button class="btn '+(o.danger?'btn-danger':'btn-primary')+'" data-a="confirmYes">'+o.yes+'</button><button class="btn btn-ghost" data-a="close">Cancel</button></div>';
   },
+  brief(){
+    const c=compute(), t=today(), hr=new Date().getHours(), [m1,m2]=message(c);
+    const greet=hr<5?'Still up':hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
+    const y=c.day>1?c.days[c.day-2]:null, todays=S.habits.filter(h=>scheduled(h,t)), set=new Set(S.completions[t]||[]);
+    const nx=nextRank(c.level), toLevel=XP_LEVEL-c.intoLevel, sideDone=!!S.bonus.daily[t];
+    const doneToday=todays.length>0&&todays.every(h=>set.has(h.id)), streakBonus=!doneToday&&todays.length&&(c.cur+1)%7===0;
+    const maxToday=todays.length*XP_HABIT+(todays.length?XP_PERFECT:0)+XP_SIDE+(streakBonus?XP_STREAK7:0);
+    const yLine=!y?'':y.status==='done'?'Yesterday was a perfect day: <b>+'+xpOnDay(c,y.date)+' XP</b>.':y.shield?'You missed yesterday, but a <b>shield</b> saved your streak.':y.status==='rest'?'Yesterday was a rest day.':'Yesterday: '+y.done+' of '+y.total+' done, so the streak reset. Today starts a new one.';
+    const weak=weakPoint(), ch=changesOn(t), next=nextEvents(2);
+    return '<div class="brief"><div class="sysbox"><div class="tag">SYSTEM · DAILY BRIEFING</div><p style="margin-top:8px">'+greet+', Hunter.</p><div class="n num">Day '+c.day+'</div><p>'+nice(t)+'. '+(TOTAL-c.day)+' days left.</p></div>'+
+     (yLine?'<div class="bf-row">'+ic('rotate')+'<span>'+yLine+'</span></div>':'')+
+     '<div class="bf-row">'+ic('flame')+'<span><b>'+c.cur+'-day streak</b>'+(c.shields?', '+c.shields+' shield'+(c.shields>1?'s':''):'')+'. '+(doneToday?'Today is locked in.':c.cur?'Clear every mission to make it '+(c.cur+1)+'.':'Clear every mission to start a new streak.')+(streakBonus?' Day '+(c.cur+1)+' earns <b>+'+XP_STREAK7+' XP and a shield</b>.':'')+'</span></div>'+
+     (ch.length?'<div class="bf-row up">'+ic('zap')+'<span>'+ch.map(x=>x.t==='new'?'New habit today: <b>'+esc(x.name)+'</b>':'Level up today: <b>'+esc(x.name)+'</b>').join('<br>')+'</span></div>':'')+
+     '<label class="f">Today’s missions</label><div class="bf-list">'+todays.map(h=>'<div class="'+(set.has(h.id)?'done':'')+'">'+ic(set.has(h.id)?'check':h.icon)+'<span>'+esc(hName(h,t))+'</span><em>+'+XP_HABIT+'</em></div>').join('')+
+       '<div class="bonusline'+(sideDone?' done':'')+'">'+ic('star')+'<span>Side quest: '+esc(sideQuestFor(t))+'</span><em>+'+XP_SIDE+'</em></div></div>'+
+     (doneToday?'<p class="note">'+ic('check','lg-sh')+'All missions cleared today.'+(sideDone?'':' The side quest is still open for +'+XP_SIDE+' XP.')+'</p>':
+     '<p class="note">Clear them all for up to <b style="color:var(--text)">+'+maxToday+' XP</b>. '+(toLevel<=maxToday?'That’s enough to reach <b style="color:var(--text)">Level '+(c.level+1)+'</b>'+(nx&&nx.min===c.level+1?' and <b style="color:var(--text)">Rank '+nx.r+'</b>':'')+'.':n(toLevel)+' XP to Level '+(c.level+1)+'.')+'</p>')+
+     (weak?'<div class="bf-row warn2">'+ic('target')+'<span>Weak point: <b>'+esc(hName(weak.h,t))+'</b>, done '+weak.dn+' of the last '+weak.s+' days. Do it first today.</span></div>':'')+
+     (next.length?'<label class="f">Coming up</label>'+next.map(x=>'<div class="bf-row soft">'+ic(x.t==='new'?'lock':'zap')+'<span>Day '+x.day+', '+nice(x.date,{weekday:'short',day:'numeric',month:'short'})+': '+(x.t==='new'?'unlocks ':'levels up to ')+'<b>'+esc(x.name)+'</b></span></div>').join(''):'')+
+     '<p class="quote" style="margin-top:16px">'+esc(m1)+(m2?'<span class="muted">'+esc(m2)+'</span>':'')+'</p>'+
+     '<div class="actions"><button class="btn btn-primary" data-a="close">Accept missions</button></div></div>';
+  },
+  debrief(){
+    const c=compute(), t=today(), tm=addDays(t,1), xp=xpOnDay(c,t), last=c.day>=TOTAL;
+    const tch=last?[]:changesOn(tm), sideDone=!!S.bonus.daily[t], shieldNow=c.cur>0&&c.cur%7===0;
+    return '<div class="brief"><div class="sysbox"><div class="tag">SYSTEM · DAY '+c.day+' CLEARED</div><div class="n num">+'+xp+'</div><p>XP earned today</p></div>'+
+     '<div class="bf-row">'+ic('flame')+'<span><b>'+c.cur+'-day streak.</b> '+(shieldNow?'Streak shield earned.':(7-c.cur%7)+' more perfect '+(7-c.cur%7===1?'day':'days')+' for a shield and +'+XP_STREAK7+' XP.')+'</span></div>'+
+     '<div class="bf-row">'+ic('zap')+'<span style="flex:1"><b>Level '+c.level+'</b>, '+c.intoLevel+' / '+XP_LEVEL+' XP<div class="bar" style="margin-top:8px"><i style="width:'+(c.intoLevel/XP_LEVEL*100)+'%"></i></div></span></div>'+
+     (sideDone?'':'<div class="bf-row up">'+ic('star')+'<span>Side quest still open: <b>'+esc(sideQuestFor(t))+'</b> for +'+XP_SIDE+' XP.</span></div>')+
+     (last?'<p class="quote" style="margin-top:16px">That was Day 66. The challenge is yours.</p>':
+      '<label class="f">Tomorrow, Day '+(c.day+1)+'</label>'+(tch.length?tch.map(x=>'<div class="bf-row soft">'+ic(x.t==='new'?'lock':'zap')+'<span>'+(x.t==='new'?'New habit: ':'Level up: ')+'<b>'+esc(x.name)+'</b></span></div>').join(''):'<div class="bf-row soft">'+ic('calendar')+'<span>Same missions. Keep the chain going.</span></div>'))+
+     '<div class="actions"><button class="btn btn-primary" data-a="close">Rest well, Hunter</button></div></div>';
+  },
+  evening(){
+    const c=compute(), t=today(), set=new Set(S.completions[t]||[]), left=S.habits.filter(h=>scheduled(h,t)&&!set.has(h.id));
+    const now=new Date(), mins=(24*60)-(now.getHours()*60+now.getMinutes()), hh=Math.floor(mins/60), mm=mins%60;
+    return '<div class="brief"><div class="sysbox warnbox"><div class="tag">SYSTEM · WARNING</div><p style="margin-top:8px">'+left.length+' '+(left.length===1?'mission':'missions')+' left today.</p><div class="n num">'+hh+'h '+pad(mm)+'m</div><p>until midnight</p></div>'+
+     (c.cur?'<div class="bf-row warn2">'+ic('flame')+'<span>Your <b>'+c.cur+'-day streak</b> is at risk.'+(c.shields?' You have '+c.shields+' shield'+(c.shields>1?'s':'')+', but don’t spend '+(c.shields>1?'them':'it')+' tonight.':'')+'</span></div>':'')+
+     '<label class="f">Still to clear</label><div class="bf-list">'+left.map(h=>'<div>'+ic(h.icon)+'<span>'+esc(hName(h,t))+'</span><em>+'+XP_HABIT+'</em></div>').join('')+'</div>'+
+     '<div class="actions"><button class="btn btn-primary" data-a="close">On it</button></div></div>';
+  },
   level(o){
     return '<div class="sysbox lvl"><div class="tag">SYSTEM</div><p style="margin-top:10px">You have leveled up.</p><div class="n num">'+o.level+'</div><p>'+n(o.xp)+' XP earned. Keep the run going.</p></div><div class="actions"><button class="btn btn-primary" data-a="close">Continue</button></div>';
   },
@@ -1328,6 +1422,7 @@ const A={
     toast('Season '+nx+' started. Day 1 begins '+(start===today()?'now':'tomorrow'),'flame');
   },
   seasonView(el){ openSheet('seasonView',+el.dataset.i); },
+  brief(){ openSheet('brief'); },
   coach(){ openSheet('coach'); },
   coGoal(el){ const g=sheet.form.goals, k=el.dataset.k, i=g.indexOf(k); if(i>=0) g.splice(i,1); else if(g.length<3) g.push(k); else{ toast('Pick up to 3 for now. You can add more later.','target'); return; } renderSheet(false,true); },
   coNext(){ sheet.form.step=1; coachRender(); },
@@ -1393,7 +1488,7 @@ document.addEventListener('change',e=>{
 });
 /* re-render when the day changes (e.g. app left open past midnight) */
 let lastDay=today();
-function dayCheck(){ if(today()!==lastDay){ lastDay=today(); if(S.onboarded){ const prev=baseline; baseline=compute(); if(prev&&baseline.shieldsUsed>prev.shieldsUsed) toast('A streak shield saved your streak','shield',true); render(); } } }
+function dayCheck(){ if(today()!==lastDay){ lastDay=today(); if(S.onboarded){ const prev=baseline; baseline=compute(); if(prev&&baseline.shieldsUsed>prev.shieldsUsed) toast('A streak shield saved your streak','shield',true); render(); setTimeout(maybeBrief,700); } } }
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) dayCheck(); });
 setInterval(dayCheck,30000);
 
@@ -1460,7 +1555,7 @@ async function checkInbox(){
     msgs.slice(0,3).forEach(m=>toast(m,'zap',true));
   }catch(e){}finally{ inboxBusy=false; }
 }
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden) checkInbox(); });
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ checkInbox(); setTimeout(maybeBrief,700); } });
 
 /* ---------- boot ---------- */
 (async function boot(){
@@ -1472,6 +1567,7 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden) checkInb
   standaloneExtras();
   cloudInit();
   checkInbox();
+  setTimeout(maybeBrief,700);
   window.__reset66={state:()=>S,compute,store:()=>Store.mode,aura:auraSVG};
 })();
 })();
