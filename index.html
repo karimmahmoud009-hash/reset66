@@ -174,7 +174,23 @@ svg.lg-sh{ color:var(--accent); margin-right:6px; vertical-align:-1px; }
 
 /* nav */
 .nav{ position:fixed; left:0; right:0; bottom:0; z-index:20; background:color-mix(in srgb,var(--bg) 88%,transparent); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom,0px); }
-.nav-in{ max-width:480px; margin:0 auto; display:grid; grid-template-columns:repeat(5,1fr); }
+.nav-in{ max-width:480px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); }
+.ai-phase{ font-size:12px!important; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#7cc4ff!important; margin-top:10px!important; }
+.ai-form .row{ margin-top:10px; }
+.ai-check{ display:flex; align-items:center; gap:10px; font-size:14.5px; font-weight:600; flex:1; min-height:48px; }
+.ai-check input{ width:22px; height:22px; accent-color:var(--accent); }
+.st{ padding:7px 12px; border-radius:999px; font-size:13px; font-weight:700; min-height:36px; flex:none; }
+.st0{ background:var(--surface-2); color:var(--text); }
+.st1{ background:color-mix(in srgb,var(--accent) 20%,transparent); color:var(--accent); }
+.st2{ color:var(--muted); text-decoration:line-through; border:1px solid var(--line); }
+.ai-plan summary{ cursor:pointer; font-weight:650; min-height:44px; display:flex; align-items:center; }
+.ai-plan h4{ margin:16px 0 4px; font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.ai-plan ol{ list-style:none; padding:0; margin:0; }
+.ai-plan li{ display:flex; gap:10px; padding:9px 0; border-top:1px solid var(--line); font-size:14px; }
+.ai-plan li .n{ width:26px; flex:none; color:var(--muted); font-weight:700; }
+.ai-plan li.on .n{ color:var(--accent); }
+.ai-plan li.on b{ text-decoration:line-through; color:var(--muted); }
+.ai-plan li.cur{ color:var(--accent); }
 .nav button{ display:flex; flex-direction:column; align-items:center; gap:3px; padding:10px 0 9px; font-size:11px; font-weight:600; color:var(--muted); min-height:60px; }
 .nav button[aria-current="page"]{ color:var(--accent); }
 
@@ -365,7 +381,7 @@ svg.aura{ width:100%; height:auto; display:block; overflow:visible; }
 .ob h1{ font-family:var(--dirt); font-weight:400; font-size:42px; letter-spacing:0; line-height:1.02; text-transform:uppercase; }
 .welcome-mark{ font-family:var(--dirt); font-weight:400; letter-spacing:0; }
 .btn-primary{ font-family:var(--sport); font-weight:400; font-size:23px; letter-spacing:2px; }
-.nav button span{ font-family:var(--sport); font-size:15px; font-weight:400; letter-spacing:1.2px; }
+.nav button span{ font-family:var(--sport); font-size:13.5px; font-weight:400; letter-spacing:.6px; white-space:nowrap; }
 .ach .t{ font-family:var(--sport); font-weight:400; font-size:21px; letter-spacing:1px; }
 .toast.sys span{ font-family:var(--sport); font-weight:400; font-size:19px; letter-spacing:1px; }
 /* figure motion */
@@ -469,7 +485,8 @@ upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12
 rotate:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
 cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
 copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
-shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>'
+shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15v4M17 17h4"/>'
 };
 const ic=(n,cls)=>'<svg class="i'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true">'+(P[n]||P.star)+'</svg>';
 const HABIT_ICONS=['dumbbell','run','book','droplet','leaf','apple','moon','cap','pen','heart','sun','music','phone','target','zap','star'];
@@ -620,6 +637,89 @@ function bossFor(ws){ const done=S.bonus.weekly[ws]; if(done) return done; retur
 const XP_HABIT=20, XP_PERFECT=50, XP_STREAK7=100, XP_LEVEL=500, TOTAL=66, MAX_SHIELDS=3;
 const WD=['S','M','T','W','T','F','S'], WDL=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
+/* ---------- Stay Ahead with AI: 66-day plan ---------- */
+const AI_PHASES=[[1,'See where AI fits'],[12,'Faster production'],[23,'Motion and video'],[34,'Claude knows your work'],[45,'Agents do full tasks'],[56,'Lead and earn']];
+const AI_PLAN=[
+['Map your week','List every task you did last week. Mark the ones AI could do or speed up.'],
+['Find your time drains','Pick the 3 tasks that eat most of your hours. These are your first targets.'],
+['Watch one real workflow','Watch one short video of a designer’s AI workflow. Write down one trick to copy.'],
+['Set up your news feed','Follow 3 sources for AI design news. Check them for 10 minutes, then stop.'],
+['Firefly on a real brief','Run one real Jameel brief through Firefly. Compare it with how you normally start.'],
+['Upscale an old asset','Upscale one old low-res asset with Magnific. Log how much time it saved.'],
+['Get an honest critique','Give Claude one of your designs and ask for 5 honest critiques. Keep what is right.'],
+['Fix a messy request','Turn a messy request from marketing into a clear design brief with Claude.'],
+['Grow what AI can’t do','Pick one skill AI is weak at and you are good at: ideas, taste or brand. Plan how to grow it.'],
+['Pick your first win','Choose one task you repeat. Your goal: make it 2x faster this month.'],
+['Proof day','Log your hours saved so far. Save one before/after as a record.'],
+['Every size in minutes','Take one post and make all the social sizes with AI tools. Time it.'],
+['Variations at scale','Generate 10 layout variations for one campaign idea. Keep the best 2.'],
+['Batch backgrounds','Remove the backgrounds of 5 car or scooter shots in one go.'],
+['Expand an image','Fit one photo into a wide banner with generative expand instead of a reshoot.'],
+['Relight a product','Relight one car or scooter photo for a new mood. Compare it with the cost of a reshoot.'],
+['Save a ComfyUI workflow','Turn one ComfyUI setup you keep rebuilding into a saved workflow.'],
+['One look, many images','Make 4 images that feel like one campaign. Write down the prompt rules that worked.'],
+['Brand check','Check AI outputs against Jameel brand rules. List what AI always gets wrong.'],
+['Honest speed test','Redo a past task mostly with AI. Compare time and quality honestly.'],
+['Build a prompt library','Save your 10 best prompts in one note, with when to use each one.'],
+['Proof day','Ship one real Jameel piece made mostly with AI. Log the time saved.'],
+['Animate a still','Turn one campaign image into a 5-second animated clip.'],
+['Photo to video','Make a short video from a product photo. Note what looks fake.'],
+['Storyboard with AI','Make a 6-frame storyboard for a 15-second ad with Claude and an image tool.'],
+['Arabic voiceover','Generate an Egyptian Arabic voiceover for a short script. Judge if it sounds real.'],
+['Music and sound','Add AI music or sound effects to one clip.'],
+['Edit faster','Cut a rough edit of one video with AI cutting tools. Time it.'],
+['Reels pack','Turn one campaign into 3 short reels in different sizes.'],
+['Test it on your film','Test one AI tool on a scene from your short film. Keep notes.'],
+['What feels human','Watch 5 AI ads. Write down what makes the good ones feel human.'],
+['Manager-ready motion','Make one motion piece good enough to show your manager.'],
+['Proof day','Log your video hours saved. Compare them with what a freelancer would charge.'],
+['Give Claude the brand','Put Jameel’s brand rules into one Claude Project so every chat knows them.'],
+['Give Claude the products','Add the car and scooter financing details so Claude writes accurate copy.'],
+['Copy in your voice','Ask Claude for 10 Arabic ad lines from the Project. Keep the best 3.'],
+['Ideas vs taste','Ask Claude for 20 campaign ideas. Pick 2 and write why. That choice is your taste.'],
+['Competitor scan','Have Claude research what competitors posted this month about car financing.'],
+['Notes to deck','Turn one set of meeting notes into a presentation with Claude.'],
+['Connect your files','Connect Google Drive so Claude can read your real files.'],
+['Ask your files','Ask Claude something only your files can answer. Check that it is right.'],
+['Merge feedback','Have Claude merge notes from different reviewers into one clear change list.'],
+['Your brand checker','Write Claude instructions that check any design against the brand rules.'],
+['Proof day','Show your manager one thing Claude did with your files that saved real time.'],
+['Hand over a full task','Give Claude a whole task: research, summary and a doc. Not just one step.'],
+['Define “done”','For that task, write how the agent knows it is finished and correct.'],
+['Weekly competitor report','Set up a scheduled task that tracks car and scooter financing competitors every week.'],
+['Correct the agent','Review the agent’s work, correct it and improve its instructions.'],
+['Build a team tool','Build one small tool for your team with Claude, like a size or spec checker.'],
+['Improve this app','Add one small feature to RESET / 66 with Claude.'],
+['Batch the sizes','Have an agent make a full set of social sizes from one master design.'],
+['Two at once','Run 2 agent tasks at the same time. Note where you slow them down.'],
+['Direct, don’t make','Spend this session only reviewing and directing AI work. Make nothing yourself.'],
+['Write the process','Write down one AI workflow so a teammate can run it without you.'],
+['Proof day','Count the hours saved this phase. Write it up as a short note for your manager.'],
+['Teach one person','Show one teammate a workflow that saves them time.'],
+['Team setup','Propose one shared AI setup for the design team: prompts, rules and a Project.'],
+['Measure the team','Estimate the hours the team could save each month, using your own numbers.'],
+['Pitch it','Write a one-page proposal for an AI workflow in marketing, backed by your numbers.'],
+['A freelance offer','Write one service AI lets you deliver faster: brand packs, menus or reels.'],
+['Price it','Price that offer. Compare your time now with your time before AI.'],
+['Case study','Make one portfolio case study of an AI-assisted project, from brief to result.'],
+['Find one client','Send your offer to one potential client.'],
+['What’s new now','List the tools that came out this month. Pick one to test next season.'],
+['Your next 66 days','Write what you will focus on in your next 66 days.'],
+['Final proof','Total your hours saved, work shipped and money earned. That is your real score.']
+];
+const AI_ST=['Testing','Adopted','Dropped'];
+function aiBlank(){ return {done:{},log:[],tools:['ComfyUI','Firefly','Magnific','Claude','Canva'].map(n=>({n,s:0})),habitId:null}; }
+function aiClean(a){
+  const r=aiBlank(); if(!a||typeof a!=='object') return r;
+  const str=(v,m)=>typeof v==='string'&&v.trim()?v.trim().slice(0,m):'';
+  const num=(v,max)=>{ const x=Math.round(Number(v)); return Number.isFinite(x)?Math.max(0,Math.min(max,x)):0; };
+  if(a.done&&typeof a.done==='object') for(const [k,v] of Object.entries(a.done)){ const i=Number(k); if(Number.isInteger(i)&&i>=1&&i<=AI_PLAN.length&&isDate(v)) r.done[i]=v; }
+  if(Array.isArray(a.log)) r.log=a.log.filter(x=>x&&isDate(x.d)&&str(x.w,140)).slice(-500).map(x=>({id:typeof x.id==='string'?x.id:uid(),d:x.d,w:str(x.w,140),t:str(x.t,40),real:!!x.real,min:num(x.min,6000),egp:num(x.egp,10000000)}));
+  if(Array.isArray(a.tools)) r.tools=a.tools.filter(x=>x&&str(x.n,40)).slice(0,40).map(x=>({n:str(x.n,40),s:[0,1,2].includes(x.s)?x.s:0}));
+  r.habitId=typeof a.habitId==='string'?a.habitId:null;
+  return r;
+}
+
 /* ---------- dates (local calendar, never UTC) ---------- */
 const DAY=86400000;
 const pad=n=>String(n).padStart(2,'0');
@@ -635,7 +735,7 @@ const uid=()=>'h'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const n=x=>Number(x).toLocaleString('en-US');
 
 /* ---------- state ---------- */
-const blank=()=>({v:1,onboarded:false,startDate:null,goals:[],habits:[],completions:{},bonus:{daily:{},weekly:{},custom:[]},theme:'dark',updatedAt:0,season:1,history:[],applied:[],seen:{brief:null,eve:null}});
+const blank=()=>({v:1,onboarded:false,startDate:null,goals:[],habits:[],completions:{},bonus:{daily:{},weekly:{},custom:[]},theme:'dark',updatedAt:0,season:1,history:[],applied:[],seen:{brief:null,eve:null},ai:aiBlank()});
 let S=blank();
 
 function scheduled(h,date){
@@ -825,6 +925,7 @@ function migrate(o){
   if(Array.isArray(bo.custom)) s.bonus.custom=bo.custom.map(str).filter(Boolean).slice(0,30);
   s.seen={brief:o.seen&&isDate(o.seen.brief)?o.seen.brief:null,eve:o.seen&&isDate(o.seen.eve)?o.seen.eve:null};
   s.applied=Array.isArray(o.applied)?o.applied.filter(x=>typeof x==='string').slice(-300):[];
+  s.ai=aiClean(o.ai);
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
 }
@@ -916,12 +1017,12 @@ function applyTheme(){
 function render(){
   if(!S.onboarded){ root.innerHTML=renderOnboarding(); renderSheet(); return; }
   const c=compute();
-  const views={today:viewToday,calendar:viewCalendar,habits:viewHabits,stats:viewStats,settings:viewSettings};
+  const views={today:viewToday,calendar:viewCalendar,habits:viewHabits,stats:viewStats,settings:viewSettings,ai:viewAI};
   root.innerHTML='<main class="app" id="main">'+(Store.mode==='memory'?'<div class="warn">This browser is blocking storage, so progress will be lost when you close the app. Export a backup from Settings.</div>':'')+(views[route]||viewToday)(c)+'</main>'+nav();
   renderSheet();
 }
 function nav(){
-  const t=[['today','home','Today'],['calendar','calendar','Calendar'],['habits','list','Habits'],['stats','chart','Progress'],['settings','sliders','Settings']];
+  const t=[['today','home','Today'],['calendar','calendar','Calendar'],['habits','list','Habits'],['ai','spark','AI'],['stats','chart','Progress'],['settings','sliders','Settings']];
   return '<nav class="nav" aria-label="Main"><div class="nav-in">'+t.map(([k,i,l])=>'<button data-a="go" data-to="'+k+'"'+(route===k?' aria-current="page"':'')+'>'+ic(i)+'<span>'+l+'</span></button>').join('')+'</div></nav>';
 }
 const MSG=[
@@ -1030,6 +1131,55 @@ function viewHabits(){
     (S.bonus.custom.length?S.bonus.custom.map((q,i)=>'<div class="row between cq"><span>'+esc(q)+'</span><button class="x" data-a="sideDel" data-i="'+i+'" aria-label="Remove '+esc(q)+'">'+ic('x')+'</button></div>').join(''):'')+
     '<div class="row" style="margin-top:10px"><input class="input" id="sq-new" maxlength="80" placeholder="e.g. 30 minutes of drawing" enterkeyhint="done"><button class="btn btn-ghost" style="min-width:60px" data-a="sideAdd" aria-label="Add side quest">'+ic('plus')+'</button></div></div>';
 }
+/* ---------- AI tab ---------- */
+function aiNext(){ for(let i=1;i<=AI_PLAN.length;i++) if(!S.ai.done[i]) return i; return null; }
+function aiPhase(i){ let p=AI_PHASES[0]; for(const x of AI_PHASES) if(i>=x[0]) p=x; return p[1]; }
+function aiStreak(){ const days=new Set(Object.values(S.ai.done)); let d=today(); if(!days.has(d)) d=addDays(d,-1); let k=0; while(days.has(d)){ k++; d=addDays(d,-1); } return k; }
+function aiLinked(){ return S.habits.find(h=>h.id===S.ai.habitId&&!h.archivedOn)||null; }
+function aiHours(m){ return m>=600?String(Math.round(m/60)):String(Math.round(m/6)/10); }
+function viewAI(){
+  if(!S.ai) S.ai=aiBlank();
+  const a=S.ai, t=today(), nx=aiNext(), doneN=Object.keys(a.done).length, doneToday=Object.values(a.done).includes(t), streak=aiStreak();
+  const mins=a.log.reduce((s,x)=>s+x.min,0), shipped=a.log.filter(x=>x.real).length, egp=a.log.reduce((s,x)=>s+x.egp,0), adopted=a.tools.filter(x=>x.s===1).length;
+  const w0=addDays(t,-6), wk=a.log.filter(x=>x.d>=w0);
+  const wkTools=new Set(wk.map(x=>x.t.toLowerCase()).filter(Boolean)).size, wkMin=wk.reduce((s,x)=>s+x.min,0), wkReal=wk.filter(x=>x.real).length, wkMis=Object.values(a.done).filter(d=>d>=w0).length;
+  let mission;
+  if(nx){
+    const [title,task]=AI_PLAN[nx-1];
+    mission=(doneToday?'<p class="note" style="padding-top:0">'+ic('check','lg-sh')+'Today’s mission is done. Want to do the next one early?</p>':'')+
+      '<div class="quest" style="margin-top:'+(doneToday?'10px':'0')+'"><div class="tag">'+(doneToday?'NEXT MISSION':'TODAY’S MISSION')+' · '+nx+'/'+AI_PLAN.length+'</div><h2>'+esc(title)+'</h2><p>'+esc(task)+'</p><p class="ai-phase">'+esc(aiPhase(nx))+' · 20 min</p>'+
+      '<button class="btn btn-primary btn-block" style="margin-top:14px" data-a="aiDone" data-i="'+nx+'">'+ic('check')+'Mission done</button></div>';
+  }else{
+    mission='<div class="quest clear"><div class="tag">PLAN COMPLETE</div><h2>All '+AI_PLAN.length+' missions done</h2><p>Your real score is below. Pick your next tools and start a new round.</p></div>';
+  }
+  const habit=aiLinked()?'':'<button class="pick coach-cta" style="margin-top:12px" data-a="aiAddHabit"><span class="ico">'+ic('zap')+'</span><span class="grow">Add it to my daily habits<div class="muted small" style="font-weight:500">Each mission then checks off a habit on Today and earns XP.</div></span>'+ic('plus')+'</button>';
+  const score='<div class="section-head" style="display:block"><h2>Real results</h2><p class="muted small" style="margin:2px 0 0">This is what counts outside the game.</p></div>'+
+    '<div class="stats3" style="margin-top:0"><div class="stat"><div class="v num">'+aiHours(mins)+'</div><div class="k">Hours saved</div></div><div class="stat"><div class="v num">'+shipped+'</div><div class="k">Real work shipped</div></div><div class="stat"><div class="v num">'+adopted+'</div><div class="k">Tools adopted</div></div></div>'+
+    '<div class="grid2" style="margin-top:10px"><div class="card"><div class="muted small">Earned with AI</div><h3 style="margin-top:4px" class="num">'+n(egp)+' EGP</h3></div><div class="card"><div class="muted small">Missions</div><h3 style="margin-top:4px" class="num">'+doneN+'/'+AI_PLAN.length+' · '+ic('flame','lg-sh')+streak+'</h3></div></div>';
+  const week='<div class="section-head"><h2>Last 7 days</h2></div><div class="card small" style="line-height:2">'+
+    '<div class="row between"><span>Missions done</span><b class="num">'+wkMis+'</b></div><div class="row between"><span>Tools tried</span><b class="num">'+wkTools+'</b></div>'+
+    '<div class="row between"><span>Used in real work</span><b class="num">'+wkReal+'</b></div><div class="row between"><span>Time saved</span><b class="num">'+aiHours(wkMin)+' h</b></div></div>';
+  const recent=a.log.slice(-8).reverse();
+  const log='<div class="section-head" style="display:block"><h2>Log a result</h2><p class="muted small" style="margin:2px 0 0">Anything you learned, tried or used. Takes 20 seconds.</p></div>'+
+    '<div class="card ai-form"><input class="input" id="al-w" maxlength="140" placeholder="What did you do? e.g. Made all post sizes with AI">'+
+    '<div class="row"><input class="input" id="al-t" list="ai-tools" maxlength="40" placeholder="Tool"><input class="input" id="al-m" type="number" inputmode="numeric" min="0" placeholder="Minutes saved"></div>'+
+    '<div class="row"><label class="ai-check"><input type="checkbox" id="al-r">Used in real work</label><input class="input" id="al-e" type="number" inputmode="numeric" min="0" placeholder="EGP earned" style="max-width:150px"></div>'+
+    '<datalist id="ai-tools">'+a.tools.map(x=>'<option value="'+esc(x.n)+'">').join('')+'</datalist>'+
+    '<button class="btn btn-primary btn-block" style="margin-top:12px" data-a="aiLog">'+ic('plus')+'Save result</button></div>'+
+    (recent.length?'<div class="list" style="margin-top:10px">'+recent.map(x=>'<div class="item"><span class="grow">'+esc(x.w)+'<div class="sub">'+esc(nice(x.d,{day:'numeric',month:'short'}))+(x.t?' · '+esc(x.t):'')+(x.min?' · '+x.min+' min saved':'')+(x.real?' · Real work':'')+(x.egp?' · '+n(x.egp)+' EGP':'')+'</div></span><button class="x" data-a="aiLogDel" data-id="'+esc(x.id)+'" aria-label="Delete this result">'+ic('x')+'</button></div>').join('')+'</div>':'');
+  const tools='<div class="section-head" style="display:block"><h2>Tools I use</h2><p class="muted small" style="margin:2px 0 0">Tap the tag to change it.</p></div>'+
+    '<div class="list">'+(a.tools.length?a.tools.map((x,i)=>'<div class="item"><span class="grow" style="font-weight:600">'+esc(x.n)+'</span><button class="st st'+x.s+'" data-a="aiTool" data-i="'+i+'" aria-label="'+esc(x.n)+': '+AI_ST[x.s]+'. Tap to change.">'+AI_ST[x.s]+'</button><button class="x" data-a="aiToolDel" data-i="'+i+'" aria-label="Remove '+esc(x.n)+'">'+ic('x')+'</button></div>').join(''):'<div class="item muted">No tools yet.</div>')+'</div>'+
+    '<div class="row" style="margin-top:10px"><input class="input" id="at-new" maxlength="40" placeholder="Add a tool" enterkeyhint="done"><button class="btn btn-ghost" style="min-width:60px" data-a="aiToolAdd" aria-label="Add tool">'+ic('plus')+'</button></div>';
+  let planList='';
+  AI_PHASES.forEach((p,k)=>{ const end=k+1<AI_PHASES.length?AI_PHASES[k+1][0]-1:AI_PLAN.length;
+    planList+='<h4>'+esc(p[1])+' · days '+p[0]+'–'+end+'</h4><ol>';
+    for(let i=p[0];i<=end;i++) planList+='<li class="'+(a.done[i]?'on':(i===nx?'cur':''))+'"><span class="n num">'+i+'</span><span><b>'+esc(AI_PLAN[i-1][0])+'</b><br><span class="muted">'+esc(AI_PLAN[i-1][1])+'</span></span></li>';
+    planList+='</ol>'; });
+  const plan='<div class="section-head"><h2>The plan</h2></div><div class="card"><details class="ai-plan"><summary>See all '+AI_PLAN.length+' missions</summary>'+planList+'</details></div>';
+  return '<h1 class="page-title">Stay ahead with AI</h1>'+mission+habit+score+week+log+tools+plan+
+    '<p class="note">Your goal is not XP. It is proof: hours saved, work shipped and money earned. Show it to your manager.</p>';
+}
+
 function freqLabel(h){ const d=h.days||[]; if(!d.length||d.length===7) return 'Every day'; return [...d].sort().map(x=>WDL[x]).join(', '); }
 function viewStats(c){
   const weeks=[]; const t=today();
@@ -1345,6 +1495,40 @@ function tryImport(text,errId){
 
 /* ---------- actions ---------- */
 const A={
+  aiDone(el){
+    const i=+el.dataset.i, t=today(), r=el.getBoundingClientRect(), h=aiLinked();
+    if(!AI_PLAN[i-1]||S.ai.done[i]) return;
+    let ticked=false;
+    commit(()=>{ S.ai.done[i]=t;
+      if(h&&S.startDate&&t>=S.startDate&&scheduled(h,t)){ const arr=new Set(S.completions[t]||[]); if(!arr.has(h.id)){ arr.add(h.id); ticked=true; } S.completions[t]=[...arr]; } },r);
+    toast('Mission '+i+' done'+(ticked?'. Habit checked off.':''),'zap',true);
+  },
+  aiAddHabit(){
+    if(aiLinked()) return;
+    const t=today();
+    commit(()=>{ const h={id:uid(),name:'AI mission · 20 min',icon:'zap',category:'Learning',days:[],createdOn:S.startDate&&t>S.startDate?t:null,archivedOn:null};
+      S.habits.push(h); S.ai.habitId=h.id;
+      if(Object.values(S.ai.done).includes(t)&&S.startDate&&t>=S.startDate){ const arr=new Set(S.completions[t]||[]); arr.add(h.id); S.completions[t]=[...arr]; } });
+    toast('Added to your daily habits','zap');
+  },
+  aiLog(){
+    const g=id=>document.getElementById(id), w=(g('al-w').value||'').trim();
+    if(!w){ toast('Write what you did first','x'); g('al-w').focus(); return; }
+    const num=v=>{ const x=Math.round(Number(v)); return Number.isFinite(x)&&x>0?x:0; };
+    const e={id:uid(),d:today(),w:w.slice(0,140),t:(g('al-t').value||'').trim().slice(0,40),real:!!g('al-r').checked,min:Math.min(6000,num(g('al-m').value)),egp:Math.min(10000000,num(g('al-e').value))};
+    commit(()=>{ S.ai.log.push(e); if(S.ai.log.length>500) S.ai.log=S.ai.log.slice(-500);
+      if(e.t&&!S.ai.tools.some(x=>x.n.toLowerCase()===e.t.toLowerCase())&&S.ai.tools.length<40) S.ai.tools.push({n:e.t,s:0}); });
+    toast('Result saved','check');
+  },
+  aiLogDel(el){ const id=el.dataset.id;
+    ask({title:'Delete this result?',body:'It will be removed from your totals.',yes:'Delete',danger:true},()=>{ commit(()=>{ S.ai.log=S.ai.log.filter(x=>x.id!==id); }); closeSheet(); toast('Result deleted','trash'); }); },
+  aiTool(el){ const x=S.ai.tools[+el.dataset.i]; if(!x) return; commit(()=>{ x.s=(x.s+1)%3; }); },
+  aiToolAdd(){ const el=document.getElementById('at-new'), v=(el&&el.value||'').trim().slice(0,40); if(!v){ el&&el.focus(); return; }
+    if(S.ai.tools.some(x=>x.n.toLowerCase()===v.toLowerCase())){ toast('That tool is already on your list','x'); return; }
+    if(S.ai.tools.length>=40){ toast('You can keep up to 40 tools','x'); return; }
+    commit(()=>{ S.ai.tools.push({n:v,s:0}); }); toast('Tool added'); },
+  aiToolDel(el){ const i=+el.dataset.i; commit(()=>{ S.ai.tools.splice(i,1); }); },
+
   go(el){ route=el.dataset.to; closeSheet(); render(); window.scrollTo(0,0); },
   toggle(el){
     const id=el.dataset.id, date=el.dataset.date;
@@ -1480,6 +1664,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.target.id==='ob-custom'){ e.preventDefault(); keepScroll(obAddCustom); }
   if(e.key==='Enter'&&e.target.id==='hf-name'){ e.preventDefault(); A.hfSave(); }
   if(e.key==='Enter'&&e.target.id==='sq-new'){ e.preventDefault(); A.sideAdd(); }
+  if(e.key==='Enter'&&e.target.id==='at-new'){ e.preventDefault(); A.aiToolAdd(); }
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='ob-date'&&isDate(e.target.value)){ OB.start=e.target.value; keepScroll(render); }
