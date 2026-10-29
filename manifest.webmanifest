@@ -1,6 +1,6 @@
 {
-  "name": "RESET / 66",
-  "short_name": "RESET 66",
+  "name": "Level Up",
+  "short_name": "Level Up",
   "description": "A 66-day habit challenge.",
   "start_url": "./",
   "scope": "./",
