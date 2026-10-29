@@ -174,12 +174,16 @@ svg.lg-sh{ color:var(--accent); margin-right:6px; vertical-align:-1px; }
 
 /* nav */
 .nav{ position:fixed; left:0; right:0; bottom:0; z-index:20; background:color-mix(in srgb,var(--bg) 88%,transparent); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom,0px); }
-.nav-in{ max-width:480px; margin:0 auto; display:grid; grid-template-columns:repeat(8,1fr); }
+.nav-in{ max-width:480px; margin:0 auto; display:grid; grid-template-columns:repeat(5,1fr); }
 .ai-phase{ font-size:12px!important; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#7cc4ff!important; margin-top:10px!important; }
 .mbar{ display:grid; grid-template-columns:84px 1fr auto; gap:10px; align-items:center; padding:5px 0; }
 .mtrack{ height:8px; border-radius:4px; background:var(--faint); overflow:hidden; }
 .mtrack span{ display:block; height:100%; background:var(--accent); border-radius:4px; }
 .mchips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.mq{ border-color:color-mix(in srgb,var(--accent) 70%,transparent)!important; }
+.mq-res{ display:flex; align-items:center; gap:8px; margin-top:12px!important; font-weight:650; color:var(--text)!important; }
+.mq-res.ok svg{ color:var(--accent); }
+.mq-late summary{ cursor:pointer; font-size:13px; color:var(--muted); margin-top:10px; min-height:36px; display:flex; align-items:center; }
 .fit-list{ list-style:none; padding:0; margin:12px 0 0; }
 .fit-list li{ display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:14px; line-height:1.45; }
 .fit-list li .n{ width:22px; flex:none; color:var(--muted); font-weight:700; }
@@ -393,7 +397,7 @@ svg.aura{ width:100%; height:auto; display:block; overflow:visible; }
 .ob h1{ font-family:var(--dirt); font-weight:400; font-size:42px; letter-spacing:0; line-height:1.02; text-transform:uppercase; }
 .welcome-mark{ font-family:var(--dirt); font-weight:400; letter-spacing:0; }
 .btn-primary{ font-family:var(--sport); font-weight:400; font-size:23px; letter-spacing:2px; }
-.nav button span{ font-family:var(--sport); font-size:12px; font-weight:400; letter-spacing:.3px; white-space:nowrap; }
+.nav button span{ font-family:var(--sport); font-size:13.5px; font-weight:400; letter-spacing:.6px; white-space:nowrap; }
 .ach .t{ font-family:var(--sport); font-weight:400; font-size:21px; letter-spacing:1px; }
 .toast.sys span{ font-family:var(--sport); font-weight:400; font-size:19px; letter-spacing:1px; }
 /* figure motion */
@@ -476,7 +480,7 @@ flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05
 zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
 calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
 chart:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
-wallet:'<path d="M3 7a2 2 0 0 1 2-2h13v4"/><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="16.5" cy="13.5" r="1.2"/>',play:'<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/>',dumbbell:'<path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/>',run:'<circle cx="13" cy="4" r="2"/><path d="m7 21 3-6 3 2v5M6 12l3-4 4 1 3 3 3 1"/>',
+wallet:'<path d="M3 7a2 2 0 0 1 2-2h13v4"/><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="16.5" cy="13.5" r="1.2"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',play:'<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/>',dumbbell:'<path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/>',run:'<circle cx="13" cy="4" r="2"/><path d="m7 21 3-6 3 2v5M6 12l3-4 4 1 3 3 3 1"/>',
 book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
 droplet:'<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
 leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
@@ -795,6 +799,18 @@ function moneyClean(m){
   return r;
 }
 
+
+/* ---------- Main quest: wake up early. Starts at 9:00, moves 15 min earlier after a week with 5+ on-time mornings, stops at 7:00. Fri/Sat get 1 hour extra. ---------- */
+function wakeBlank(){ return {base:540,goal:420,log:{},habitId:null,lastStep:null}; }
+function wakeClean(w){
+  const r=wakeBlank(); if(!w||typeof w!=='object') return r;
+  const mm=v=>Number.isInteger(v)&&v>=240&&v<=720;
+  if(mm(w.base)) r.base=w.base; if(mm(w.goal)) r.goal=w.goal;
+  if(w.log&&typeof w.log==='object') for(const [d,v] of Object.entries(w.log)) if(isDate(d)&&v&&Number.isInteger(v.m)&&v.m>=0&&v.m<1440) r.log[d]={m:v.m,ok:!!v.ok};
+  r.habitId=typeof w.habitId==='string'?w.habitId:null; r.lastStep=isDate(w.lastStep)?w.lastStep:null;
+  return r;
+}
+
 /* ---------- dates (local calendar, never UTC) ---------- */
 const DAY=86400000;
 const pad=n=>String(n).padStart(2,'0');
@@ -1003,6 +1019,7 @@ function migrate(o){
   s.ai=aiClean(o.ai);
   s.fit=fitClean(o.fit);
   s.money=moneyClean(o.money);
+  s.wake=wakeClean(o.wake);
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
 }
@@ -1094,13 +1111,14 @@ function applyTheme(){
 function render(){
   if(!S.onboarded){ root.innerHTML=renderOnboarding(); renderSheet(); return; }
   const c=compute();
-  const views={today:viewToday,calendar:viewCalendar,habits:viewHabits,stats:viewStats,settings:viewSettings,ai:viewAI,fit:viewFit,money:viewMoney};
+  const views={today:viewToday,calendar:viewCalendar,habits:viewHabits,stats:viewStats,settings:viewSettings,ai:viewAI,fit:viewFit,money:viewMoney,more:viewMore};
   root.innerHTML='<main class="app" id="main">'+(Store.mode==='memory'?'<div class="warn">This browser is blocking storage, so progress will be lost when you close the app. Export a backup from Settings.</div>':'')+(views[route]||viewToday)(c)+'</main>'+nav();
   renderSheet();
 }
 function nav(){
-  const t=[['today','home','Today'],['calendar','calendar','Calendar'],['habits','list','Habits'],['fit','dumbbell','Fit'],['ai','spark','AI'],['money','wallet','Money'],['stats','chart','Progress'],['settings','sliders','Settings']];
-  return '<nav class="nav" aria-label="Main"><div class="nav-in">'+t.map(([k,i,l])=>'<button data-a="go" data-to="'+k+'"'+(route===k?' aria-current="page"':'')+'>'+ic(i)+'<span>'+l+'</span></button>').join('')+'</div></nav>';
+  const t=[['today','home','Today'],['habits','list','Habits'],['fit','dumbbell','Fit'],['money','wallet','Money'],['more','menu','More']];
+  const MORE=['more','calendar','stats','ai','settings'];
+  return '<nav class="nav" aria-label="Main"><div class="nav-in">'+t.map(([k,i,l])=>'<button data-a="go" data-to="'+k+'"'+((route===k||(k==='more'&&MORE.includes(route)))?' aria-current="page"':'')+'>'+ic(i)+'<span>'+l+'</span></button>').join('')+'</div></nav>';
 }
 const MSG=[
  'Small, repeated, boring wins are the whole game.','You don’t need a perfect day. You need today’s day.','Show up first. Feel motivated later.',
@@ -1129,6 +1147,25 @@ function habitRow(h,date,locked){
   const done=(S.completions[date]||[]).includes(h.id), nm=hName(h,date), k=stageOf(h,date);
   return '<button class="habit'+(done?' done':'')+(locked?' locked':'')+'" '+(locked?'disabled aria-disabled="true"':'data-a="toggle" data-id="'+h.id+'" data-date="'+date+'"')+' aria-pressed="'+done+'" aria-label="'+esc(nm)+(done?', completed':', not completed')+'">'+
     '<span class="ico">'+ic(h.icon)+'</span><span class="txt"><span class="name" style="display:block">'+esc(nm)+'</span><span class="cat">'+esc(h.category)+(k>=0?', level '+(k+1)+' of '+h.ladder.length:'')+'</span></span><span class="check">'+ic('check')+'</span></button>';
+}
+function viewMore(){
+  const it=[['stats','chart','Progress','Rank, level, streaks and stats'],['calendar','calendar','Calendar','Every day of your 66'],['ai','spark','Stay ahead with AI','Daily AI missions and real results'],['settings','sliders','Settings','Theme, backup and reset']];
+  return '<h1 class="page-title">More</h1>'+it.map(([k,i,l,d])=>'<button class="pick" data-a="go" data-to="'+k+'"><span class="ico">'+ic(i)+'</span><span class="grow">'+l+'<div class="muted small" style="font-weight:500">'+d+'</div></span>'+ic('right')+'</button>').join('');
+}
+/* ---------- Main quest card ---------- */
+const hm=m=>{ const h=Math.floor(m/60), mi=m%60, ap=h<12?'AM':'PM'; return ((h%12)||12)+':'+pad(mi)+' '+ap; };
+function wakeWeekend(d){ const w=parse(d).getDay(); return w===5||w===6; }
+function wakeTarget(d){ return S.wake.base+(wakeWeekend(d)?60:0); }
+function mainQuest(t){
+  if(!S.wake) S.wake=wakeBlank();
+  const w=S.wake, tg=wakeTarget(t), lg=w.log[t];
+  const w0=addDays(t,-6); let onTime=0; for(let i=0;i<7;i++){ const x=w.log[addDays(w0,i)]; if(x&&x.ok) onTime++; }
+  const next=w.base>w.goal?'5 on-time mornings in a week moves your time to '+hm(w.base-15)+'.':'You reached your goal time. Keep it.';
+  let body;
+  if(lg) body='<p class="mq-res'+(lg.ok?' ok':'')+'">'+ic(lg.ok?'check':'x')+(lg.ok?'Up at '+hm(lg.m)+'. Main quest cleared.':'Up at '+hm(lg.m)+'. Late today. Tomorrow is a new run.')+'</p><button class="link" data-a="wakeUndo">Change</button>';
+  else body='<button class="btn btn-primary btn-block" style="margin-top:12px" data-a="wakeUp">'+ic('zap')+'I’m up</button>'+
+    '<details class="mq-late"><summary>Forgot to tap? Set the time you woke up</summary><div class="row" style="margin-top:8px"><input class="input" id="wk-t" type="time" value="'+pad(Math.floor(tg/60))+':'+pad(tg%60)+'"><button class="btn btn-ghost" data-a="wakeAt">Save</button></div></details>';
+  return '<div class="quest mq"><div class="tag">MAIN QUEST</div><h2>Wake up by '+hm(tg)+'</h2><p>'+(wakeWeekend(t)?'Weekend: 1 hour extra. ':'')+'Tap the moment you get up. This week: <b class="num">'+onTime+'/7</b> on time.</p>'+body+'<p class="muted small" style="margin-top:10px">'+next+'</p></div>';
 }
 function viewToday(c){
   const t=today(), [m1,m2]=message(c);
@@ -1175,7 +1212,7 @@ function viewToday(c){
         '<button class="bonus boss'+(bd?' done':'')+'" data-a="boss" aria-pressed="'+bd+'" aria-label="Boss quest of the week: '+esc(bq)+(bd?', completed':'')+'"><span class="bq-tag">BOSS QUEST, WEEK '+(w+1)+'</span><span class="bq-name">'+esc(bq)+'</span><span class="bq-xp num">+'+XP_BOSS+' XP</span><span class="bq-sub">'+(bd?'Defeated':'Ends '+nice(wEnd,{weekday:'short',day:'numeric',month:'short'}))+'</span><span class="check">'+ic('check')+'</span></button>';
     }
   }
-  return '<div class="top">'+(c.started&&!c.finished?'<button class="date-line brief-btn" data-a="brief" aria-label="Open today’s System briefing">'+ic('zap')+nice(t)+'</button>':'<div class="date-line">'+nice(t)+'</div>')+'<button class="level-pill" data-a="path">'+ic('zap')+'Rank '+rankOf(c.level).r+', Lv '+c.level+'</button></div>'+hero+stats+list;
+  return '<div class="top">'+(c.started&&!c.finished?'<button class="date-line brief-btn" data-a="brief" aria-label="Open today’s System briefing">'+ic('zap')+nice(t)+'</button>':'<div class="date-line">'+nice(t)+'</div>')+'<button class="level-pill" data-a="path">'+ic('zap')+'Rank '+rankOf(c.level).r+', Lv '+c.level+'</button></div>'+hero+(c.started&&!c.finished?mainQuest(t):'')+stats+list;
 }
 function viewCalendar(c){
   const startDow=parse(S.startDate).getDay();
@@ -1630,8 +1667,26 @@ function tryImport(text,errId){
   });
 }
 
+function wakeLog(m){
+  const t=today(), w=S.wake, ok=m<=wakeTarget(t);
+  let stepped=false;
+  commit(()=>{
+    let h=S.habits.find(x=>x.id===w.habitId&&!x.archivedOn);
+    if(!h){ h={id:uid(),name:'Wake up early',icon:'zap',category:'Health',days:[],createdOn:S.startDate&&t>S.startDate?t:null,archivedOn:null}; S.habits.unshift(h); w.habitId=h.id; }
+    w.log[t]={m,ok};
+    const arr=new Set(S.completions[t]||[]); if(ok&&S.startDate&&t>=S.startDate) arr.add(h.id); else arr.delete(h.id); S.completions[t]=[...arr];
+    if(!w.lastStep) w.lastStep=t;
+    else if(diff(w.lastStep,t)>=7){ let n=0; for(let i=0;i<7;i++){ const x=w.log[addDays(w.lastStep,i)]; if(x&&x.ok) n++; }
+      if(n>=5&&w.base>w.goal){ w.base=Math.max(w.goal,w.base-15); stepped=true; } w.lastStep=t; }
+  });
+  toast(stepped?'Level up: new wake time '+hm(w.base):ok?'Main quest cleared':'Logged. Late today','zap',ok);
+}
 /* ---------- actions ---------- */
 const A={
+  wakeUp(){ const d=new Date(); wakeLog(d.getHours()*60+d.getMinutes()); },
+  wakeAt(){ const v=(document.getElementById('wk-t').value||'').split(':').map(Number); if(v.length<2||!Number.isFinite(v[0])){ toast('Pick a time','x'); return; } wakeLog(v[0]*60+v[1]); },
+  wakeUndo(){ const t=today(), h=S.habits.find(x=>x.id===S.wake.habitId);
+    commit(()=>{ delete S.wake.log[t]; if(h&&S.completions[t]) S.completions[t]=S.completions[t].filter(id=>id!==h.id); }); },
   moneyCat(el){ const c=el.dataset.c; if(MONEY_CATS.includes(c)) commit(()=>{ S.money.cat=c; }); },
   moneyAdd(){
     const g=id=>document.getElementById(id), a=Number((g('mn-a').value||'').replace(/,/g,'')), d=g('mn-d').value||today();
