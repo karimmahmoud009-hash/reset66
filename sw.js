@@ -7,6 +7,7 @@ self.addEventListener('fetch',e=>{
   const r=e.request; if(r.method!=='GET') return;
   const url=new URL(r.url);
   if(url.pathname.endsWith('/inbox.json')) return; /* coach commands always come from the network */
+  if(url.pathname.includes('/ledger/')) return; /* Pocket Ledger is a separate app; never cache it as RESET 66's page */
   if(r.mode==='navigate'){
     e.respondWith(fetch(r.url,{cache:'no-store',credentials:'same-origin'}).then(res=>{const cp=res.clone();caches.open(CACHE).then(c=>c.put('./index.html',cp));return res;}).catch(()=>caches.match('./index.html')));
     return;

@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ledger">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F3F5F1">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<title>Pocket Ledger</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+/* Layout: single narrow column, phone-first — month summary, quick-add, then days as a running ledger */
+:root{
+  --bg:#F3F5F1; --surface:#FFFFFF; --ink:#16211D; --muted:#5D6B65; --line:#DDE3DD;
+  --accent:#0E6B52; --accent-soft:#E1EFE8; --danger:#B3261E;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1513; --surface:#18201D; --ink:#E7EEEA; --muted:#93A39C; --line:#2A3631;
+  --accent:#4FC59D; --accent-soft:#1B3029; --danger:#F2867E; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0F1513; --surface:#18201D; --ink:#E7EEEA; --muted:#93A39C; --line:#2A3631;
+  --accent:#4FC59D; --accent-soft:#1B3029; --danger:#F2867E; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding-block:28px 48px;
+  padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:22px}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.label{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+header{display:flex;flex-direction:column;gap:14px}
+h1{font-family:var(--f-display);font-weight:700;font-size:26px;margin:0;letter-spacing:-.01em}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.summary div{background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.summary .big{font-size:24px;font-weight:500}
+.summary .big small{font-size:13px;color:var(--muted);margin-left:4px}
+
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar-row{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center;font-size:13.5px}
+.bar-track{height:8px;background:var(--accent-soft);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;background:var(--accent);border-radius:4px}
+
+form{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.amount-line{display:flex;align-items:baseline;gap:8px;border-bottom:2px solid var(--line);padding-bottom:4px}
+.amount-line:focus-within{border-color:var(--accent)}
+.amount-line span{font-family:var(--f-mono);color:var(--muted);font-size:15px}
+#amount{border:0;background:transparent;color:var(--ink);font-family:var(--f-mono);font-size:30px;width:100%;outline:none;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row input{flex:1 1 160px;min-width:0}
+input[type=text],input[type=date]{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:9px 11px;font:inherit;font-size:14px}
+input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.add{background:var(--accent);color:var(--surface);border:0;border-radius:10px;padding:12px;font:inherit;font-weight:600;font-size:15px;cursor:pointer}
+.add:disabled{opacity:.45;cursor:default}
+.msg{font-size:13px;color:var(--danger);min-height:0}
+
+.days{display:flex;flex-direction:column;gap:18px}
+.day h2{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 6px;font-family:var(--f-display);font-weight:500;font-size:16px}
+.day h2 .num{font-size:14px;color:var(--muted);font-weight:400}
+.entries{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.entries li{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 12px}
+.entries li+li{border-top:1px solid var(--line)}
+.what{min-width:0}
+.what b{font-weight:500}
+.what .note{color:var(--muted);font-size:13px;margin-left:6px;overflow-wrap:anywhere}
+.amt{font-size:15px}
+.del{border:0;background:transparent;color:var(--muted);cursor:pointer;font:inherit;font-size:12.5px;padding:4px 6px;border-radius:6px}
+.del:hover{color:var(--danger)}
+.del.confirm{color:var(--danger);font-weight:600}
+.empty{color:var(--muted);text-align:center;padding:24px 8px;border:1px dashed var(--line);border-radius:12px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <h1>Pocket Ledger</h1>
+    <div class="summary">
+      <div><span class="label">Today</span><span class="big num" id="sumToday">0<small>EGP</small></span></div>
+      <div><span class="label" id="monthLabel">This month</span><span class="big num" id="sumMonth">0<small>EGP</small></span></div>
+    </div>
+    <div class="bars" id="bars"></div>
+  </header>
+
+  <form id="form" autocomplete="off">
+    <span class="label">Add spending</span>
+    <label class="amount-line" for="amount">
+      <span>EGP</span>
+      <input id="amount" type="text" inputmode="decimal" placeholder="0">
+    </label>
+    <div class="chips" id="chips" role="group" aria-label="Category"></div>
+    <div class="row">
+      <input id="note" type="text" placeholder="Note (optional)">
+      <input id="date" type="date">
+    </div>
+    <button class="add" id="addBtn" type="submit">Add</button>
+    <div class="msg" id="msg" hidden></div>
+  </form>
+
+  <section class="days" id="days">
+    <div class="empty">Loading your spending…</div>
+  </section>
+</div>
+
+<script>
+const CATS=["Gift","Food","Transport","Bills","Shopping","Other"];
+let cat="Food", entries=[], db=null, col=null, pendingDel=null;
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n).toLocaleString("en-US",{maximumFractionDigits:2});
+const iso=d=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+const todayISO=()=>iso(new Date());
+
+function dayName(s){
+  const t=todayISO(), y=new Date(); y.setDate(y.getDate()-1);
+  if(s===t) return "Today"; if(s===iso(y)) return "Yesterday";
+  const [Y,M,D]=s.split("-").map(Number);
+  return new Date(Y,M-1,D).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+}
+
+function renderChips(){
+  $("chips").innerHTML="";
+  CATS.forEach(c=>{const b=document.createElement("button");b.type="button";b.className="chip";b.textContent=c;
+    b.setAttribute("aria-pressed",c===cat);b.onclick=()=>{cat=c;renderChips()};$("chips").appendChild(b)});
+}
+
+function render(){
+  const t=todayISO(), m=t.slice(0,7);
+  const today=entries.filter(e=>e.date===t).reduce((a,e)=>a+e.amount,0);
+  const monthE=entries.filter(e=>e.date.slice(0,7)===m);
+  const month=monthE.reduce((a,e)=>a+e.amount,0);
+  $("sumToday").innerHTML=fmt(today)+"<small>EGP</small>";
+  $("sumMonth").innerHTML=fmt(month)+"<small>EGP</small>";
+  $("monthLabel").textContent=new Date().toLocaleDateString("en-GB",{month:"long"});
+
+  const byCat={}; monthE.forEach(e=>byCat[e.category]=(byCat[e.category]||0)+e.amount);
+  const cats=Object.entries(byCat).sort((a,b)=>b[1]-a[1]), max=cats[0]?cats[0][1]:1;
+  $("bars").innerHTML="";
+  cats.forEach(([c,v])=>{const r=document.createElement("div");r.className="bar-row";
+    r.innerHTML=`<span></span><div class="bar-track"><div class="bar-fill" style="width:${(v/max*100).toFixed(1)}%"></div></div><span class="num"></span>`;
+    r.children[0].textContent=c;r.children[2].textContent=fmt(v);$("bars").appendChild(r)});
+
+  const days=$("days"); days.innerHTML="";
+  if(!entries.length){days.innerHTML='<div class="empty">No spending yet. Add your first one above.</div>';return}
+  const groups={}; entries.forEach(e=>(groups[e.date]=groups[e.date]||[]).push(e));
+  Object.keys(groups).sort().reverse().forEach(d=>{
+    const list=groups[d].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    const sec=document.createElement("div");sec.className="day";
+    const total=list.reduce((a,e)=>a+e.amount,0);
+    sec.innerHTML=`<h2><span></span><span class="num"></span></h2><ul class="entries"></ul>`;
+    sec.querySelector("h2 span").textContent=dayName(d);
+    sec.querySelector("h2 .num").textContent=fmt(total)+" EGP";
+    const ul=sec.querySelector("ul");
+    list.forEach(e=>{const li=document.createElement("li");
+      li.innerHTML=`<span class="what"><b></b><span class="note"></span></span><span class="amt num"></span><button class="del" type="button"></button>`;
+      li.querySelector("b").textContent=e.category;
+      li.querySelector(".note").textContent=e.note||"";
+      li.querySelector(".amt").textContent=fmt(e.amount);
+      const del=li.querySelector(".del");
+      const armed=pendingDel===e.id; del.textContent=armed?"Delete?":"✕"; del.classList.toggle("confirm",armed);
+      del.setAttribute("aria-label",armed?"Confirm delete":"Delete entry");
+      del.onclick=async()=>{
+        if(pendingDel!==e.id){pendingDel=e.id;render();setTimeout(()=>{if(pendingDel===e.id){pendingDel=null;render()}},3000);return}
+        pendingDel=null; try{await col.doc(e.id).delete()}catch(err){showMsg("Couldn't delete. Try again.")}
+      };
+      ul.appendChild(li)});
+    days.appendChild(sec)});
+}
+
+function showMsg(t){$("msg").textContent=t;$("msg").hidden=!t}
+
+$("date").value=todayISO();
+renderChips();
+
+$("form").addEventListener("submit",async ev=>{
+  ev.preventDefault(); showMsg("");
+  const amount=parseFloat($("amount").value.replace(/,/g,""));
+  if(!(amount>0)){showMsg("Enter an amount above zero.");$("amount").focus();return}
+  if(!col){showMsg("Saving isn't available on this device.");return}
+  $("addBtn").disabled=true;
+  try{
+    await col.add({amount,category:cat,note:$("note").value.trim(),date:$("date").value||todayISO(),createdAt:Date.now()});
+    $("amount").value="";$("note").value="";$("amount").focus();
+  }catch(err){showMsg(err&&err.code==="quota_exceeded"?"Storage is full. Delete some old entries.":"Couldn't save. Try again.")}
+  $("addBtn").disabled=false;
+});
+
+const KEY="pocket-ledger-v1";
+function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch(e){}
+  return [{id:"s1",amount:305,category:"Gift",note:"",date:"2026-10-28",createdAt:1},
+          {id:"s2",amount:250,category:"Gift",note:"",date:"2026-10-29",createdAt:2},
+          {id:"s3",amount:170,category:"Food",note:"Breakfast",date:"2026-10-29",createdAt:3}]}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(entries));return true}catch(e){return false}}
+col={
+  add:async d=>{entries.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),...d});if(!save())throw {};render()},
+  doc:id=>({delete:async()=>{entries=entries.filter(e=>e.id!==id);save();render()}})
+};
+entries=load(); save(); render();
+</script>
+
+</body>
+</html>
