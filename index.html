@@ -1245,7 +1245,7 @@ function viewFit(){
   const f=S.fit, t=today(), n=f.done.length, k=FIT_ROT[n%FIT_ROT.length], ph=fitPhase(n), s=FIT_S[k], doneToday=f.done.some(x=>x.d===t);
   const items=fitItems(k,ph);
   const list='<ol class="fit-list">'+items.map((x,i)=>'<li><span class="n num">'+(i+1)+'</span><span class="grow"><b>'+esc(x[0])+'</b> <span class="dose num">'+esc(x[1])+'</span><br><span class="muted">'+esc(x[2])+'</span></span></li>').join('')+'</ol>';
-  const card=(doneToday?'<p class="note" style="padding-top:0">'+ic('check','lg-sh')+'Today’s workout is done. Rest is part of the plan. The next one is below.</p>':'')+
+  const card=(doneToday?'<p class="note" style="padding-top:0">'+ic('check','lg-sh')+'Today’s workout is done. Rest is part of the plan. The next one is below. <button class="link" data-a="fitUndo">Undo</button></p>':'')+
     '<div class="quest" style="margin-top:'+(doneToday?'10px':'0')+'"><div class="tag">'+(doneToday?'NEXT WORKOUT':'TODAY’S WORKOUT')+' · Session '+(n+1)+'</div><h2>'+esc(s.n)+'</h2>'+
     '<p class="ai-phase">Phase '+(ph+1)+' · '+FIT_PHASES[ph]+' · '+s.min+' min · '+esc(s.gear)+'</p>'+
     '<p class="muted small" style="margin-top:10px">'+esc(FIT_WARM)+(k==='R'?'':' Rest 60–90 seconds between sets.')+'</p>'+list+
@@ -1649,6 +1649,13 @@ const A={
     commit(()=>{ S.fit.done.push({id:uid(),d:t,s:k}); if(S.fit.done.length>1000) S.fit.done=S.fit.done.slice(-1000);
       if(h&&S.startDate&&t>=S.startDate&&scheduled(h,t)){ const arr=new Set(S.completions[t]||[]); if(!arr.has(h.id)){ arr.add(h.id); ticked=true; } S.completions[t]=[...arr]; } },r);
     toast(FIT_S[k].n+' done'+(ticked?'. Habit checked off.':''),'dumbbell',true);
+  },
+  fitUndo(){
+    const t=today(), i=S.fit.done.map(x=>x.d).lastIndexOf(t); if(i<0) return;
+    const h=fitLinked();
+    commit(()=>{ S.fit.done.splice(i,1);
+      if(h&&!S.fit.done.some(x=>x.d===t)&&S.completions[t]) S.completions[t]=S.completions[t].filter(id=>id!==h.id); });
+    toast('Workout undone','check');
   },
   fitAddHabit(){
     if(fitLinked()) return;
