@@ -174,8 +174,13 @@ svg.lg-sh{ color:var(--accent); margin-right:6px; vertical-align:-1px; }
 
 /* nav */
 .nav{ position:fixed; left:0; right:0; bottom:0; z-index:20; background:color-mix(in srgb,var(--bg) 88%,transparent); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom,0px); }
-.nav-in{ max-width:480px; margin:0 auto; display:grid; grid-template-columns:repeat(6,1fr); }
+.nav-in{ max-width:480px; margin:0 auto; display:grid; grid-template-columns:repeat(7,1fr); }
 .ai-phase{ font-size:12px!important; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#7cc4ff!important; margin-top:10px!important; }
+.fit-list{ list-style:none; padding:0; margin:12px 0 0; }
+.fit-list li{ display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:14px; line-height:1.45; }
+.fit-list li .n{ width:22px; flex:none; color:var(--muted); font-weight:700; }
+.fit-list .dose{ color:var(--accent); font-weight:700; white-space:nowrap; }
+.fit-list .grow{ min-width:0; }
 .ai-form .row{ margin-top:10px; }
 .ai-check{ display:flex; align-items:center; gap:10px; font-size:14.5px; font-weight:600; flex:1; min-height:48px; }
 .ai-check input{ width:22px; height:22px; accent-color:var(--accent); }
@@ -720,6 +725,63 @@ function aiClean(a){
   return r;
 }
 
+
+/* ---------- Get fit: home workout plan (TRX, pull-up bar, bands with handles, jump rope) ---------- */
+const FIT_PHASES=['Foundation','Build','Strong'];
+const FIT_ROT=['A','R','B','R','C','R'];
+const FIT_WARM='Warm-up, 5 min: arm circles, 10 squats, 10 slow TRX rows, 15 band pull-aparts, 1 min shadow jumps.';
+const FIT_S={
+ A:{n:'Pull day',min:35,gear:'Pull-up bar · TRX · Bands',x:[
+  ['Dead hang',['3 × 20 s','3 × 30 s','3 × 45 s'],'Hang from the bar with straight arms. Pull your shoulders down, away from your ears.'],
+  ['Scapular pull-ups',['2 × 8','3 × 8','3 × 10'],'Hang, then pull your shoulders down without bending the elbows. A small move that builds your first pull-up.'],
+  ['Negative pull-ups',['3 × 3','3 × 4','4 × 5'],'Jump or step up so your chin is over the bar. Lower yourself slowly over 5 seconds.'],
+  ['Pull-up test',['','1 set, max reps','3 × max'],'Full pull-ups from a dead hang. Log your best set below.'],
+  ['TRX row',['3 × 10','3 × 12','4 × 12'],'Lean back with your body straight like a plank. Pull your chest to your hands. Walk your feet forward to make it harder.'],
+  ['Band face pull',['2 × 12','3 × 12','3 × 15'],'Anchor the band at face height (door or bar). Pull the handles toward your eyes, elbows high.'],
+  ['TRX biceps curl',['2 × 10','3 × 10','3 × 12'],'Palms up, elbows high and still. Curl your hands toward your forehead.'],
+  ['Hanging knee raises',['3 × 6','3 × 10','3 × 12'],'Hang from the bar and bring your knees to your chest without swinging.']]},
+ B:{n:'Push and legs',min:35,gear:'TRX · Bands',x:[
+  ['TRX chest press',['3 × 10','3 × 12','4 × 12'],'Face away from the anchor and lean forward. Lower your chest between your hands, then push back. Step back to make it easier.'],
+  ['Push-ups',['3 × 6','3 × 10','4 × 12'],'On your knees is fine at first. Keep your body straight and bring your chest to the floor.'],
+  ['Band overhead press',['3 × 10','3 × 12','4 × 12'],'Stand on the band, handles at your shoulders. Press straight up without arching your back.'],
+  ['Band lateral raise',['2 × 12','3 × 12','3 × 15'],'Stand on the band. Raise your arms out to the side to shoulder height, slowly.'],
+  ['TRX triceps press',['2 × 10','3 × 10','3 × 12'],'Lean forward and bend only your elbows, hands toward your forehead. Press back.'],
+  ['TRX squat',['3 × 12','3 × 15','4 × 15'],'Hold the handles, sit back and down, then stand up tall.'],
+  ['TRX reverse lunge',['2 × 8 each leg','3 × 8 each leg','3 × 10 each leg'],'Hold the handles. Step one foot back and lower the back knee near the floor.'],
+  ['Plank',['3 × 30 s','3 × 45 s','3 × 60 s'],'Elbows under shoulders, squeeze your glutes, keep your hips level.']]},
+ C:{n:'Full body',min:35,gear:'TRX · Bar · Bands · Rope',x:[
+  ['Band deadlift',['3 × 12','3 × 15','4 × 15'],'Stand on the band. Push your hips back with a flat back, then stand up and squeeze your glutes.'],
+  ['Negative chin-ups',['3 × 3','3 × 4','4 × 4'],'Palms facing you. Start at the top and lower slowly over 5 seconds.'],
+  ['TRX hamstring curl',['3 × 8','3 × 10','3 × 12'],'Lie on your back with heels in the foot cradles. Lift your hips and pull your heels to your glutes.'],
+  ['TRX split squat',['2 × 8 each leg','3 × 8 each leg','3 × 10 each leg'],'Back foot in the foot cradle. Lower until your front thigh is level with the floor.'],
+  ['Band row',['3 × 12','3 × 15','4 × 15'],'Anchor the band at chest height. Pull the handles to your ribs and squeeze your shoulder blades.'],
+  ['TRX mountain climbers',['3 × 20 s','3 × 30 s','3 × 40 s'],'Feet in the cradles, hands on the floor in a push-up position. Drive your knees to your chest.'],
+  ['Rope finisher',['5 × 20 s on / 40 s off','6 × 30 s on / 30 s off','8 × 40 s on / 20 s off'],'Easy basic bounce. When you miss, just restart.']]},
+ R:{n:'Rope skill',min:15,gear:'Jump rope',p:[
+  [['Shadow jumps','3 × 30 s','No rope. Small hops on the balls of your feet while turning your wrists as if holding the rope.'],
+   ['Swing and step','2 × 10','Swing the rope over your head, let it hit the floor in front, and step over it. This teaches the timing.'],
+   ['Single jumps','3 × 10','Swing, jump once, stop. Reset and repeat. One clean jump at a time.'],
+   ['Basic bounce','5 × 20 s on / 40 s off','Jump only 2–3 cm high, elbows close to your body, turn from the wrists. Count your longest run without a miss.'],
+   ['Calf stretch','2 min','Lean on a wall and stretch each calf for 30 seconds, twice.']],
+  [['Basic bounce','8 × 30 s on / 30 s off','Stay light and quiet. Aim for 100 jumps in a row by the end of this phase.'],
+   ['Alternate foot step','4 × 20 s','Like jogging in place over the rope, one foot at a time.'],
+   ['Side to side','3 × 20 s','Small hops left and right while the rope keeps turning.'],
+   ['Calf stretch','2 min','Lean on a wall and stretch each calf for 30 seconds, twice.']],
+  [['Continuous rope','2 × 3 min','Mix basic bounce and alternate foot. Rest 1 minute between rounds.'],
+   ['Boxer step','4 × 30 s','Shift your weight from one foot to the other with a small bounce on each.'],
+   ['Intervals','10 × 40 s fast / 20 s easy','Push the pace in the fast part, stay relaxed in the easy part.'],
+   ['Calf stretch','2 min','Lean on a wall and stretch each calf for 30 seconds, twice.']]]}
+};
+const FIT_K={pull:['Best pull-ups','reps'],hang:['Longest dead hang','sec'],rope:['Rope jumps in a row','jumps']};
+function fitBlank(){ return {done:[],best:[],habitId:null}; }
+function fitClean(f){
+  const r=fitBlank(); if(!f||typeof f!=='object') return r;
+  if(Array.isArray(f.done)) r.done=f.done.filter(x=>x&&isDate(x.d)&&FIT_S[x.s]).slice(-1000).map(x=>({id:typeof x.id==='string'?x.id:uid(),d:x.d,s:x.s}));
+  if(Array.isArray(f.best)) r.best=f.best.filter(x=>x&&isDate(x.d)&&FIT_K[x.k]&&Number.isFinite(Number(x.v))).slice(-500).map(x=>({id:typeof x.id==='string'?x.id:uid(),d:x.d,k:x.k,v:Math.max(0,Math.min(100000,Math.round(Number(x.v))))}));
+  r.habitId=typeof f.habitId==='string'?f.habitId:null;
+  return r;
+}
+
 /* ---------- dates (local calendar, never UTC) ---------- */
 const DAY=86400000;
 const pad=n=>String(n).padStart(2,'0');
@@ -926,6 +988,7 @@ function migrate(o){
   s.seen={brief:o.seen&&isDate(o.seen.brief)?o.seen.brief:null,eve:o.seen&&isDate(o.seen.eve)?o.seen.eve:null};
   s.applied=Array.isArray(o.applied)?o.applied.filter(x=>typeof x==='string').slice(-300):[];
   s.ai=aiClean(o.ai);
+  s.fit=fitClean(o.fit);
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
 }
@@ -1017,12 +1080,12 @@ function applyTheme(){
 function render(){
   if(!S.onboarded){ root.innerHTML=renderOnboarding(); renderSheet(); return; }
   const c=compute();
-  const views={today:viewToday,calendar:viewCalendar,habits:viewHabits,stats:viewStats,settings:viewSettings,ai:viewAI};
+  const views={today:viewToday,calendar:viewCalendar,habits:viewHabits,stats:viewStats,settings:viewSettings,ai:viewAI,fit:viewFit};
   root.innerHTML='<main class="app" id="main">'+(Store.mode==='memory'?'<div class="warn">This browser is blocking storage, so progress will be lost when you close the app. Export a backup from Settings.</div>':'')+(views[route]||viewToday)(c)+'</main>'+nav();
   renderSheet();
 }
 function nav(){
-  const t=[['today','home','Today'],['calendar','calendar','Calendar'],['habits','list','Habits'],['ai','spark','AI'],['stats','chart','Progress'],['settings','sliders','Settings']];
+  const t=[['today','home','Today'],['calendar','calendar','Calendar'],['habits','list','Habits'],['fit','dumbbell','Fit'],['ai','spark','AI'],['stats','chart','Progress'],['settings','sliders','Settings']];
   return '<nav class="nav" aria-label="Main"><div class="nav-in">'+t.map(([k,i,l])=>'<button data-a="go" data-to="'+k+'"'+(route===k?' aria-current="page"':'')+'>'+ic(i)+'<span>'+l+'</span></button>').join('')+'</div></nav>';
 }
 const MSG=[
@@ -1130,6 +1193,41 @@ function viewHabits(){
     '<div class="card"><p class="muted small" style="margin:0 0 10px">Add your own ideas to the daily side quest pool. One random side quest appears each day.</p>'+
     (S.bonus.custom.length?S.bonus.custom.map((q,i)=>'<div class="row between cq"><span>'+esc(q)+'</span><button class="x" data-a="sideDel" data-i="'+i+'" aria-label="Remove '+esc(q)+'">'+ic('x')+'</button></div>').join(''):'')+
     '<div class="row" style="margin-top:10px"><input class="input" id="sq-new" maxlength="80" placeholder="e.g. 30 minutes of drawing" enterkeyhint="done"><button class="btn btn-ghost" style="min-width:60px" data-a="sideAdd" aria-label="Add side quest">'+ic('plus')+'</button></div></div>';
+}
+/* ---------- Fit tab ---------- */
+function fitLinked(){ return S.habits.find(h=>h.id===S.fit.habitId&&!h.archivedOn)||null; }
+function fitPhase(n){ return n<18?0:n<36?1:2; }
+function fitItems(k,ph){ const s=FIT_S[k]; return k==='R'?s.p[ph]:s.x.filter(x=>x[1][ph]).map(x=>[x[0],x[1][ph],x[2]]); }
+function fitBest(k){ return S.fit.best.filter(x=>x.k===k).reduce((m,x)=>Math.max(m,x.v),0); }
+function viewFit(){
+  if(!S.fit) S.fit=fitBlank();
+  const f=S.fit, t=today(), n=f.done.length, k=FIT_ROT[n%FIT_ROT.length], ph=fitPhase(n), s=FIT_S[k], doneToday=f.done.some(x=>x.d===t);
+  const items=fitItems(k,ph);
+  const list='<ol class="fit-list">'+items.map((x,i)=>'<li><span class="n num">'+(i+1)+'</span><span class="grow"><b>'+esc(x[0])+'</b> <span class="dose num">'+esc(x[1])+'</span><br><span class="muted">'+esc(x[2])+'</span></span></li>').join('')+'</ol>';
+  const card=(doneToday?'<p class="note" style="padding-top:0">'+ic('check','lg-sh')+'Today’s workout is done. Rest is part of the plan. The next one is below.</p>':'')+
+    '<div class="quest" style="margin-top:'+(doneToday?'10px':'0')+'"><div class="tag">'+(doneToday?'NEXT WORKOUT':'TODAY’S WORKOUT')+' · Session '+(n+1)+'</div><h2>'+esc(s.n)+'</h2>'+
+    '<p class="ai-phase">Phase '+(ph+1)+' · '+FIT_PHASES[ph]+' · '+s.min+' min · '+esc(s.gear)+'</p>'+
+    '<p class="muted small" style="margin-top:10px">'+esc(FIT_WARM)+(k==='R'?'':' Rest 60–90 seconds between sets.')+'</p>'+list+
+    '<button class="btn btn-primary btn-block" style="margin-top:14px" data-a="fitDone">'+ic('check')+'Workout done</button></div>';
+  const habit=fitLinked()?'':'<button class="pick coach-cta" style="margin-top:12px" data-a="fitAddHabit"><span class="ico">'+ic('dumbbell')+'</span><span class="grow">Link it to my daily habits<div class="muted small" style="font-weight:500">Each workout then checks off your exercise habit on Today.</div></span>'+ic('plus')+'</button>';
+  const w0=addDays(t,-6), wk=f.done.filter(x=>x.d>=w0).length;
+  const score='<div class="section-head" style="display:block"><h2>Real results</h2><p class="muted small" style="margin:2px 0 0">What your body can actually do. Test and log it every couple of weeks.</p></div>'+
+    '<div class="stats3" style="margin-top:0"><div class="stat"><div class="v num">'+fitBest('pull')+'</div><div class="k">Best pull-ups</div></div><div class="stat"><div class="v num">'+fitBest('hang')+'s</div><div class="k">Longest hang</div></div><div class="stat"><div class="v num">'+fitBest('rope')+'</div><div class="k">Rope jumps in a row</div></div></div>'+
+    '<div class="grid2" style="margin-top:10px"><div class="card"><div class="muted small">Workouts done</div><h3 style="margin-top:4px" class="num">'+n+'</h3></div><div class="card"><div class="muted small">Last 7 days</div><h3 style="margin-top:4px" class="num">'+wk+' / 5</h3></div></div>';
+  const recent=f.best.slice(-6).reverse();
+  const log='<div class="section-head"><h2>Log a test</h2></div><div class="card ai-form"><div class="row" style="margin-top:0"><select class="input" id="fb-k">'+Object.entries(FIT_K).map(([key,v])=>'<option value="'+key+'">'+v[0]+'</option>').join('')+'</select><input class="input" id="fb-v" type="number" inputmode="numeric" min="0" placeholder="Number" style="max-width:110px"></div>'+
+    '<button class="btn btn-primary btn-block" style="margin-top:12px" data-a="fitLog">'+ic('plus')+'Save test</button></div>'+
+    (recent.length?'<div class="list" style="margin-top:10px">'+recent.map(x=>'<div class="item"><span class="grow">'+esc(FIT_K[x.k][0])+': <b class="num">'+x.v+' '+FIT_K[x.k][1]+'</b><div class="sub">'+esc(nice(x.d,{day:'numeric',month:'short'}))+'</div></span><button class="x" data-a="fitLogDel" data-id="'+esc(x.id)+'" aria-label="Delete this test">'+ic('x')+'</button></div>').join('')+'</div>':'');
+  const rope='<div class="section-head"><h2>Jump rope basics</h2></div><div class="card small" style="line-height:1.6"><details class="ai-plan"><summary>New to the rope? Read this first</summary>'+
+    '<p><b>Size it.</b> Stand on the middle of the rope. The handles should reach your armpits. If it is too long, tie a knot near each handle.</p>'+
+    '<p><b>Where.</b> Wood, a rubber mat or a short carpet. Avoid hard tiles. Always wear trainers.</p>'+
+    '<p><b>How.</b> Jump only 2–3 cm off the floor, land softly on the balls of your feet. Keep elbows close to your sides and turn the rope with your wrists, not your arms.</p>'+
+    '<p><b>Missing is normal.</b> Everyone trips. Just restart. Count your longest run and log it here.</p></details></div>';
+  const week='<div class="section-head"><h2>The routine</h2></div><div class="card small"><details class="ai-plan"><summary>How the plan works</summary>'+
+    '<p>Six sessions repeat in order: Pull day, Rope, Push and legs, Rope, Full body, Rope. Do the next one in the list on any day you train. Aim for 5 a week and keep 1–2 rest days.</p>'+
+    '<p>The plan gets harder by itself: Phase 1 for your first 18 sessions, Phase 2 for the next 18, then Phase 3. If a set feels easy, make the TRX harder by walking your feet closer to the anchor.</p>'+
+    '<p>Sharp pain means stop. Muscle soreness the next day is normal.</p></details></div>';
+  return '<h1 class="page-title">Get fit at home</h1>'+card+habit+score+log+rope+week;
 }
 /* ---------- AI tab ---------- */
 function aiNext(){ for(let i=1;i<=AI_PLAN.length;i++) if(!S.ai.done[i]) return i; return null; }
@@ -1495,6 +1593,31 @@ function tryImport(text,errId){
 
 /* ---------- actions ---------- */
 const A={
+  fitDone(el){
+    const t=today(), r=el.getBoundingClientRect(), h=fitLinked(), k=FIT_ROT[S.fit.done.length%FIT_ROT.length];
+    let ticked=false;
+    commit(()=>{ S.fit.done.push({id:uid(),d:t,s:k}); if(S.fit.done.length>1000) S.fit.done=S.fit.done.slice(-1000);
+      if(h&&S.startDate&&t>=S.startDate&&scheduled(h,t)){ const arr=new Set(S.completions[t]||[]); if(!arr.has(h.id)){ arr.add(h.id); ticked=true; } S.completions[t]=[...arr]; } },r);
+    toast(FIT_S[k].n+' done'+(ticked?'. Habit checked off.':''),'dumbbell',true);
+  },
+  fitAddHabit(){
+    if(fitLinked()) return;
+    const t=today(), ex=S.habits.find(h=>!h.archivedOn&&(h.category==='Fitness'||/exercis|workout|train/i.test(h.name)));
+    commit(()=>{ let h=ex;
+      if(!h){ h={id:uid(),name:'Home workout',icon:'dumbbell',category:'Fitness',days:[],createdOn:S.startDate&&t>S.startDate?t:null,archivedOn:null}; S.habits.push(h); }
+      S.fit.habitId=h.id;
+      if(S.fit.done.some(x=>x.d===t)&&S.startDate&&t>=S.startDate){ const arr=new Set(S.completions[t]||[]); arr.add(h.id); S.completions[t]=[...arr]; } });
+    toast(ex?'Linked to “'+ex.name+'”':'Added to your daily habits','dumbbell');
+  },
+  fitLog(){
+    const g=id=>document.getElementById(id), k=g('fb-k').value, v=Math.round(Number(g('fb-v').value));
+    if(!FIT_K[k]||!Number.isFinite(v)||v<=0){ toast('Enter a number above zero','x'); g('fb-v').focus(); return; }
+    const prev=fitBest(k);
+    commit(()=>{ S.fit.best.push({id:uid(),d:today(),k,v:Math.min(100000,v)}); if(S.fit.best.length>500) S.fit.best=S.fit.best.slice(-500); });
+    toast(v>prev?'New personal best':'Test saved',v>prev?'flame':'check');
+  },
+  fitLogDel(el){ const id=el.dataset.id;
+    ask({title:'Delete this test?',body:'It will be removed from your results.',yes:'Delete',danger:true},()=>{ commit(()=>{ S.fit.best=S.fit.best.filter(x=>x.id!==id); }); closeSheet(); toast('Test deleted','trash'); }); },
   aiDone(el){
     const i=+el.dataset.i, t=today(), r=el.getBoundingClientRect(), h=aiLinked();
     if(!AI_PLAN[i-1]||S.ai.done[i]) return;
