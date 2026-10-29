@@ -185,6 +185,9 @@ svg.lg-sh{ color:var(--accent); margin-right:6px; vertical-align:-1px; }
 .fit-list li .n{ width:22px; flex:none; color:var(--muted); font-weight:700; }
 .fit-list .dose{ color:var(--accent); font-weight:700; white-space:nowrap; }
 .fit-list .grow{ min-width:0; }
+.exl{ color:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:4px; }
+.exl svg.i{ width:16px; height:16px; color:var(--accent); }
+.exl b{ text-decoration:underline; text-decoration-color:var(--accent); text-underline-offset:3px; }
 .ai-form .row{ margin-top:10px; }
 .ai-check{ display:flex; align-items:center; gap:10px; font-size:14.5px; font-weight:600; flex:1; min-height:48px; }
 .ai-check input{ width:22px; height:22px; accent-color:var(--accent); }
@@ -473,7 +476,7 @@ flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05
 zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
 calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
 chart:'<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
-wallet:'<path d="M3 7a2 2 0 0 1 2-2h13v4"/><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="16.5" cy="13.5" r="1.2"/>',dumbbell:'<path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/>',run:'<circle cx="13" cy="4" r="2"/><path d="m7 21 3-6 3 2v5M6 12l3-4 4 1 3 3 3 1"/>',
+wallet:'<path d="M3 7a2 2 0 0 1 2-2h13v4"/><rect x="3" y="7" width="18" height="13" rx="2"/><circle cx="16.5" cy="13.5" r="1.2"/>',play:'<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/>',dumbbell:'<path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/>',run:'<circle cx="13" cy="4" r="2"/><path d="m7 21 3-6 3 2v5M6 12l3-4 4 1 3 3 3 1"/>',
 book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
 droplet:'<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
 leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
@@ -1236,7 +1239,7 @@ function viewFit(){
   const doneToday=!!last&&last.d===t;
   const k=doneToday&&f.pick==null?FIT_ROT[n%FIT_ROT.length]:(f.pick||FIT_ROT[n%FIT_ROT.length]);
   const s=FIT_S[k], items=fitItems(k,lv);
-  const list='<ol class="fit-list">'+items.map((x,i)=>'<li><span class="n num">'+(i+1)+'</span><span class="grow"><b>'+esc(x[0])+'</b> <span class="dose num">'+esc(x[1])+'</span><br><span class="muted">'+esc(x[2])+'</span></span></li>').join('')+'</ol>';
+  const list='<ol class="fit-list">'+items.map((x,i)=>'<li><span class="n num">'+(i+1)+'</span><span class="grow"><a class="exl" href="https://www.youtube.com/results?search_query='+encodeURIComponent('how to do '+x[0]+(k==='R'?' jump rope':' exercise')+' beginner')+'" target="_blank" rel="noopener"><b>'+esc(x[0])+'</b> '+ic('play')+'</a> <span class="dose num">'+esc(x[1])+'</span><br><span class="muted">'+esc(x[2])+'</span></span></li>').join('')+'</ol>';
   const swap='<div class="mchips" style="margin-top:12px">'+[['A','No gear'],['B','No gear 2'],['R','Rope'],['C','Gear']].map(([key,l])=>'<button class="st '+(key===k?'st1':'st0')+'" data-a="fitPick" data-k="'+key+'">'+l+'</button>').join('')+'</div>';
   const feel=doneToday&&last.f==null?'<div class="card" style="margin-bottom:10px"><b>How did '+esc(FIT_S[last.s].n)+' feel?</b><p class="muted small" style="margin:4px 0 10px">Your answer sets the next workout’s level.</p><div class="mchips" style="margin-top:0"><button class="st st0" data-a="fitFeel" data-v="1">Too hard</button><button class="st st1" data-a="fitFeel" data-v="0">Just right</button><button class="st st0" data-a="fitFeel" data-v="-1">Too easy</button></div></div>':'';
   const card=(doneToday?'<p class="note" style="padding-top:0">'+ic('check','lg-sh')+'Today’s workout is done. Rest is part of the plan. <button class="link" data-a="fitUndo">Undo</button></p>'+feel:'')+
