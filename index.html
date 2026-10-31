@@ -1842,8 +1842,8 @@ const A={
   import(){ openSheet('text',{title:'Import progress',body:'Choose a backup file, or paste the text of one below.',readonly:false}); },
   pickFile(){ document.getElementById('file-import').click(); },
   importText(){ tryImport(document.getElementById('tx').value,'tx-err'); },
-  reset(){ ask({title:'Reset the challenge?',body:'This clears your habits, history, XP and achievements, then takes you back to the start. Your current progress is kept as a previous version you can restore from Settings.',yes:'Reset everything',danger:true},async()=>{
-      await keepPrevious(); const theme=S.theme; S=blank(); S.theme=theme; persist(); baseline=null; obInit(); closeSheet(); route='today'; render(); window.scrollTo(0,0); }); },
+  reset(){ ask({title:'Reset the challenge?',body:'This clears your habits, history, XP, workouts and wake-up log, then takes you back to the start. Your Money entries stay. Your current progress is kept as a previous version you can restore from Settings.',yes:'Reset everything',danger:true},async()=>{
+      await keepPrevious(); const theme=S.theme, money=S.money; S=blank(); S.theme=theme; S.money=money; persist(); baseline=null; obInit(); closeSheet(); route='today'; render(); window.scrollTo(0,0); }); },
   newChallenge(){ A.reset(); },
   newSeason(){ openSheet('newSeason'); },
   nsPick(el){ const k=sheet.form.keep, id=el.dataset.id, i=k.indexOf(id); i>=0?k.splice(i,1):k.push(id); renderSheet(false,true); },
