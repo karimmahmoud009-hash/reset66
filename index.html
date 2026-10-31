@@ -184,6 +184,12 @@ svg.lg-sh{ color:var(--accent); margin-right:6px; vertical-align:-1px; }
 .mq-res{ display:flex; align-items:center; gap:8px; margin-top:12px!important; font-weight:650; color:var(--text)!important; }
 .mq-res.ok svg{ color:var(--accent); }
 .mq-late summary{ cursor:pointer; font-size:13px; color:var(--muted); margin-top:10px; min-height:36px; display:flex; align-items:center; }
+.chat{ display:flex; flex-direction:column; gap:8px; }
+.cmsg{ max-width:86%; padding:10px 13px; border-radius:14px; font-size:15px; line-height:1.5; overflow-wrap:anywhere; }
+.cmsg.ai{ background:var(--surface); align-self:flex-start; border-left:2px solid var(--hud); border-radius:2px 14px 14px 2px; }
+.cmsg.me{ background:var(--accent); color:var(--accent-ink); align-self:flex-end; }
+.cmsg.err{ align-self:stretch; max-width:none; color:var(--danger); background:transparent; border:1px solid var(--danger); }
+.chat-in{ margin-top:14px; align-items:flex-end; }
 .fit-list{ list-style:none; padding:0; margin:12px 0 0; }
 .fit-list li{ display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:14px; line-height:1.45; }
 .fit-list li .n{ width:22px; flex:none; color:var(--muted); font-weight:700; }
@@ -1122,13 +1128,13 @@ function applyTheme(){
 function render(){
   if(!S.onboarded){ root.innerHTML=renderOnboarding(); renderSheet(); return; }
   const c=compute();
-  const views={today:viewToday,calendar:viewCalendar,habits:viewHabits,stats:viewStats,settings:viewSettings,ai:viewAI,fit:viewFit,money:viewMoney,more:viewMore};
+  const views={today:viewToday,calendar:viewCalendar,habits:viewHabits,stats:viewStats,settings:viewSettings,ai:viewAI,fit:viewFit,money:viewMoney,more:viewMore,coach:viewCoach};
   root.innerHTML='<main class="app" id="main">'+(Store.mode==='memory'?'<div class="warn">This browser is blocking storage, so progress will be lost when you close the app. Export a backup from Settings.</div>':'')+(views[route]||viewToday)(c)+'</main>'+nav();
   renderSheet();
 }
 function nav(){
   const t=[['today','home','Today'],['habits','list','Habits'],['fit','dumbbell','Fit'],['money','wallet','Money'],['more','menu','More']];
-  const MORE=['more','calendar','stats','ai','settings'];
+  const MORE=['more','calendar','stats','ai','settings','coach'];
   return '<nav class="nav" aria-label="Main"><div class="nav-in">'+t.map(([k,i,l])=>'<button data-a="go" data-to="'+k+'"'+((route===k||(k==='more'&&MORE.includes(route)))?' aria-current="page"':'')+'>'+ic(i)+'<span>'+l+'</span></button>').join('')+'</div></nav>';
 }
 const MSG=[
@@ -1159,8 +1165,54 @@ function habitRow(h,date,locked){
   return '<button class="habit'+(done?' done':'')+(locked?' locked':'')+'" '+(locked?'disabled aria-disabled="true"':'data-a="toggle" data-id="'+h.id+'" data-date="'+date+'"')+' aria-pressed="'+done+'" aria-label="'+esc(nm)+(done?', completed':', not completed')+'">'+
     '<span class="ico">'+ic(h.icon)+'</span><span class="txt"><span class="name" style="display:block">'+esc(nm)+'</span><span class="cat">'+esc(h.category)+(k>=0?', level '+(k+1)+' of '+h.ladder.length:'')+'</span></span><span class="check">'+ic('check')+'</span></button>';
 }
+/* ---------- Coach: free Gemini chat. The key and chat stay on this device only (never in backups). ---------- */
+const CK='levelup-gemini-key', CH='levelup-coach-chat';
+const coach={busy:false,err:''};
+function ckGet(){ try{ return localStorage.getItem(CK)||''; }catch(e){ return ''; } }
+function chGet(){ try{ const v=JSON.parse(localStorage.getItem(CH)); return Array.isArray(v)?v.slice(-40):[]; }catch(e){ return []; } }
+function chSet(a){ try{ localStorage.setItem(CH,JSON.stringify(a.slice(-40))); }catch(e){} }
+function coachContext(){
+  const t=today(), c=compute(), act=S.habits.filter(h=>!h.archivedOn), done=new Set(S.completions[t]||[]);
+  const L=[];
+  L.push('Today is '+nice(t,{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'. Challenge day '+(c.started?c.day:0)+' of 66. Streak '+c.cur+' days. Level '+c.level+'.');
+  L.push('Habits today: '+(act.map(h=>hName(h,t)+(done.has(h.id)?' (done)':' (not done)')).join('; ')||'none')+'.');
+  if(S.wake){ const w=S.wake, lg=[]; for(let i=6;i>=0;i--){ const d=addDays(t,-i), x=w.log[d]; if(x) lg.push(d+' up '+hm(x.m)+(x.ok?' on time':' late')); }
+    L.push('Main quest: wake up by '+hm(wakeTarget(t))+' today (weekday target '+hm(w.base)+', +1h Fri/Sat, goal '+hm(w.goal)+'). Last 7 days: '+(lg.join('; ')||'no logs')+'.'); }
+  if(S.fit){ const f=S.fit; L.push('Fitness: home beginner plan, level '+f.lv+' of 5 ('+FIT_LV[f.lv-1]+'). Gear: TRX, pull-up bar, resistance bands with handles, jump rope (still learning the rope). Workouts done: '+f.done.length+'. Recent: '+(f.done.slice(-5).map(x=>x.d+' '+FIT_S[x.s].n+(x.f===1?' (too hard)':x.f===-1?' (too easy)':x.f===0?' (just right)':'')).join('; ')||'none')+'. Best tests: pull-ups '+fitBest('pull')+', hang '+fitBest('hang')+'s, rope '+fitBest('rope')+' jumps.'); }
+  if(S.money){ const mo=t.slice(0,7), by={}; let tot=0; S.money.items.filter(e=>e.d.slice(0,7)===mo).forEach(e=>{ by[e.c]=(by[e.c]||0)+e.a; tot+=e.a; });
+    L.push('Spending this month: '+egp(tot)+' EGP'+(tot?' ('+Object.entries(by).map(([k,v])=>k+' '+egp(v)).join(', ')+')':'')+'.'); }
+  return L.join('\n');
+}
+function coachSys(){ return 'You are the coach inside Level Up, a personal 66-day habit app for Karim, a graphic designer in Cairo, Egypt. Help with his fitness plan, waking up early, habits, focus and spending. He is a real beginner at exercise: keep advice safe, simple and doable at home. Reply in short, plain sentences and short lists; he prefers brief answers. Match his language (English or Egyptian Arabic). Use EGP for money. You cannot change the app yourself; if he wants a change, tell him what to tap. Not a doctor: for pain or health issues, tell him to see one.\n\nHis current data:\n'+coachContext(); }
+function mdLite(x){ return esc(x).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/^\s*[-*] /gm,'• ').replace(/\n/g,'<br>'); }
+function viewCoach(){
+  const key=ckGet(), chat=chGet();
+  if(!key) return '<h1 class="page-title">Coach</h1><div class="card"><h3>Set up your free coach</h3><p class="muted small" style="line-height:1.6">1. Open <a class="link" style="padding:0" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and sign in with Google.<br>2. Tap <b>Create API key</b> and copy it.<br>3. Paste it here. It stays on this phone only.</p>'+
+    '<div class="row" style="margin-top:10px"><input class="input" id="ck-in" placeholder="Paste your key" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn btn-primary" style="min-width:80px" data-a="coachKey">Save</button></div>'+
+    '<p class="note">Free tier has daily limits. Google may use free-tier chats to improve its models, so keep private details out.</p></div>';
+  const tips=['Plan my workout for tomorrow','How do I start learning the jump rope?','Help me wake up earlier','How was my spending this month?'];
+  const msgs=chat.length?chat.map(m=>'<div class="cmsg '+(m.r==='u'?'me':'ai')+'">'+(m.r==='u'?esc(m.t):mdLite(m.t))+'</div>').join(''):'<div class="cmsg ai">Hey Karim. I can see your habits, workouts, wake-ups and spending. What do you need?</div>';
+  return '<h1 class="page-title">Coach</h1><div class="chat" id="chat">'+msgs+(coach.busy?'<div class="cmsg ai muted">Thinking…</div>':'')+(coach.err?'<div class="cmsg err">'+esc(coach.err)+'</div>':'')+'</div>'+
+    (chat.length?'':'<div class="mchips">'+tips.map(x=>'<button class="st st0" data-a="coachTip" data-t="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div>')+
+    '<div class="row chat-in"><textarea class="input" id="co-in" rows="1" placeholder="Ask your coach" style="min-height:48px;font-size:16px;font-family:inherit"></textarea><button class="btn btn-primary" style="min-width:64px" data-a="coachSend" aria-label="Send"'+(coach.busy?' disabled':'')+'>'+ic('right')+'</button></div>'+
+    '<div class="row between" style="margin-top:8px"><button class="link" data-a="coachClear">New chat</button><button class="link" data-a="coachForget" style="color:var(--muted)">Remove key</button></div>';
+}
+async function coachAsk(text){
+  const key=ckGet(); if(!key||coach.busy) return;
+  const chat=chGet(); chat.push({r:'u',t:text.slice(0,2000)}); chSet(chat); coach.busy=true; coach.err=''; render(); coachScroll();
+  try{
+    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
+      body:JSON.stringify({systemInstruction:{parts:[{text:coachSys()}]},contents:chat.slice(-20).map(m=>({role:m.r==='u'?'user':'model',parts:[{text:m.t}]})),generationConfig:{maxOutputTokens:800}})});
+    const j=await res.json().catch(()=>null);
+    if(!res.ok){ const m=j&&j.error&&j.error.message||''; coach.err=res.status===429?'Daily free limit reached. Try again later.':(res.status===400||res.status===403)&&/key/i.test(m)?'That key didn’t work. Tap Remove key and paste it again.':'The coach couldn’t answer ('+res.status+'). Try again.'; }
+    else{ const out=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[]).map(p=>p.text||'').join('').trim();
+      if(out){ const c2=chGet(); c2.push({r:'a',t:out}); chSet(c2); } else coach.err='No answer came back. Try asking another way.'; }
+  }catch(e){ coach.err='No connection. Check your internet and try again.'; }
+  coach.busy=false; if(route==='coach'){ render(); coachScroll(); }
+}
+function coachScroll(){ requestAnimationFrame(()=>window.scrollTo(0,document.body.scrollHeight)); }
 function viewMore(){
-  const it=[['stats','chart','Progress','Rank, level, streaks and stats'],['calendar','calendar','Calendar','Every day of your 66'],['ai','spark','Stay ahead with AI','Daily AI missions and real results'],['settings','sliders','Settings','Theme, backup and reset']];
+  const it=[['coach','spark','Coach','Ask about workouts, waking up, habits and money'],['stats','chart','Progress','Rank, level, streaks and stats'],['calendar','calendar','Calendar','Every day of your 66'],['ai','spark','Stay ahead with AI','Daily AI missions and real results'],['settings','sliders','Settings','Theme, backup and reset']];
   return '<h1 class="page-title">More</h1>'+it.map(([k,i,l,d])=>'<button class="pick" data-a="go" data-to="'+k+'"><span class="ico">'+ic(i)+'</span><span class="grow">'+l+'<div class="muted small" style="font-weight:500">'+d+'</div></span>'+ic('right')+'</button>').join('');
 }
 /* ---------- Main quest card ---------- */
@@ -1313,7 +1365,7 @@ function viewFit(){
     '<p>Most workouts need no equipment. The rope gets 2 short practice days, and gear day comes once every 5 workouts. Tap a chip on the card to swap today’s workout.</p>'+
     '<p>After each workout, tell the app how it felt. Too hard moves you down a level, too easy moves you up, and 3 “just right” in a row moves you up too.</p>'+
     '<p>Aim for 3–4 workouts a week. Sharp pain means stop. Soreness the next day is normal.</p></details></div>';
-  return '<h1 class="page-title">Get fit at home</h1>'+card+habit+score+log+rope+how;
+  return '<h1 class="page-title">Get fit at home</h1>'+card+'<button class="pick coach-cta" style="margin-top:12px" data-a="go" data-to="coach"><span class="ico">'+ic('spark')+'</span><span class="grow">Ask the coach<div class="muted small" style="font-weight:500">Questions about a move, pain, or what to do today</div></span>'+ic('right')+'</button>'+habit+score+log+rope+how;
 }
 
 /* ---------- AI tab ---------- */
@@ -1696,6 +1748,11 @@ function wakeLog(m){
 }
 /* ---------- actions ---------- */
 const A={
+  coachKey(){ const v=(document.getElementById('ck-in').value||'').trim(); if(v.length<20){ toast('That doesn’t look like a key','x'); return; } try{ localStorage.setItem(CK,v); }catch(e){} render(); },
+  coachForget(){ ask({title:'Remove your key?',body:'The coach stops until you paste a key again.',yes:'Remove',danger:true},()=>{ try{ localStorage.removeItem(CK); }catch(e){} closeSheet(); render(); }); },
+  coachClear(){ chSet([]); coach.err=''; render(); },
+  coachTip(el){ coachAsk(el.dataset.t); },
+  coachSend(){ const el=document.getElementById('co-in'), v=(el.value||'').trim(); if(!v){ el.focus(); return; } coachAsk(v); },
   wakeUp(){ const d=new Date(); wakeLog(d.getHours()*60+d.getMinutes()); },
   wakeAt(){ const v=(document.getElementById('wk-t').value||'').split(':').map(Number); if(v.length<2||!Number.isFinite(v[0])){ toast('Pick a time','x'); return; } wakeLog(v[0]*60+v[1]); },
   wakeUndo(){ const t=today(), h=S.habits.find(x=>x.id===S.wake.habitId);
