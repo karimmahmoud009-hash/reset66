@@ -1,174 +1,179 @@
 {
-    "about":  "Commands Claude sends to the RESET / 66 app. Each runs once, only for the challenge whose start date matches forStart.",
-    "commands":  [
-                     {
-                         "id":  "2026-10-19-wake-up-7",
-                         "forStart":  "2026-10-18",
-                         "op":  "addHabit",
-                         "name":  "Wake up at 7 am",
-                         "icon":  "sun",
-                         "category":  "Productivity",
-                         "startsOn":  "2026-10-20"
-                     },
-                     {
-                         "id":  "2026-10-19-wake-up-ramp",
-                         "forStart":  "2026-10-18",
-                         "op":  "editHabit",
-                         "match":  "Wake up at 7 am",
-                         "ladder":  [
-                                        {
-                                            "d":  3,
-                                            "name":  "Wake up by 8:00 am"
-                                        },
-                                        {
-                                            "d":  8,
-                                            "name":  "Wake up by 7:45 am"
-                                        },
-                                        {
-                                            "d":  13,
-                                            "name":  "Wake up by 7:30 am"
-                                        },
-                                        {
-                                            "d":  18,
-                                            "name":  "Wake up by 7:15 am"
-                                        },
-                                        {
-                                            "d":  23,
-                                            "name":  "Wake up by 7:00 am"
-                                        }
-                                    ]
-                     },
-                     {
-                         "id":  "2026-10-19-morning-shower",
-                         "forStart":  "2026-10-18",
-                         "op":  "addHabit",
-                         "name":  "Take a morning shower",
-                         "icon":  "droplet",
-                         "category":  "Health",
-                         "unlock":  8,
-                         "ladder":  [
-                                        {
-                                            "d":  8,
-                                            "name":  "Take a morning shower"
-                                        },
-                                        {
-                                            "d":  22,
-                                            "name":  "Morning shower, last 30 seconds cold"
-                                        }
-                                    ]
-                     },
-                     {
-                         "id":  "2026-10-19-plan-day",
-                         "forStart":  "2026-10-18",
-                         "op":  "addHabit",
-                         "name":  "Plan your day for 5 minutes",
-                         "icon":  "pen",
-                         "category":  "Productivity",
-                         "unlock":  23
-                     },
-                     {
-                         "id":  "2026-10-19-side-sunlight",
-                         "forStart":  "2026-10-18",
-                         "op":  "addSideQuest",
-                         "text":  "Get 5 minutes of sunlight within an hour of waking"
-                     },
-                     {
-                         "id":  "2026-10-19-side-bed",
-                         "forStart":  "2026-10-18",
-                         "op":  "addSideQuest",
-                         "text":  "Make your bed right after you get up"
-                     },
-                     {
-                         "id":  "2026-10-19-side-breakfast",
-                         "forStart":  "2026-10-18",
-                         "op":  "addSideQuest",
-                         "text":  "Eat breakfast before 9 am"
-                     },
-                     {
-                         "id":  "2026-10-19-wake-up-ramp-6",
-                         "forStart":  "2026-10-18",
-                         "op":  "editHabit",
-                         "match":  "Wake up by 8:00 am",
-                         "ladder":  [
-                                        {
-                                            "d":  3,
-                                            "name":  "Wake up by 8:30 am"
-                                        },
-                                        {
-                                            "d":  8,
-                                            "name":  "Wake up by 8:15 am"
-                                        },
-                                        {
-                                            "d":  13,
-                                            "name":  "Wake up by 8:00 am"
-                                        },
-                                        {
-                                            "d":  18,
-                                            "name":  "Wake up by 7:45 am"
-                                        },
-                                        {
-                                            "d":  23,
-                                            "name":  "Wake up by 7:30 am"
-                                        },
-                                        {
-                                            "d":  28,
-                                            "name":  "Wake up by 7:15 am"
-                                        },
-                                        {
-                                            "d":  33,
-                                            "name":  "Wake up by 7:00 am"
-                                        },
-                                        {
-                                            "d":  38,
-                                            "name":  "Wake up by 6:45 am"
-                                        },
-                                        {
-                                            "d":  43,
-                                            "name":  "Wake up by 6:30 am"
-                                        },
-                                        {
-                                            "d":  48,
-                                            "name":  "Wake up by 6:15 am"
-                                        },
-                                        {
-                                            "d":  53,
-                                            "name":  "Wake up by 6:00 am"
-                                        }
-                                    ]
-                     },
-                     {
-                         "id":  "2026-10-19-morning-kickstart",
-                         "forStart":  "2026-10-18",
-                         "op":  "addHabit",
-                         "name":  "Make your bed and drink a glass of water",
-                         "icon":  "zap",
-                         "category":  "Productivity",
-                         "startsOn":  "2026-10-20"
-                     },
-                     {
-                         "id":  "2026-10-19-morning-reading",
-                         "forStart":  "2026-10-18",
-                         "op":  "addHabit",
-                         "name":  "Read 5 pages in the morning",
-                         "icon":  "book",
-                         "category":  "Learning",
-                         "unlock":  38,
-                         "ladder":  [
-                                        {
-                                            "d":  38,
-                                            "name":  "Read 5 pages in the morning"
-                                        },
-                                        {
-                                            "d":  52,
-                                            "name":  "Read 10 pages in the morning"
-                                        }
-                                    ]
-                     },
-                     {
-                         "id":  "2026-10-19-drop-side-bed",
-                         "forStart":  "2026-10-18",
-                         "op":  "removeSideQuest",
-                         "text":  "Make your bed right after you get up"
-                     }
-                 ]
+  "about": "Commands Claude sends to the RESET / 66 app. Each runs once, only for the challenge whose start date matches forStart.",
+  "commands": [
+    {
+      "id": "2026-10-19-wake-up-7",
+      "forStart": "2026-10-18",
+      "op": "addHabit",
+      "name": "Wake up at 7 am",
+      "icon": "sun",
+      "category": "Productivity",
+      "startsOn": "2026-10-20"
+    },
+    {
+      "id": "2026-10-19-wake-up-ramp",
+      "forStart": "2026-10-18",
+      "op": "editHabit",
+      "match": "Wake up at 7 am",
+      "ladder": [
+        {
+          "d": 3,
+          "name": "Wake up by 8:00 am"
+        },
+        {
+          "d": 8,
+          "name": "Wake up by 7:45 am"
+        },
+        {
+          "d": 13,
+          "name": "Wake up by 7:30 am"
+        },
+        {
+          "d": 18,
+          "name": "Wake up by 7:15 am"
+        },
+        {
+          "d": 23,
+          "name": "Wake up by 7:00 am"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-19-morning-shower",
+      "forStart": "2026-10-18",
+      "op": "addHabit",
+      "name": "Take a morning shower",
+      "icon": "droplet",
+      "category": "Health",
+      "unlock": 8,
+      "ladder": [
+        {
+          "d": 8,
+          "name": "Take a morning shower"
+        },
+        {
+          "d": 22,
+          "name": "Morning shower, last 30 seconds cold"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-19-plan-day",
+      "forStart": "2026-10-18",
+      "op": "addHabit",
+      "name": "Plan your day for 5 minutes",
+      "icon": "pen",
+      "category": "Productivity",
+      "unlock": 23
+    },
+    {
+      "id": "2026-10-19-side-sunlight",
+      "forStart": "2026-10-18",
+      "op": "addSideQuest",
+      "text": "Get 5 minutes of sunlight within an hour of waking"
+    },
+    {
+      "id": "2026-10-19-side-bed",
+      "forStart": "2026-10-18",
+      "op": "addSideQuest",
+      "text": "Make your bed right after you get up"
+    },
+    {
+      "id": "2026-10-19-side-breakfast",
+      "forStart": "2026-10-18",
+      "op": "addSideQuest",
+      "text": "Eat breakfast before 9 am"
+    },
+    {
+      "id": "2026-10-19-wake-up-ramp-6",
+      "forStart": "2026-10-18",
+      "op": "editHabit",
+      "match": "Wake up by 8:00 am",
+      "ladder": [
+        {
+          "d": 3,
+          "name": "Wake up by 8:30 am"
+        },
+        {
+          "d": 8,
+          "name": "Wake up by 8:15 am"
+        },
+        {
+          "d": 13,
+          "name": "Wake up by 8:00 am"
+        },
+        {
+          "d": 18,
+          "name": "Wake up by 7:45 am"
+        },
+        {
+          "d": 23,
+          "name": "Wake up by 7:30 am"
+        },
+        {
+          "d": 28,
+          "name": "Wake up by 7:15 am"
+        },
+        {
+          "d": 33,
+          "name": "Wake up by 7:00 am"
+        },
+        {
+          "d": 38,
+          "name": "Wake up by 6:45 am"
+        },
+        {
+          "d": 43,
+          "name": "Wake up by 6:30 am"
+        },
+        {
+          "d": 48,
+          "name": "Wake up by 6:15 am"
+        },
+        {
+          "d": 53,
+          "name": "Wake up by 6:00 am"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-19-morning-kickstart",
+      "forStart": "2026-10-18",
+      "op": "addHabit",
+      "name": "Make your bed and drink a glass of water",
+      "icon": "zap",
+      "category": "Productivity",
+      "startsOn": "2026-10-20"
+    },
+    {
+      "id": "2026-10-19-morning-reading",
+      "forStart": "2026-10-18",
+      "op": "addHabit",
+      "name": "Read 5 pages in the morning",
+      "icon": "book",
+      "category": "Learning",
+      "unlock": 38,
+      "ladder": [
+        {
+          "d": 38,
+          "name": "Read 5 pages in the morning"
+        },
+        {
+          "d": 52,
+          "name": "Read 10 pages in the morning"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-19-drop-side-bed",
+      "forStart": "2026-10-18",
+      "op": "removeSideQuest",
+      "text": "Make your bed right after you get up"
+    },
+    {
+      "id": "2026-10-31-reset",
+      "forStart": "*",
+      "op": "resetProgress"
+    }
+  ]
 }

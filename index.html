@@ -1469,7 +1469,9 @@ function obFinish(){
   for(const s of SUGGESTED) if(OB.picked.has(s.k)) habits.push({id:uid(),name:s.name,icon:s.icon,category:s.category,days:[],createdOn:null,archivedOn:null});
   for(const c of OB.custom) habits.push({id:uid(),name:c.name,icon:c.icon,category:c.category,days:[],createdOn:null,archivedOn:null});
   if(OB.plan){ habits.length=0; for(const p of OB.plan) habits.push(planHabit(p,1,null)); }
+  const keepMoney=S.money, keepApplied=S.applied||[];
   S=blank(); S.theme=document.documentElement.getAttribute('data-theme')==='light'?'light':'dark';
+  if(keepMoney) S.money=keepMoney; S.applied=keepApplied;
   S.onboarded=true; S.startDate=OB.start; S.goals=[...OB.goals]; S.habits=habits;
   OB=null; route='today'; persist(); baseline=compute(); render(); window.scrollTo(0,0);
   toast('Challenge started. Day 1 begins '+(S.startDate===today()?'now':'on '+nice(S.startDate,{day:'numeric',month:'short'})),'flame');
@@ -1977,14 +1979,20 @@ function findHabit(m,archived){
 }
 let inboxBusy=false;
 async function checkInbox(){
-  if(inboxBusy||!S.onboarded||!/^https?:$/.test(location.protocol)) return;
+  if(inboxBusy||!/^https?:$/.test(location.protocol)) return;
   inboxBusy=true;
   try{
     const res=await fetch('inbox.json?t='+Date.now(),{cache:'no-store'}); if(!res.ok) return;
     const data=await res.json(), cmds=Array.isArray(data&&data.commands)?data.commands:[];
     const seen=new Set(S.applied), msgs=[]; let changed=false;
     for(const c of cmds){
-      if(!c||typeof c.id!=='string'||seen.has(c.id)||c.forStart!==S.startDate||!INBOX_OPS[c.op]) continue;
+      if(c&&c.op==='resetProgress'&&typeof c.id==='string'&&!seen.has(c.id)){
+        const keep={theme:S.theme,money:S.money,applied:[...S.applied,c.id]};
+        try{ await keepPrevious(); }catch(e){}
+        S=blank(); S.theme=keep.theme; S.money=keep.money; S.applied=keep.applied; persist(); baseline=null; obInit(); route='today'; render(); window.scrollTo(0,0);
+        toast('Progress reset. Fresh start.','zap',true); return;
+      }
+      if(!c||typeof c.id!=='string'||seen.has(c.id)||(c.forStart!==S.startDate&&c.forStart!=='*')||!INBOX_OPS[c.op]) continue;
       let m=null; try{ m=INBOX_OPS[c.op](c); }catch(e){ m=null; }
       S.applied.push(c.id); seen.add(c.id); changed=true; if(m) msgs.push(m);
     }
