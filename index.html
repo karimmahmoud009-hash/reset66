@@ -192,6 +192,10 @@ svg.lg-sh{ color:var(--accent); margin-right:6px; vertical-align:-1px; }
 .chat-in{ margin-top:14px; align-items:flex-end; }
 .xcard{ margin:-4px 0 12px; padding:12px 14px; background:var(--surface-2); border-left:2px solid var(--hud); font-size:14.5px; line-height:1.5; }
 .xcard .xtag{ font-family:var(--mono); font-size:12px; letter-spacing:2px; color:var(--hud); }
+.bread summary{ cursor:pointer; font-weight:650; min-height:40px; display:flex; align-items:center; margin-top:4px; }
+.btext{ font-size:16px; line-height:1.7; max-height:60vh; overflow:auto; padding-right:4px; }
+.btext h4{ font-family:var(--mono); color:var(--hud); letter-spacing:1px; margin:10px 0 4px; }
+.btext p{ margin:0 0 12px; }
 .xcard h3{ margin:4px 0 2px; } .xcard p{ margin:4px 0 0; }
 .xcard .link svg.i{ width:16px; height:16px; vertical-align:-3px; }
 .fit-list{ list-style:none; padding:0; margin:12px 0 0; }
@@ -1041,7 +1045,7 @@ function migrate(o){
   s.fit=fitClean(o.fit);
   s.money=moneyClean(o.money);
   s.wake=wakeClean(o.wake);
-  s.book=o.book&&typeof o.book.t==='string'&&o.book.t.trim()?{t:o.book.t.slice(0,80),a:typeof o.book.a==='string'?o.book.a.slice(0,60):''}:null;
+  s.book=o.book&&BOOKS[o.book.id]?{id:o.book.id,pos:Number.isInteger(o.book.pos)&&o.book.pos>=0?o.book.pos:0,last:isDate(o.book.last)?o.book.last:null}:null;
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
 }
@@ -1289,18 +1293,29 @@ const LESSONS=[
 ['Money','Know your number','Know your monthly cost of living. It turns vague money worry into a clear target.'],
 ['Habits','Day 66','You made it. The habits that survived are now part of who you are. Keep the ones that serve you and choose the next one.']
 ];
-const BOOKS=[['Atomic Habits','James Clear','Habits'],['Steal Like an Artist','Austin Kleon','Creativity'],['The Psychology of Money','Morgan Housel','Money'],['Deep Work','Cal Newport','Focus'],['Show Your Work!','Austin Kleon','Design career'],['Can’t Hurt Me','David Goggins','Discipline'],['The Alchemist','Paulo Coelho','Story'],['Thinking, Fast and Slow','Daniel Kahneman','Thinking']];
+const BOOKS={meditations:['Meditations','Marcus Aurelius','Discipline and calm, in short notes to himself'],'art-of-war':['The Art of War','Sun Tzu','Strategy, short and sharp']};
+const BOOKDATA={};
+function bookLoad(id){ if(BOOKDATA[id]||!BOOKS[id]) return; BOOKDATA[id]='loading'; fetch('books/'+id+'.json').then(r=>r.json()).then(j=>{ BOOKDATA[id]=j; render(); }).catch(()=>{ BOOKDATA[id]=null; }); }
 function lessonFor(date){ const d=S.startDate?Math.max(1,diff(S.startDate,date)+1):1; return LESSONS[(d-1)%LESSONS.length]; }
 function lessonCard(date){
   const [area,title,text]=lessonFor(date);
   return '<div class="xcard"><div class="xtag">// TODAY’S LESSON · '+esc(area.toUpperCase())+'</div><h3>'+esc(title)+'</h3><p>'+esc(text)+'</p>'+
     '<button class="link" style="padding:6px 0 0" data-a="lessonMore" data-t="'+esc(title)+'">Go deeper with the coach '+ic('right')+'</button></div>';
 }
-function bookCard(){
+function bookCard(date){
   const b=S.book;
-  if(b) return '<div class="xcard"><div class="xtag">// NOW READING</div><h3>'+esc(b.t)+'</h3><p class="muted">'+esc(b.a||'')+'</p><button class="link" style="padding:6px 0 0" data-a="bookChange">Change book</button></div>';
-  return '<div class="xcard"><div class="xtag">// PICK ONE BOOK</div><p>Read the same book every day, 2 pages or more. Tap one to start:</p><div class="mchips">'+BOOKS.map((x,i)=>'<button class="st st0" data-a="bookPick" data-i="'+i+'">'+esc(x[0])+'</button>').join('')+'</div>'+
-    '<div class="row" style="margin-top:10px"><input class="input" id="bk-in" maxlength="80" placeholder="Or type your own book"><button class="btn btn-ghost" style="min-width:60px" data-a="bookOwn" aria-label="Save book">'+ic('check')+'</button></div></div>';
+  if(!b) return '<div class="xcard"><div class="xtag">// PICK A BOOK</div><p>The app shows you 2 pages a day and remembers where you stopped. Pick one:</p>'+
+    Object.entries(BOOKS).map(([id,x])=>'<button class="pick" style="margin-top:8px" data-a="bookPick" data-id="'+id+'"><span class="grow">'+esc(x[0])+'<div class="muted small" style="font-weight:500">'+esc(x[1])+' · '+esc(x[2])+'</div></span>'+ic('right')+'</button>').join('')+'</div>';
+  const d=BOOKDATA[b.id], meta=BOOKS[b.id];
+  if(!d||d==='loading'){ bookLoad(b.id); return '<div class="xcard"><div class="xtag">// '+esc(meta[0].toUpperCase())+'</div><p class="muted">Loading today’s pages…</p></div>'; }
+  if(b.pos>=d.parts.length) return '<div class="xcard"><div class="xtag">// BOOK FINISHED</div><h3>You finished '+esc(d.title)+'</h3><button class="link" style="padding:6px 0 0" data-a="bookChange">Pick the next book</button></div>';
+  const readToday=b.last===date;
+  const part=d.parts[readToday?Math.max(0,b.pos-1):b.pos];
+  const txt=part.map(x=>x.startsWith('## ')?'<h4>'+esc(x.slice(3))+'</h4>':'<p>'+esc(x)+'</p>').join('');
+  return '<div class="xcard"><div class="xtag">// '+esc(d.title.toUpperCase())+' · '+(readToday?b.pos:b.pos+1)+' OF '+d.parts.length+'</div>'+
+    '<details class="bread"'+(readToday?'':' open')+'><summary>'+(readToday?'Today’s 2 pages are done. Read again':'Today’s 2 pages')+'</summary><div class="btext">'+txt+'</div></details>'+
+    (readToday?'':'<button class="btn btn-primary btn-block" style="margin-top:10px" data-a="bookDone">'+ic('check')+'I read it</button>')+
+    '<button class="link" style="padding:8px 0 0;color:var(--muted)" data-a="bookChange">Change book</button></div>';
 }
 /* ---------- Main quest card ---------- */
 const hm=m=>{ const h=Math.floor(m/60), mi=m%60, ap=h<12?'AM':'PM'; return ((h%12)||12)+':'+pad(mi)+' '+ap; };
@@ -1350,7 +1365,7 @@ function viewToday(c){
       '<div class="row between" style="margin:0 2px 8px"><span class="muted small">'+(c.started?'Today’s habits':'Your habits')+'</span><button class="link" data-a="go" data-to="habits">Edit</button></div>';
     if(!active.length) list+='<div class="card empty">You have no habits yet.<br><button class="btn btn-primary" data-a="newHabit">'+ic('plus')+'Add a habit</button></div>';
     else if(!todays.length) list+='<div class="card empty">Nothing is scheduled '+(c.started?'today':'on day one')+'. Enjoy the rest.</div>';
-    else list+=todays.map(h=>habitRow(h,date,!c.started)+(/learn/i.test(h.name+' '+hName(h,date))?lessonCard(date):'')+(/read/i.test(h.name+' '+hName(h,date))?bookCard():'')).join('');
+    else list+=todays.map(h=>habitRow(h,date,!c.started)+(/learn/i.test(h.name+' '+hName(h,date))?lessonCard(date):'')+(/read/i.test(h.name+' '+hName(h,date))?bookCard(date):'')).join('');
     if(off>0) list+='<p class="note">'+off+' '+(off===1?'habit isn’t':'habits aren’t')+' scheduled today.</p>';
     if(later.length) list+='<p class="note">'+ic('lock','lg-sh')+'Next unlock: <b style="color:var(--text)">'+esc(hName(later[0],addDays(S.startDate,later[0].unlock-1)))+'</b> on Day '+later[0].unlock+(later.length>1?', then '+(later.length-1)+' more':'')+'.</p>';
     if(!c.started) list+='<p class="note">You can check habits off once the challenge starts.</p>';
@@ -1836,9 +1851,14 @@ function wakeLog(m){
 /* ---------- actions ---------- */
 const A={
   lessonMore(el){ route='coach'; render(); if(ckGet()) coachAsk('Teach me more about “'+el.dataset.t+'” in 5 short points, with one way I can use it today.'); },
-  bookPick(el){ const b=BOOKS[+el.dataset.i]; if(b) commit(()=>{ S.book={t:b[0],a:b[1]}; }); },
-  bookOwn(){ const v=(document.getElementById('bk-in').value||'').trim().slice(0,80); if(!v){ toast('Type a book name','x'); return; } commit(()=>{ S.book={t:v,a:''}; }); },
+  bookPick(el){ const id=el.dataset.id; if(BOOKS[id]) commit(()=>{ S.book={id,pos:0,last:null}; }); },
   bookChange(){ commit(()=>{ S.book=null; }); },
+  bookDone(el){
+    const t=today(), r=el.getBoundingClientRect(), h=S.habits.find(x=>!x.archivedOn&&/read/i.test(x.name+' '+hName(x,t)));
+    commit(()=>{ S.book.pos++; S.book.last=t;
+      if(h&&S.startDate&&t>=S.startDate&&scheduled(h,t)){ const arr=new Set(S.completions[t]||[]); arr.add(h.id); S.completions[t]=[...arr]; } },r);
+    toast('Pages read. Habit checked off.','check',true);
+  },
   coachKey(){ const v=(document.getElementById('ck-in').value||'').trim(); if(v.length<20){ toast('That doesn’t look like a key','x'); return; } try{ localStorage.setItem(CK,v); }catch(e){} render(); },
   coachForget(){ ask({title:'Remove your key?',body:'The coach stops until you paste a key again.',yes:'Remove',danger:true},()=>{ try{ localStorage.removeItem(CK); }catch(e){} closeSheet(); render(); }); },
   coachClear(){ chSet([]); coach.err=''; render(); },
