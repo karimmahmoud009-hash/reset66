@@ -174,6 +174,15 @@
       "id": "2026-10-31-reset",
       "forStart": "*",
       "op": "resetProgress"
+    },
+    {
+      "id": "2026-11-01-quran-habit",
+      "forStart": "*",
+      "op": "editHabit",
+      "match": "Read 2 pages",
+      "name": "Recite 2 pages of Quran",
+      "icon": "book",
+      "ladder": null
     }
   ]
 }

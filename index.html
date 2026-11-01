@@ -196,6 +196,13 @@ svg.lg-sh{ color:var(--accent); margin-right:6px; vertical-align:-1px; }
 .btext{ font-size:16px; line-height:1.7; max-height:60vh; overflow:auto; padding-right:4px; }
 .btext h4{ font-family:var(--mono); color:var(--hud); letter-spacing:1px; margin:10px 0 4px; }
 .btext p{ margin:0 0 12px; }
+@font-face{ font-family:'Amiri Quran Local'; src:url(fonts/amiri-quran.woff2) format('woff2'); font-display:block; }
+.qwrap{ font-family:'Amiri Quran Local',serif; font-size:24px; line-height:2.3; max-height:70vh; overflow:auto; padding:4px 2px; text-align:justify; }
+.qpage{ border-top:1px solid var(--line); padding-top:6px; margin-top:6px; }
+.qpno{ font-size:13px; color:var(--muted); text-align:center; font-family:inherit; }
+.qsura{ text-align:center; color:var(--hud); font-size:20px; margin:10px 0 0; }
+.qbasm{ text-align:center; margin-bottom:4px; }
+.qn{ color:var(--accent); font-size:20px; white-space:nowrap; }
 .xcard h3{ margin:4px 0 2px; } .xcard p{ margin:4px 0 0; }
 .xcard .link svg.i{ width:16px; height:16px; vertical-align:-3px; }
 .fit-list{ list-style:none; padding:0; margin:12px 0 0; }
@@ -1045,7 +1052,7 @@ function migrate(o){
   s.fit=fitClean(o.fit);
   s.money=moneyClean(o.money);
   s.wake=wakeClean(o.wake);
-  s.book=o.book&&BOOKS[o.book.id]?{id:o.book.id,pos:Number.isInteger(o.book.pos)&&o.book.pos>=0?o.book.pos:0,last:isDate(o.book.last)?o.book.last:null}:null;
+  { const q=o.quran, ok=v=>Number.isInteger(v)&&v>=0&&v<604; s.quran=q&&ok(q.pos)?{pos:q.pos,from:ok(q.from)?q.from:q.pos,last:isDate(q.last)?q.last:null}:{pos:0,from:0,last:null}; }
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
 }
@@ -1293,29 +1300,33 @@ const LESSONS=[
 ['Money','Know your number','Know your monthly cost of living. It turns vague money worry into a clear target.'],
 ['Habits','Day 66','You made it. The habits that survived are now part of who you are. Keep the ones that serve you and choose the next one.']
 ];
-const BOOKS={meditations:['Meditations','Marcus Aurelius','Discipline and calm, in short notes to himself'],'art-of-war':['The Art of War','Sun Tzu','Strategy, short and sharp']};
-const BOOKDATA={};
-function bookLoad(id){ if(BOOKDATA[id]||!BOOKS[id]) return; BOOKDATA[id]='loading'; fetch('books/'+id+'.json').then(r=>r.json()).then(j=>{ BOOKDATA[id]=j; render(); }).catch(()=>{ BOOKDATA[id]=null; }); }
 function lessonFor(date){ const d=S.startDate?Math.max(1,diff(S.startDate,date)+1):1; return LESSONS[(d-1)%LESSONS.length]; }
 function lessonCard(date){
   const [area,title,text]=lessonFor(date);
   return '<div class="xcard"><div class="xtag">// TODAY’S LESSON · '+esc(area.toUpperCase())+'</div><h3>'+esc(title)+'</h3><p>'+esc(text)+'</p>'+
     '<button class="link" style="padding:6px 0 0" data-a="lessonMore" data-t="'+esc(title)+'">Go deeper with the coach '+ic('right')+'</button></div>';
 }
-function bookCard(date){
-  const b=S.book;
-  if(!b) return '<div class="xcard"><div class="xtag">// PICK A BOOK</div><p>The app shows you 2 pages a day and remembers where you stopped. Pick one:</p>'+
-    Object.entries(BOOKS).map(([id,x])=>'<button class="pick" style="margin-top:8px" data-a="bookPick" data-id="'+id+'"><span class="grow">'+esc(x[0])+'<div class="muted small" style="font-weight:500">'+esc(x[1])+' · '+esc(x[2])+'</div></span>'+ic('right')+'</button>').join('')+'</div>';
-  const d=BOOKDATA[b.id], meta=BOOKS[b.id];
-  if(!d||d==='loading'){ bookLoad(b.id); return '<div class="xcard"><div class="xtag">// '+esc(meta[0].toUpperCase())+'</div><p class="muted">Loading today’s pages…</p></div>'; }
-  if(b.pos>=d.parts.length) return '<div class="xcard"><div class="xtag">// BOOK FINISHED</div><h3>You finished '+esc(d.title)+'</h3><button class="link" style="padding:6px 0 0" data-a="bookChange">Pick the next book</button></div>';
-  const readToday=b.last===date;
-  const part=d.parts[readToday?Math.max(0,b.pos-1):b.pos];
-  const txt=part.map(x=>x.startsWith('## ')?'<h4>'+esc(x.slice(3))+'</h4>':'<p>'+esc(x)+'</p>').join('');
-  return '<div class="xcard"><div class="xtag">// '+esc(d.title.toUpperCase())+' · '+(readToday?b.pos:b.pos+1)+' OF '+d.parts.length+'</div>'+
-    '<details class="bread"'+(readToday?'':' open')+'><summary>'+(readToday?'Today’s 2 pages are done. Read again':'Today’s 2 pages')+'</summary><div class="btext">'+txt+'</div></details>'+
-    (readToday?'':'<button class="btn btn-primary btn-block" style="margin-top:10px" data-a="bookDone">'+ic('check')+'I read it</button>')+
-    '<button class="link" style="padding:8px 0 0;color:var(--muted)" data-a="bookChange">Change book</button></div>';
+/* Quran: Uthmani text (quran-json 3.1.2, from QuranEnc / King Fahd Complex), Madani mushaf 604 pages (quran-meta, Hafs).
+   Text is shown exactly as stored: no edits, no trimming. */
+let QDATA=null, qLoading=false;
+function qLoad(){ if(QDATA||qLoading) return; qLoading=true; fetch('books/quran.json').then(r=>r.json()).then(j=>{ QDATA=j; qLoading=false; render(); }).catch(()=>{ qLoading=false; }); }
+const arNum=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
+function qPageHTML(p){
+  const flat=QDATA._flat||(QDATA._flat=QDATA.ayahs.flatMap((a,si)=>a.map((t,ai)=>[si,ai,t])));
+  const a=QDATA.pages[p-1], b=QDATA.pages[p]; let h='<div class="qpage"><div class="qpno">صفحة '+arNum(p)+'</div><div class="qtext">';
+  for(let g=a;g<b;g++){ const [si,ai,t]=flat[g-1];
+    if(ai===0){ h+='</div><div class="qsura">سورة '+esc(QDATA.names[si])+'</div>'+(si!==0&&si!==8?'<div class="qbasm">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</div>':'')+'<div class="qtext">'; }
+    h+='<span class="qa">'+esc(t)+'</span> <span class="qn">﴿'+arNum(ai+1)+'﴾</span> '; }
+  return h+'</div></div>';
+}
+function quranCard(date){
+  const q=S.quran||{pos:0,last:null};
+  if(!QDATA){ qLoad(); return '<div class="xcard"><div class="xtag">// QURAN</div><p class="muted">Loading…</p></div>'; }
+  const readToday=q.last===date, start=readToday?q.from:q.pos, p1=start%604+1, p2=p1%604+1;
+  return '<div class="xcard"><div class="xtag">// QURAN · PAGES '+p1+'–'+p2+' OF 604</div>'+
+    '<details class="bread"'+(readToday?'':' open')+'><summary>'+(readToday?'Today’s 2 pages are done. Read again':'Today’s 2 pages')+'</summary><div class="qwrap" dir="rtl" lang="ar">'+qPageHTML(p1)+qPageHTML(p2)+'</div></details>'+
+    (readToday?'':'<button class="btn btn-primary btn-block" style="margin-top:10px" data-a="qDone">'+ic('check')+'I recited it</button>')+
+    '<details class="mq-late"><summary>Already reading somewhere? Start from a page</summary><div class="row" style="margin-top:8px"><input class="input" id="q-pg" type="number" inputmode="numeric" min="1" max="604" placeholder="Page 1–604"><button class="btn btn-ghost" data-a="qFrom">Set</button></div></details></div>';
 }
 /* ---------- Main quest card ---------- */
 const hm=m=>{ const h=Math.floor(m/60), mi=m%60, ap=h<12?'AM':'PM'; return ((h%12)||12)+':'+pad(mi)+' '+ap; };
@@ -1365,7 +1376,7 @@ function viewToday(c){
       '<div class="row between" style="margin:0 2px 8px"><span class="muted small">'+(c.started?'Today’s habits':'Your habits')+'</span><button class="link" data-a="go" data-to="habits">Edit</button></div>';
     if(!active.length) list+='<div class="card empty">You have no habits yet.<br><button class="btn btn-primary" data-a="newHabit">'+ic('plus')+'Add a habit</button></div>';
     else if(!todays.length) list+='<div class="card empty">Nothing is scheduled '+(c.started?'today':'on day one')+'. Enjoy the rest.</div>';
-    else list+=todays.map(h=>habitRow(h,date,!c.started)+(/learn/i.test(h.name+' '+hName(h,date))?lessonCard(date):'')+(/read/i.test(h.name+' '+hName(h,date))?bookCard(date):'')).join('');
+    else list+=todays.map(h=>habitRow(h,date,!c.started)+(/learn/i.test(h.name+' '+hName(h,date))?lessonCard(date):'')+(/read|quran|recite/i.test(h.name+' '+hName(h,date))?quranCard(date):'')).join('');
     if(off>0) list+='<p class="note">'+off+' '+(off===1?'habit isn’t':'habits aren’t')+' scheduled today.</p>';
     if(later.length) list+='<p class="note">'+ic('lock','lg-sh')+'Next unlock: <b style="color:var(--text)">'+esc(hName(later[0],addDays(S.startDate,later[0].unlock-1)))+'</b> on Day '+later[0].unlock+(later.length>1?', then '+(later.length-1)+' more':'')+'.</p>';
     if(!c.started) list+='<p class="note">You can check habits off once the challenge starts.</p>';
@@ -1851,14 +1862,15 @@ function wakeLog(m){
 /* ---------- actions ---------- */
 const A={
   lessonMore(el){ route='coach'; render(); if(ckGet()) coachAsk('Teach me more about “'+el.dataset.t+'” in 5 short points, with one way I can use it today.'); },
-  bookPick(el){ const id=el.dataset.id; if(BOOKS[id]) commit(()=>{ S.book={id,pos:0,last:null}; }); },
-  bookChange(){ commit(()=>{ S.book=null; }); },
-  bookDone(el){
-    const t=today(), r=el.getBoundingClientRect(), h=S.habits.find(x=>!x.archivedOn&&/read/i.test(x.name+' '+hName(x,t)));
-    commit(()=>{ S.book.pos++; S.book.last=t;
+  qDone(el){
+    const t=today(), r=el.getBoundingClientRect(), h=S.habits.find(x=>!x.archivedOn&&/read|quran|recite/i.test(x.name+' '+hName(x,t)));
+    commit(()=>{ const q=S.quran||(S.quran={pos:0,last:null,from:0}); q.from=q.pos; q.pos=(q.pos+2)%604; q.last=t;
       if(h&&S.startDate&&t>=S.startDate&&scheduled(h,t)){ const arr=new Set(S.completions[t]||[]); arr.add(h.id); S.completions[t]=[...arr]; } },r);
-    toast('Pages read. Habit checked off.','check',true);
+    toast(S.quran.pos<2?'You finished the whole Quran. Mabrook!':'Done. Habit checked off.','check',true);
   },
+  qFrom(){ const v=Math.round(Number(document.getElementById('q-pg').value)); if(!(v>=1&&v<=604)){ toast('Pick a page from 1 to 604','x'); return; }
+    commit(()=>{ S.quran={pos:v-1,last:null,from:v-1}; }); toast('Starting from page '+v,'check'); },
+
   coachKey(){ const v=(document.getElementById('ck-in').value||'').trim(); if(v.length<20){ toast('That doesn’t look like a key','x'); return; } try{ localStorage.setItem(CK,v); }catch(e){} render(); },
   coachForget(){ ask({title:'Remove your key?',body:'The coach stops until you paste a key again.',yes:'Remove',danger:true},()=>{ try{ localStorage.removeItem(CK); }catch(e){} closeSheet(); render(); }); },
   coachClear(){ chSet([]); coach.err=''; render(); },
