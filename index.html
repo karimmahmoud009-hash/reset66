@@ -1350,7 +1350,7 @@ function viewToday(c){
       '<div class="row between" style="margin:0 2px 8px"><span class="muted small">'+(c.started?'Today’s habits':'Your habits')+'</span><button class="link" data-a="go" data-to="habits">Edit</button></div>';
     if(!active.length) list+='<div class="card empty">You have no habits yet.<br><button class="btn btn-primary" data-a="newHabit">'+ic('plus')+'Add a habit</button></div>';
     else if(!todays.length) list+='<div class="card empty">Nothing is scheduled '+(c.started?'today':'on day one')+'. Enjoy the rest.</div>';
-    else list+=todays.map(h=>habitRow(h,date,!c.started)+(c.started&&/learn/i.test(h.name)?lessonCard(date):'')+(c.started&&/read/i.test(h.name)?bookCard():'')).join('');
+    else list+=todays.map(h=>habitRow(h,date,!c.started)+(/learn/i.test(h.name+' '+hName(h,date))?lessonCard(date):'')+(/read/i.test(h.name+' '+hName(h,date))?bookCard():'')).join('');
     if(off>0) list+='<p class="note">'+off+' '+(off===1?'habit isn’t':'habits aren’t')+' scheduled today.</p>';
     if(later.length) list+='<p class="note">'+ic('lock','lg-sh')+'Next unlock: <b style="color:var(--text)">'+esc(hName(later[0],addDays(S.startDate,later[0].unlock-1)))+'</b> on Day '+later[0].unlock+(later.length>1?', then '+(later.length-1)+' more':'')+'.</p>';
     if(!c.started) list+='<p class="note">You can check habits off once the challenge starts.</p>';
