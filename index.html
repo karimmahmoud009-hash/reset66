@@ -190,6 +190,10 @@ svg.lg-sh{ color:var(--accent); margin-right:6px; vertical-align:-1px; }
 .cmsg.me{ background:var(--accent); color:var(--accent-ink); align-self:flex-end; }
 .cmsg.err{ align-self:stretch; max-width:none; color:var(--danger); background:transparent; border:1px solid var(--danger); }
 .chat-in{ margin-top:14px; align-items:flex-end; }
+.xcard{ margin:-4px 0 12px; padding:12px 14px; background:var(--surface-2); border-left:2px solid var(--hud); font-size:14.5px; line-height:1.5; }
+.xcard .xtag{ font-family:var(--mono); font-size:12px; letter-spacing:2px; color:var(--hud); }
+.xcard h3{ margin:4px 0 2px; } .xcard p{ margin:4px 0 0; }
+.xcard .link svg.i{ width:16px; height:16px; vertical-align:-3px; }
 .fit-list{ list-style:none; padding:0; margin:12px 0 0; }
 .fit-list li{ display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:14px; line-height:1.45; }
 .fit-list li .n{ width:22px; flex:none; color:var(--muted); font-weight:700; }
@@ -1037,6 +1041,7 @@ function migrate(o){
   s.fit=fitClean(o.fit);
   s.money=moneyClean(o.money);
   s.wake=wakeClean(o.wake);
+  s.book=o.book&&typeof o.book.t==='string'&&o.book.t.trim()?{t:o.book.t.slice(0,80),a:typeof o.book.a==='string'?o.book.a.slice(0,60):''}:null;
   if(s.onboarded&&(!s.startDate||!s.habits.length)) s.onboarded=!!s.startDate;
   return s;
 }
@@ -1215,6 +1220,88 @@ function viewMore(){
   const it=[['coach','spark','Coach','Ask about workouts, waking up, habits and money'],['stats','chart','Progress','Rank, level, streaks and stats'],['calendar','calendar','Calendar','Every day of your 66'],['ai','spark','Stay ahead with AI','Daily AI missions and real results'],['settings','sliders','Settings','Theme, backup and reset']];
   return '<h1 class="page-title">More</h1>'+it.map(([k,i,l,d])=>'<button class="pick" data-a="go" data-to="'+k+'"><span class="ico">'+ic(i)+'</span><span class="grow">'+l+'<div class="muted small" style="font-weight:500">'+d+'</div></span>'+ic('right')+'</button>').join('');
 }
+/* ---------- Daily lesson (Learn habit) and reading shelf ---------- */
+const LESSONS=[
+['Habits','The 2-minute rule','Shrink any new habit to a version that takes 2 minutes: one push-up, one page. Starting is the hard part; once you start, you usually keep going.'],
+['Design','Squint test','Squint at your design until it blurs. Whatever you still see first is your real hierarchy. If it isn’t the headline or the offer, fix the contrast, not the copy.'],
+['Money','Pay yourself first','Move a fixed amount to savings the day your salary lands, before you spend anything. What is left is your spending money. Saving what is left at month end rarely works.'],
+['AI','Give AI a role, a goal and an example','“Act as a senior art director. Write 5 headlines for a scooter loan. Here is one I like: …” An example beats a long list of adjectives.'],
+['Mind','Name the feeling','Saying “I feel anxious” out loud or in writing calms the brain’s alarm system. Researchers call it affect labeling. It takes 10 seconds.'],
+['Body','Sleep sets your willpower','After a short night, the brain craves sugar and quick rewards. Waking early only works if you also sleep earlier. Move bedtime first, wake time second.'],
+['Design','The 60-30-10 color rule','60% main neutral, 30% secondary, 10% accent. Your accent only stands out because it is rare.'],
+['Thinking','Second-order thinking','Ask “and then what?” A cheap flyer saves money now, then looks cheap, then lowers trust. Good decisions survive the second question.'],
+['Money','The latte effect, Cairo edition','50 EGP a day on coffee and snacks is about 18,000 EGP a year. Small daily spends are the easiest to cut and the hardest to notice.'],
+['Work','Batch similar tasks','Switching tasks costs focus every time. Do all resizes together, all emails together. One deep block beats five scattered hours.'],
+['History','Why 66 days?','A 2009 UCL study found new habits took 18 to 254 days to feel automatic, with 66 as the median. Missing one day did not ruin the habit.'],
+['Design','Line length','Body text reads best at about 45 to 75 characters per line. Wider lines tire the eye; narrower ones break the rhythm.'],
+['AI','AI is a draft, you are the editor','Use AI for volume and speed, then cut 80%. Your taste in choosing and fixing is the part that cannot be automated.'],
+['Body','Protein keeps you full','Eggs, ful, lentils, chicken and yoghurt keep you full longer than bread and rice. Add one protein to every meal.'],
+['Mind','Implementation intentions','“After I brush my teeth, I do 5 squats.” Linking a new habit to an old one makes you far more likely to do it than just wanting to.'],
+['Money','Compound interest','Money growing 20% a year doubles in about 3.6 years. Divide 72 by the rate to estimate the doubling time. It works against you on debt too.'],
+['Design','Kerning your headlines','Fonts space letters well for body text, not big headlines. At large sizes, check pairs like AV, To and LT by eye.'],
+['Thinking','Inversion','Instead of “how do I succeed?”, ask “how would I surely fail?” Then avoid those things. It is often easier to see.'],
+['Work','Eat the frog','Do your hardest task first, while your focus is fresh. Mornings beat evenings for deep work for most people.'],
+['Body','Walk after meals','A 10-minute walk after eating helps your body handle the sugar from the meal. Easy win after lunch.'],
+['AI','Ask for options, not answers','“Give me 10 directions” then “combine 3 and 7” gets better results than asking for the one perfect answer.'],
+['Design','White space is not empty','Space groups things and tells the eye where to rest. Crowded ads feel cheap; space feels premium and confident.'],
+['Mind','The Zeigarnik effect','Unfinished tasks stick in your mind. Writing the next step down lets your brain let go, so you can rest.'],
+['Money','Emergency fund first','Before investing, keep 3 to 6 months of expenses in cash. It turns emergencies into problems instead of crises.'],
+['History','The Rosetta Stone','Found in Rashid in 1799, it has one decree in hieroglyphs, Demotic and Greek. Champollion used it to crack hieroglyphs in 1822.'],
+['Work','Say the deadline back','When you get a brief, repeat the deadline and the one main goal back to the person. Most rework comes from fuzzy briefs.'],
+['Design','Gestalt: proximity','Things placed close together look related. Fix confusing layouts by moving items, before adding lines or boxes.'],
+['Body','Stretch your hip flexors','Long hours sitting tighten the front of the hips and can cause lower back pain. A 30-second lunge stretch per side helps.'],
+['Thinking','The Pareto principle','Roughly 80% of results come from 20% of efforts. Find the 20% of your work that clients value most and protect it.'],
+['AI','Show, don’t describe','For image tools, a reference image says more than 50 words. Collect references before you write prompts.'],
+['Money','Needs, wants, savings','A simple split: about 50% needs, 30% wants, 20% savings. Track one month first, then adjust to your real life.'],
+['Mind','Gratitude, specifically','Writing 3 specific good things from today, like “the tea Mama made”, lifts mood more than vague thanks.'],
+['Design','Contrast for accessibility','Text should have a contrast ratio of at least 4.5:1 with its background. Light grey on white looks elegant and is hard to read.'],
+['Work','The 2-day rule','Never skip a habit 2 days in a row. One miss is life; two is the start of a new habit.'],
+['History','The Suez Canal','Opened in 1869, it cut the sea route from London to Mumbai by about 7,000 km. About 12% of world trade passes through it.'],
+['Body','Breathing to calm down','Breathe in for 4 seconds, out for 6. A longer exhale slows your heart rate. Do it 5 times before a stressful meeting.'],
+['AI','Keep a prompt library','Save prompts that worked with notes on when to use them. Reusing good prompts is how AI saves real hours.'],
+['Design','Type pairing','Pair fonts with contrast: a strong display face with a calm text face. Two similar fonts look like a mistake.'],
+['Thinking','Sunk cost','Money or time already spent shouldn’t decide what you do next. Ask only: from today, is this still worth it?'],
+['Money','Installments cost more than they look','Compare the total paid, not the monthly amount. A small monthly fee on a big price can add up to a lot.'],
+['Mind','Comparison steals focus','Compare yourself to who you were last month, not to someone’s highlight reel. Your Progress tab is the fair comparison.'],
+['Work','Write it down','Your brain is for having ideas, not holding them. Capture every task in one place so nothing lives only in your head.'],
+['Design','Grids make you faster','A simple 12-column grid makes layouts feel organized and speeds up resizing for every format.'],
+['Body','Water first thing','You wake up a little dehydrated. A glass of water before coffee helps you feel awake faster.'],
+['AI','Check facts AI gives you','AI can state wrong facts confidently. Check numbers, names and dates against a real source before they reach a client or the board.'],
+['History','Ibn al-Haytham','Around the year 1011 in Cairo, he explained that we see because light enters the eye, and he tested ideas with experiments. Many call him a father of the scientific method.'],
+['Thinking','Parkinson’s law','Work expands to fill the time you give it. Set a shorter deadline for yourself and you often finish just as well.'],
+['Money','Write a 24-hour rule','For anything above a set amount you didn’t plan to buy, wait 24 hours. Most impulse wants fade by tomorrow.'],
+['Design','Design for the thumb','On phones, put main buttons in the bottom half of the screen, where the thumb reaches easily.'],
+['Mind','Done beats perfect','A shipped 80% design teaches you more than a perfect one that never leaves your desk.'],
+['Body','Progressive overload','Muscles grow when you ask a little more over time: one more rep, a few more seconds. That is why your Fit level moves up slowly.'],
+['AI','AI for the boring parts','Let AI handle resizing, background removal and variations, so your hours go to ideas and taste.'],
+['Work','Say no to protect yes','Every yes to something small is a no to something bigger. Protect your deep-work block like a meeting.'],
+['Design','Story before style','Before choosing colors and fonts, write the one sentence the design must say. Style serves the story.'],
+['History','The pyramids’ workers','Evidence from workers’ villages at Giza shows paid, fed and medically cared-for crews built the pyramids, not slaves.'],
+['Thinking','First principles','Break a problem down to what is surely true, then build up again. It helps you avoid copying what everyone else does.'],
+['Money','Increase savings with raises','When your salary goes up, save half the raise. You still feel richer, and your savings grow without pain.'],
+['Mind','Your environment wins','Put the jump rope by the door and the phone in another room. Design your space so the good choice is the easy one.'],
+['Design','Steal like an artist','Collect work you love, study why it works, then mix ideas from many sources. Copying one source is theft; mixing many is style.'],
+['Body','Rest days build strength','Muscles repair and get stronger between workouts, not during them. Rest is part of the plan.'],
+['AI','Build small tools','A simple checklist, calculator or template made with AI can save your whole team hours every week.'],
+['Work','Weekly review','Every Friday, spend 15 minutes looking at what worked, what didn’t and the 3 priorities for next week.'],
+['Thinking','Circle of control','Sort worries into what you control, what you can influence and what you can’t. Spend energy only on the first two.'],
+['Mind','Identity over goals','“I am someone who trains” lasts longer than “I want to lose weight”. Every checked habit is a vote for who you are becoming.'],
+['Money','Know your number','Know your monthly cost of living. It turns vague money worry into a clear target.'],
+['Habits','Day 66','You made it. The habits that survived are now part of who you are. Keep the ones that serve you and choose the next one.']
+];
+const BOOKS=[['Atomic Habits','James Clear','Habits'],['Steal Like an Artist','Austin Kleon','Creativity'],['The Psychology of Money','Morgan Housel','Money'],['Deep Work','Cal Newport','Focus'],['Show Your Work!','Austin Kleon','Design career'],['Can’t Hurt Me','David Goggins','Discipline'],['The Alchemist','Paulo Coelho','Story'],['Thinking, Fast and Slow','Daniel Kahneman','Thinking']];
+function lessonFor(date){ const d=S.startDate?Math.max(1,diff(S.startDate,date)+1):1; return LESSONS[(d-1)%LESSONS.length]; }
+function lessonCard(date){
+  const [area,title,text]=lessonFor(date);
+  return '<div class="xcard"><div class="xtag">// TODAY’S LESSON · '+esc(area.toUpperCase())+'</div><h3>'+esc(title)+'</h3><p>'+esc(text)+'</p>'+
+    '<button class="link" style="padding:6px 0 0" data-a="lessonMore" data-t="'+esc(title)+'">Go deeper with the coach '+ic('right')+'</button></div>';
+}
+function bookCard(){
+  const b=S.book;
+  if(b) return '<div class="xcard"><div class="xtag">// NOW READING</div><h3>'+esc(b.t)+'</h3><p class="muted">'+esc(b.a||'')+'</p><button class="link" style="padding:6px 0 0" data-a="bookChange">Change book</button></div>';
+  return '<div class="xcard"><div class="xtag">// PICK ONE BOOK</div><p>Read the same book every day, 2 pages or more. Tap one to start:</p><div class="mchips">'+BOOKS.map((x,i)=>'<button class="st st0" data-a="bookPick" data-i="'+i+'">'+esc(x[0])+'</button>').join('')+'</div>'+
+    '<div class="row" style="margin-top:10px"><input class="input" id="bk-in" maxlength="80" placeholder="Or type your own book"><button class="btn btn-ghost" style="min-width:60px" data-a="bookOwn" aria-label="Save book">'+ic('check')+'</button></div></div>';
+}
 /* ---------- Main quest card ---------- */
 const hm=m=>{ const h=Math.floor(m/60), mi=m%60, ap=h<12?'AM':'PM'; return ((h%12)||12)+':'+pad(mi)+' '+ap; };
 function wakeWeekend(d){ const w=parse(d).getDay(); return w===5||w===6; }
@@ -1263,7 +1350,7 @@ function viewToday(c){
       '<div class="row between" style="margin:0 2px 8px"><span class="muted small">'+(c.started?'Today’s habits':'Your habits')+'</span><button class="link" data-a="go" data-to="habits">Edit</button></div>';
     if(!active.length) list+='<div class="card empty">You have no habits yet.<br><button class="btn btn-primary" data-a="newHabit">'+ic('plus')+'Add a habit</button></div>';
     else if(!todays.length) list+='<div class="card empty">Nothing is scheduled '+(c.started?'today':'on day one')+'. Enjoy the rest.</div>';
-    else list+=todays.map(h=>habitRow(h,date,!c.started)).join('');
+    else list+=todays.map(h=>habitRow(h,date,!c.started)+(c.started&&/learn/i.test(h.name)?lessonCard(date):'')+(c.started&&/read/i.test(h.name)?bookCard():'')).join('');
     if(off>0) list+='<p class="note">'+off+' '+(off===1?'habit isn’t':'habits aren’t')+' scheduled today.</p>';
     if(later.length) list+='<p class="note">'+ic('lock','lg-sh')+'Next unlock: <b style="color:var(--text)">'+esc(hName(later[0],addDays(S.startDate,later[0].unlock-1)))+'</b> on Day '+later[0].unlock+(later.length>1?', then '+(later.length-1)+' more':'')+'.</p>';
     if(!c.started) list+='<p class="note">You can check habits off once the challenge starts.</p>';
@@ -1748,6 +1835,10 @@ function wakeLog(m){
 }
 /* ---------- actions ---------- */
 const A={
+  lessonMore(el){ route='coach'; render(); if(ckGet()) coachAsk('Teach me more about “'+el.dataset.t+'” in 5 short points, with one way I can use it today.'); },
+  bookPick(el){ const b=BOOKS[+el.dataset.i]; if(b) commit(()=>{ S.book={t:b[0],a:b[1]}; }); },
+  bookOwn(){ const v=(document.getElementById('bk-in').value||'').trim().slice(0,80); if(!v){ toast('Type a book name','x'); return; } commit(()=>{ S.book={t:v,a:''}; }); },
+  bookChange(){ commit(()=>{ S.book=null; }); },
   coachKey(){ const v=(document.getElementById('ck-in').value||'').trim(); if(v.length<20){ toast('That doesn’t look like a key','x'); return; } try{ localStorage.setItem(CK,v); }catch(e){} render(); },
   coachForget(){ ask({title:'Remove your key?',body:'The coach stops until you paste a key again.',yes:'Remove',danger:true},()=>{ try{ localStorage.removeItem(CK); }catch(e){} closeSheet(); render(); }); },
   coachClear(){ chSet([]); coach.err=''; render(); },
