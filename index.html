@@ -1441,7 +1441,7 @@ function fitBest(k){ return S.fit.best.filter(x=>x.k===k).reduce((m,x)=>Math.max
 function fitChoose(t){
   const f=S.fit, last={U:null,L:null,C:null}; for(const x of f.done) if(FIT_T[x.s]&&x.d<t) last[x.s]=x.d;
   const prev=f.done.filter(x=>x.d<t), y=prev[prev.length-1], gap=y?diff(y.d,t):99;
-  const strengthStreak=prev.length>=2&&diff(prev[prev.length-2].d,t)===2&&gap===1&&prev.slice(-2).every(x=>x.s!=='C');
+  const strengthStreak=prev.length>=2&&diff(prev[prev.length-2].d,t)===2&&gap===1&&prev.slice(-2).every(x=>x.s!=='C'&&x.s!=='W');
   const since=k=>last[k]?diff(last[k],t):99;
   let best='U', sc=-1e9;
   for(const k of ['U','L','C']){ let v=since(k); if(k==='C') v+= strengthStreak?3:-1; if(y&&gap===1&&y.s===k) v-=50; if(v>sc){ sc=v; best=k; } }
@@ -1465,7 +1465,7 @@ function viewFit(){
     '<p class="ai-phase">'+(k==='C'?'15 min':'20 min')+' · '+esc(T.gear)+'</p><p class="muted small" style="margin-top:8px">'+esc(why)+'</p>'+
     '<p class="muted small" style="margin-top:8px">Warm-up, 3 min: march in place, arm circles, 5 slow squats.'+(k==='C'?'':' Rest 60 s between sets. Stop 1–2 reps before your form breaks.')+'</p>'+list+
     (k==='C'?'<p class="muted small">'+esc(FIT_STRETCH)+'</p>':'')+
-    (doneToday?'':'<button class="btn btn-primary btn-block" style="margin-top:14px" data-a="fitDone" data-k="'+k+'">'+ic('check')+'Workout done</button>')+'</div>';
+    (doneToday?'':'<button class="btn btn-primary btn-block" style="margin-top:14px" data-a="fitDone" data-k="'+k+'">'+ic('check')+'Workout done</button><button class="btn btn-block" style="margin-top:8px" data-a="fitWalk">'+ic('run')+'No time? Walk 30 min instead</button><p class="muted small" style="margin-top:6px;text-align:center">One 30-min walk or two 15-min walks on your break. Keeps your streak.</p>')+'</div>';
   const habit=fitLinked()?'':'<button class="pick coach-cta" style="margin-top:12px" data-a="fitAddHabit"><span class="ico">'+ic('dumbbell')+'</span><span class="grow">Link it to my daily habits<div class="muted small" style="font-weight:500">Each workout then checks off your exercise habit on Today.</div></span>'+ic('plus')+'</button>';
   const w0=addDays(t,-6), wk=f.done.filter(x=>x.d>=w0).length;
   const score='<div class="section-head" style="display:block"><h2>Real results</h2><p class="muted small" style="margin:2px 0 0">What your body can actually do. Test it every couple of weeks.</p></div>'+
@@ -1903,6 +1903,12 @@ const A={
       f.done.push({id:uid(),d:t,s:k,f:null,prev:before}); if(f.done.length>1000) f.done=f.done.slice(-1000);
       if(h&&S.startDate&&t>=S.startDate&&scheduled(h,t)){ const arr=new Set(S.completions[t]||[]); if(!arr.has(h.id)){ arr.add(h.id); ticked=true; } S.completions[t]=[...arr]; } },r);
     toast(FIT_T[k].n+' done'+(ticked?'. Habit checked off.':''),'dumbbell',true);
+  },
+  fitWalk(el){
+    const t=today(), r=el.getBoundingClientRect(), h=fitLinked(), f=S.fit; let ticked=false;
+    commit(()=>{ f.done.push({id:uid(),d:t,s:'W',f:0,prev:JSON.parse(JSON.stringify(f.pat))}); if(f.done.length>1000) f.done=f.done.slice(-1000);
+      if(h&&S.startDate&&t>=S.startDate&&scheduled(h,t)){ const arr=new Set(S.completions[t]||[]); if(!arr.has(h.id)){ arr.add(h.id); ticked=true; } S.completions[t]=[...arr]; } },r);
+    toast('Walk quest done'+(ticked?'. Habit checked off.':''),'run',true);
   },
   fitFeel(el){
     const v=+el.dataset.v, f=S.fit, last=f.done[f.done.length-1]; if(!last||last.f!=null||!FIT_T[last.s]) return;

@@ -1,4 +1,4 @@
-const CACHE='reset66-v12';
+const CACHE='reset66-v13';
 const CORE=['./','./index.html','./fonts/amiri-quran.woff2','./fonts/uthmanic-hafs.woff2','./books/quran.json','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png','./art/hero.webp','./art/bg-city.webp','./art/bg-levelup.webp','./art/bg-dungeon.webp','./art/bg-light-city.webp','./art/bg-light-levelup.webp','./art/bg-light-dungeon.webp','./art/rank-E.webp','./art/rank-D.webp','./art/rank-C.webp','./art/rank-B.webp','./art/rank-A.webp','./art/rank-S.webp'];
 /* 'reload' / 'no-store' skip the browser's HTTP cache, so an update is never served from a stale copy */
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE.map(u=>new Request(u,{cache:'reload'})))).then(()=>self.skipWaiting()));});
