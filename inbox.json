@@ -183,6 +183,12 @@
       "name": "Recite 2 pages of Quran",
       "icon": "book",
       "ladder": null
+    },
+    {
+      "id": "2026-11-23-restart-day1",
+      "op": "restartToday",
+      "date": "2026-11-23",
+      "note": "Wipe days, XP, streak and wake log. Keep habits, training progress, Quran progress, money."
     }
   ]
 }

@@ -2296,6 +2296,15 @@ async function checkInbox(){
         S=blank(); S.theme=keep.theme; S.money=keep.money; S.applied=keep.applied; persist(); baseline=null; obInit(); route='today'; render(); window.scrollTo(0,0);
         toast('Progress reset. Fresh start.','zap',true); return;
       }
+      if(c&&c.op==='restartToday'&&typeof c.id==='string'&&!seen.has(c.id)){
+        try{ await keepPrevious(); }catch(e){}
+        S.startDate=isDate(c.date)?c.date:today(); S.completions={}; S.bonus={daily:{},weekly:{},custom:(S.bonus&&S.bonus.custom)||[]};
+        S.history=[]; S.season=1; S.seen={brief:null,eve:null};
+        if(S.wake){ S.wake.log={}; S.wake.lastStep=null; }
+        S.habits.forEach(h=>{ if(h.createdOn&&h.createdOn>S.startDate) return; h.createdOn=null; });
+        S.applied=[...S.applied,c.id]; persist(); baseline=null; route='today'; render(); window.scrollTo(0,0);
+        toast('Day 1. Fresh start. Training and Quran kept.','zap',true); return;
+      }
       if(!c||typeof c.id!=='string'||seen.has(c.id)||(c.forStart!==S.startDate&&c.forStart!=='*')||!INBOX_OPS[c.op]) continue;
       let m=null; try{ m=INBOX_OPS[c.op](c); }catch(e){ m=null; }
       S.applied.push(c.id); seen.add(c.id); changed=true; if(m) msgs.push(m);
