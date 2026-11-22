@@ -547,6 +547,7 @@ svg.aura{ width:100%; height:auto; display:block; overflow:visible; }
 .nav button[aria-current="page"]{ color:#FFEA00; text-shadow:0 0 10px rgba(255,234,0,.5); }
 .page-title{ text-shadow:2px 0 #FF5F5788,-2px 0 #00FFB355; }
 @media (prefers-reduced-motion: reduce){ .stage *, .stage *::after{ animation:none !important; } }
+.tq{ border-color:#FFEA00 !important; } .tq .tag{ color:#FFEA00; } .tq-done h2{ display:flex; align-items:center; gap:8px; color:var(--hud); } .tq .fit-list{ margin-top:10px; }
 </style>
 </head>
 <body>
@@ -1403,6 +1404,19 @@ function mainQuest(t){
     '<details class="mq-late"><summary>Forgot to tap? Set the time you woke up</summary><div class="row" style="margin-top:8px"><input class="input" id="wk-t" type="time" value="'+pad(Math.floor(tg/60))+':'+pad(tg%60)+'"><button class="btn btn-ghost" data-a="wakeAt">Save</button></div></details>';
   return '<div class="quest mq"><div class="tag">MAIN QUEST</div><h2>Wake up by '+hm(tg)+'</h2><p>'+(wakeWeekend(t)?'Weekend: 1 hour extra. ':'')+'Tap the moment you get up. This week: <b class="num">'+onTime+'/7</b> on time.</p>'+body+'<p class="muted small" style="margin-top:10px">'+next+'</p></div>';
 }
+function trainQuest(t){
+  if(!S.fit) S.fit=fitBlank();
+  const f=S.fit, last=f.done[f.done.length-1], doneToday=!!last&&last.d===t;
+  if(doneToday){ const w=last.s==='W'; return '<div class="quest tq tq-done"><div class="tag">MAIN QUEST · TRAINING</div><h2>'+ic('check')+(w?'Walk quest done':esc((FIT_T[last.s]||{n:'Workout'}).n)+' done')+'</h2><p class="muted small">Nice. Next workout is ready on the Fit tab.</p></div>'; }
+  const plan=fitChoose(t), k=plan.k, T=FIT_T[k], items=fitList(k,plan.comeback);
+  const list='<ol class="fit-list">'+items.map((x,i)=>'<li><span class="n num">'+(i+1)+'</span><span class="grow"><a class="exl" href="https://www.youtube.com/results?search_query='+encodeURIComponent('how to do '+x[0].replace(/\s*\(.*\)/,'')+(x[3]==='rope'?' jump rope':' exercise')+' beginner')+'" target="_blank" rel="noopener"><b>'+esc(x[0])+'</b> '+ic('play')+'</a>'+(x[1]?' <span class="dose num">'+esc(x[1])+'</span>':'')+'</span></li>').join('')+'</ol>';
+  return '<div class="quest tq"><div class="tag">MAIN QUEST · TRAINING</div><h2>'+esc(T.n)+'</h2>'+
+    '<p class="ai-phase">'+(k==='C'?'15 min':'20 min')+' · '+esc(T.gear)+'</p>'+
+    (plan.rest?'<p class="muted small" style="margin-top:6px">2 days in a row done. Rest is fine today, or do this light session.</p>':plan.comeback?'<p class="muted small" style="margin-top:6px">Welcome back. Easier today to get you going.</p>':'')+
+    '<p class="muted small" style="margin-top:6px">Warm-up 3 min. '+(k==='C'?'':'Rest 60 s between sets.')+'</p>'+list+
+    '<button class="btn btn-primary btn-block" style="margin-top:12px" data-a="fitDone" data-k="'+k+'">'+ic('check')+'Workout done</button>'+
+    '<button class="btn btn-block" style="margin-top:8px" data-a="fitWalk">'+ic('run')+'No time? Walk 30 min</button></div>';
+}
 function viewToday(c){
   const t=today(), [m1,m2]=message(c);
   let hero;
@@ -1448,7 +1462,7 @@ function viewToday(c){
         '<button class="bonus boss'+(bd?' done':'')+'" data-a="boss" aria-pressed="'+bd+'" aria-label="Boss quest of the week: '+esc(bq)+(bd?', completed':'')+'"><span class="bq-tag">BOSS QUEST, WEEK '+(w+1)+'</span><span class="bq-name">'+esc(bq)+'</span><span class="bq-xp num">+'+XP_BOSS+' XP</span><span class="bq-sub">'+(bd?'Defeated':'Ends '+nice(wEnd,{weekday:'short',day:'numeric',month:'short'}))+'</span><span class="check">'+ic('check')+'</span></button>';
     }
   }
-  return '<div class="top">'+(c.started&&!c.finished?'<button class="date-line brief-btn" data-a="brief" aria-label="Open today’s System briefing">'+ic('zap')+nice(t)+'</button>':'<div class="date-line">'+nice(t)+'</div>')+'<button class="level-pill" data-a="path">'+ic('zap')+'Rank '+rankOf(c.level).r+', Lv '+c.level+'</button></div>'+hero+(c.started&&!c.finished?mainQuest(t):'')+stats+list;
+  return '<div class="top">'+(c.started&&!c.finished?'<button class="date-line brief-btn" data-a="brief" aria-label="Open today’s System briefing">'+ic('zap')+nice(t)+'</button>':'<div class="date-line">'+nice(t)+'</div>')+'<button class="level-pill" data-a="path">'+ic('zap')+'Rank '+rankOf(c.level).r+', Lv '+c.level+'</button></div>'+hero+(c.started&&!c.finished?mainQuest(t)+trainQuest(t):'')+stats+list;
 }
 function viewCalendar(c){
   const startDow=parse(S.startDate).getDay();
