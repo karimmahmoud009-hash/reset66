@@ -496,6 +496,57 @@ svg.aura{ width:100%; height:auto; display:block; overflow:visible; }
 .nav button span{ font-family:var(--mono)!important; font-size:11px!important; text-transform:uppercase; }
 .stat .v{ color:var(--text); } .stat:nth-child(1) .v{ color:var(--hud); } .stat:nth-child(3) .v{ color:var(--gold); }
 .card{ border-radius:6px; } .track span{ border-radius:0; } .track .s-done{ background:var(--hud); }
+
+/* ===== Runner stage (cyberpunk HUD) ===== */
+.stage{ position:relative; height:440px; margin:6px -20px 14px; overflow:hidden; isolation:isolate; border-top:1px solid color-mix(in srgb,var(--tc) 40%,transparent); border-bottom:1px solid color-mix(in srgb,#FF5F57 50%,transparent); }
+.st-bg{ position:absolute; inset:0; background:linear-gradient(180deg,rgba(27,27,42,.15),rgba(27,27,42,.55) 60%,#1B1B2A), url(art/bg-city.webp) center 30%/cover; filter:saturate(1.2); z-index:-3; }
+.st-grid{ position:absolute; left:-20%; right:-20%; bottom:-10px; height:150px; background:linear-gradient(transparent 0 95%,color-mix(in srgb,var(--tc) 50%,transparent) 95%) 0 0/100% 22px, linear-gradient(90deg,transparent 0 96%,color-mix(in srgb,var(--tc) 40%,transparent) 96%) 0 0/34px 100%; transform:perspective(260px) rotateX(58deg); transform-origin:bottom; opacity:.45; z-index:-2; animation:gridrun 2.6s linear infinite; -webkit-mask-image:linear-gradient(transparent,#000 60%); mask-image:linear-gradient(transparent,#000 60%); }
+@keyframes gridrun{ to{ background-position:0 22px,0 0; } }
+.st-floor{ position:absolute; left:64%; bottom:22px; width:210px; height:34px; transform:translateX(-50%); border-radius:50%; background:radial-gradient(closest-side,color-mix(in srgb,var(--tc) 70%,transparent),transparent); filter:blur(4px); animation:floor 3.2s ease-in-out infinite; z-index:-1; }
+@keyframes floor{ 50%{ transform:translateX(-50%) scale(.82); opacity:.6; } }
+.st-char{ all:unset; position:absolute; left:64%; bottom:30px; height:380px; transform:translateX(-50%); cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.st-char img{ height:100%; width:auto; display:block; transform-origin:50% 100%; animation:breathe 3.2s ease-in-out infinite; filter:drop-shadow(0 0 14px color-mix(in srgb,var(--tc) 55%,transparent)) drop-shadow(0 0 2px #fff3); }
+.st-char .ghost{ position:absolute; inset:0; opacity:0; mix-blend-mode:screen; pointer-events:none; }
+.st-char .g1{ filter:drop-shadow(0 0 0 #00FFB3) hue-rotate(140deg) saturate(3); animation:breathe 3.2s ease-in-out infinite, glitchA 7s steps(1) infinite; }
+.st-char .g2{ filter:hue-rotate(-60deg) saturate(3); animation:breathe 3.2s ease-in-out infinite, glitchB 7s steps(1) infinite; }
+@keyframes breathe{ 0%,100%{ transform:translateY(0) scaleY(1); } 50%{ transform:translateY(-6px) scaleY(1.012); } }
+@keyframes glitchA{ 0%,91%,100%{ opacity:0; translate:0 0; clip-path:inset(0); } 92%{ opacity:.7; translate:-6px 0; clip-path:inset(20% 0 55% 0); } 94%{ opacity:.6; translate:5px 0; clip-path:inset(62% 0 18% 0); } 96%{ opacity:.5; translate:-3px 0; clip-path:inset(8% 0 80% 0); } }
+@keyframes glitchB{ 0%,91%,100%{ opacity:0; translate:0 0; clip-path:inset(0); } 92.5%{ opacity:.6; translate:6px 0; clip-path:inset(40% 0 35% 0); } 95%{ opacity:.5; translate:-5px 0; clip-path:inset(75% 0 5% 0); } }
+.st-char.hit img:first-child{ animation:hit .5s ease-out, breathe 3.2s ease-in-out .5s infinite; }
+@keyframes hit{ 30%{ transform:translateY(-14px) scale(1.04); filter:drop-shadow(0 0 30px var(--tc)) brightness(1.4); } }
+.st-scan{ position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px); }
+.st-scan::after{ content:''; position:absolute; left:0; right:0; height:70px; top:-70px; background:linear-gradient(transparent,color-mix(in srgb,var(--tc) 22%,transparent),transparent); animation:sweep 4.5s linear infinite; }
+@keyframes sweep{ to{ top:100%; } }
+.st-p{ position:absolute; bottom:-6px; left:var(--x); width:3px; height:3px; background:var(--tc); box-shadow:0 0 8px var(--tc); border-radius:50%; animation:rise 6s linear var(--d) infinite; opacity:0; }
+@keyframes rise{ 10%{ opacity:.9; } 100%{ transform:translateY(-420px); opacity:0; } }
+.st-hud{ position:absolute; left:20px; top:18px; bottom:20px; width:44%; z-index:2; display:flex; flex-direction:column; pointer-events:none; text-shadow:0 2px 12px #000a; }
+.st-k{ font-family:var(--mono); color:#FF5F57; font-size:13px; letter-spacing:4px; text-transform:uppercase; }
+.st-day{ display:flex; align-items:flex-end; gap:4px; margin-top:2px; }
+.st-day .big{ font-family:var(--sport); font-size:104px; line-height:.82; color:#fff; animation:flick 6s steps(1) infinite; }
+.st-day .of{ font-family:var(--sport); font-size:24px; color:var(--muted); padding-bottom:6px; }
+@keyframes flick{ 0%,96%,100%{ opacity:1; } 97%{ opacity:.55; translate:2px 0; } 98%{ opacity:1; translate:0; } }
+.st-tier{ margin-top:14px; font-family:var(--sport); font-size:22px; letter-spacing:3px; text-transform:uppercase; color:var(--tc); text-shadow:0 0 14px color-mix(in srgb,var(--tc) 60%,transparent); }
+.st-rank{ display:flex; align-items:center; gap:10px; margin-top:6px; font-family:var(--sport); }
+.st-rank b{ width:38px; height:38px; display:grid; place-items:center; font-size:26px; color:#1B1B2A; background:var(--tc); clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%); }
+.st-rank span{ font-size:20px; letter-spacing:2px; color:#fff; }
+.st-xp{ margin-top:10px; height:6px; width:100%; background:#ffffff1a; clip-path:polygon(0 0,100% 0,calc(100% - 6px) 100%,0 100%); }
+.st-xp i{ display:block; height:100%; background:linear-gradient(90deg,#FFEA00,var(--tc)); box-shadow:0 0 10px #FFEA00; animation:xpgrow 1.2s ease-out; }
+@keyframes xpgrow{ from{ width:0 !important; } }
+.st-xpt{ font-family:var(--mono); font-size:12px; color:var(--muted); margin-top:4px; }
+.st-streak{ margin-top:auto; display:inline-flex; align-items:center; gap:6px; align-self:flex-start; font-family:var(--sport); font-size:22px; color:#fff; padding:4px 12px 4px 8px; border:1px solid #FF5F57; background:rgba(255,95,87,.12); clip-path:polygon(0 0,100% 0,100% 65%,calc(100% - 8px) 100%,0 100%); }
+.st-streak svg{ color:#FF5F57; } .st-streak .sh{ display:inline-flex; align-items:center; gap:3px; color:var(--hud); font-size:17px; margin-left:4px; }
+.stage .br{ position:absolute; width:18px; height:18px; border:2px solid #FFEA00; pointer-events:none; }
+.stage .tl{ top:8px; left:8px; border-right:0; border-bottom:0; } .stage .tr{ top:8px; right:8px; border-left:0; border-bottom:0; }
+.stage .bl{ bottom:8px; left:8px; border-right:0; border-top:0; } .stage .brr{ bottom:8px; right:8px; border-left:0; border-top:0; }
+:root[data-theme="light"] .st-bg{ background:linear-gradient(180deg,transparent,rgba(27,27,42,.6) 70%,#1B1B2A), url(art/bg-city.webp) center 30%/cover; }
+/* game HUD feel across the app */
+.card,.stat,.pick,.quest{ clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px)); }
+.stat{ border-left:2px solid #FF5F57; }
+.stat .k{ font-family:var(--mono); letter-spacing:1.5px; text-transform:uppercase; font-size:11px; }
+.nav{ border-top:1px solid rgba(255,95,87,.45); }
+.nav button[aria-current="page"]{ color:#FFEA00; text-shadow:0 0 10px rgba(255,234,0,.5); }
+.page-title{ text-shadow:2px 0 #FF5F5788,-2px 0 #00FFB355; }
+@media (prefers-reduced-motion: reduce){ .stage *, .stage *::after{ animation:none !important; } }
 </style>
 </head>
 <body>
@@ -667,6 +718,22 @@ function auraSVG(level){
 const ART='art/';
 function rankArt(level,cls,alt){ const rk=rankOf(level); return '<img class="'+(cls||'rank-art')+'" src="'+ART+'rank-'+rk.r+'.webp" alt="'+(alt||'')+'" decoding="async" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{innerHTML:window.__auraFallback('+level+')}).firstChild)">'; }
 window.__auraFallback=l=>auraSVG(l);
+/* ---------- Runner character: 4 looks that follow your rank ---------- */
+const TIERS=[null,{n:'Entropism',d:'Necessity over style. Every runner starts here.',c:'#9aa6bd'},{n:'Kitsch',d:'Loud, flashy, finally visible.',c:'#00FFB3'},{n:'Neomilitarism',d:'Discipline as armor.',c:'#4fb3ff'},{n:'Neokitsch',d:'Elite. The city knows your name.',c:'#FFEA00'}];
+const tierOf=l=>({E:1,D:1,C:2,B:3,A:3,S:4})[rankOf(l).r];
+function stageHTML(c,top,big,of,meta){
+  const k=tierOf(c.level), T=TIERS[k], rk=rankOf(c.level), pct=Math.round(c.intoLevel/XP_LEVEL*100);
+  return '<section class="stage" style="--tc:'+T.c+'" aria-label="Your runner: '+T.n+', rank '+rk.r+', level '+c.level+'">'+
+   '<div class="st-bg"></div><div class="st-grid"></div><div class="st-floor"></div>'+
+   '<i class="st-p" style="--x:12%;--d:0s"></i><i class="st-p" style="--x:38%;--d:1.6s"></i><i class="st-p" style="--x:64%;--d:3.1s"></i><i class="st-p" style="--x:86%;--d:.8s"></i><i class="st-p" style="--x:52%;--d:4.4s"></i>'+
+   '<button class="st-char" data-a="runner" aria-label="'+T.n+'"><img src="'+ART+'char-'+k+'.webp" alt="" decoding="async"><img class="ghost g1" src="'+ART+'char-'+k+'.webp" alt=""><img class="ghost g2" src="'+ART+'char-'+k+'.webp" alt=""></button>'+
+   '<div class="st-scan"></div>'+
+   '<div class="st-hud"><div class="st-k">'+esc(top)+'</div><div class="st-day"><span class="big num">'+big+'</span><span class="of">'+esc(of)+'</span></div>'+
+   '<div class="st-tier">'+T.n+'</div><div class="st-rank"><b>'+rk.r+'</b><span>LV '+c.level+'</span></div>'+
+   '<div class="st-xp"><i style="width:'+pct+'%"></i></div><div class="st-xpt num">'+c.intoLevel+'/'+XP_LEVEL+' XP</div>'+
+   (c.cur?'<div class="st-streak">'+ic('flame')+'<span class="num">'+c.cur+'</span>'+(c.shields?'<span class="sh">'+ic('shield')+c.shields+'</span>':'')+'</div>':'')+
+   '</div><span class="br tl"></span><span class="br tr"></span><span class="br bl"></span><span class="br brr"></span></section>'+meta;
+}
 function auraCard(c){
   const rk=rankOf(c.level), nx=nextRank(c.level);
   const sub=nx?'Rank '+nx.r+' at Level '+nx.min:'Highest rank reached';
@@ -1345,7 +1412,7 @@ function viewToday(c){
   }else if(c.finished){
     hero='<div class="hero"><div class="hero-label">Challenge complete</div><div class="hero-day"><span class="big num">66</span><span class="of">of 66</span></div></div>'+trackHTML(c)+'<div class="track-meta"><span>'+c.perfectDays+' perfect days</span><span>Best streak '+c.best+'</span></div>';
   }else{
-    hero='<div class="hero"><div class="hero-label">'+(S.season>1?'Season '+S.season+' · Day':'Day')+'</div><div class="hero-day" aria-label="Day '+c.day+' of 66"><span class="big num">'+c.day+'</span><span class="of">of 66</span></div></div>'+trackHTML(c)+'<div class="track-meta"><span>'+c.progress+'% of the challenge</span><span>'+(TOTAL-c.day)+' days to go</span></div>';
+    hero=stageHTML(c,S.season>1?'Season '+S.season+' · Day':'Day',c.day,'/66',trackHTML(c)+'<div class="track-meta"><span>'+c.progress+'% of the challenge</span><span>'+(TOTAL-c.day)+' days to go</span></div>');
   }
   const stats='<div class="stats3"><div class="stat"><div class="v num">'+(c.started&&!c.finished?c.todayPct+'%':'–')+'</div><div class="k">Today</div></div>'+
     '<div class="stat"><div class="v num">'+ic('flame')+c.cur+'</div><div class="k">Day streak'+(c.shields?'<span class="shields" aria-label="'+c.shields+' streak shield'+(c.shields>1?'s':'')+'">'+ic('shield')+c.shields+'</span>':'')+'</div></div>'+
@@ -1904,6 +1971,7 @@ const A={
       if(h&&S.startDate&&t>=S.startDate&&scheduled(h,t)){ const arr=new Set(S.completions[t]||[]); if(!arr.has(h.id)){ arr.add(h.id); ticked=true; } S.completions[t]=[...arr]; } },r);
     toast(FIT_T[k].n+' done'+(ticked?'. Habit checked off.':''),'dumbbell',true);
   },
+  runner(el){ const T=TIERS[tierOf(compute().level)]; el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); toast(T.n+': '+T.d,'zap'); },
   fitWalk(el){
     const t=today(), r=el.getBoundingClientRect(), h=fitLinked(), f=S.fit; let ticked=false;
     commit(()=>{ f.done.push({id:uid(),d:t,s:'W',f:0,prev:JSON.parse(JSON.stringify(f.pat))}); if(f.done.length>1000) f.done=f.done.slice(-1000);
