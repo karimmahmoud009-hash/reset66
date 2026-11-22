@@ -341,7 +341,7 @@ textarea.input{ min-height:120px; font-size:13px; font-family:ui-monospace,Menlo
 .lvl{ text-align:center; padding:18px 4px 6px; }
 .lvl .n{ font-size:96px; font-weight:800; letter-spacing:-.06em; line-height:1; color:var(--accent); }
 
-/* hunter system */
+/* runner system */
 .aura-card{ width:100%; display:grid; grid-template-columns:132px 1fr; gap:6px; align-items:center; text-align:left; margin-top:10px; border-radius:24px; padding:6px 18px 6px 4px; color:#EDEBFF;
   background:radial-gradient(120% 90% at 18% 60%, color-mix(in srgb,var(--aura) 22%,transparent), transparent 60%), linear-gradient(160deg,#24243A,#17172A 70%); position:relative; overflow:hidden; border:1px solid color-mix(in srgb,var(--aura) 35%,transparent); }
 .aura-card .bar{ background:rgba(255,255,255,.1); }
@@ -450,13 +450,13 @@ svg.aura{ width:100%; height:auto; display:block; overflow:visible; }
 .ob-hero{ position:relative; margin:-22px -20px 18px; height:58vh; max-height:520px; overflow:hidden; display:flex; align-items:flex-end; padding:0 20px 8px; }
 .ob-hero img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 0%; -webkit-mask-image:linear-gradient(#000 55%,transparent); mask-image:linear-gradient(#000 55%,transparent); }
 .ob-hero .welcome-mark{ position:relative; margin:0; text-shadow:0 4px 24px rgba(0,0,0,.6); }
-:root:not([data-theme="light"]) body{ background:var(--bg) url(art/bg-city.webp) center top / 100% auto no-repeat fixed; }
-:root:not([data-theme="light"]) body::after{ content:""; position:fixed; inset:0; z-index:-1; background:linear-gradient(rgba(27,27,42,.55),var(--bg) 70%); pointer-events:none; }
+:root:not([data-theme="light"]) body{ background:var(--bg); }
+:root:not([data-theme="light"]) body::after{ content:""; position:fixed; inset:0; z-index:-10; pointer-events:none; background:linear-gradient(180deg,rgba(27,27,42,.1),rgba(27,27,42,.55) 55%,#1B1B2A 92%), url(art/bg-city.webp) center top / cover no-repeat; }
 .scrim .sheet{ background:var(--bg); }
 :root:not([data-theme="light"]) .sheet:has(.big-art){ background:#17172A url(art/bg-dungeon.webp) center / cover no-repeat; }
 :root:not([data-theme="light"]) .sheet:has(.lvl){ background:#17172A url(art/bg-levelup.webp) center / cover no-repeat; }
-:root[data-theme="light"] body{ background:var(--bg) url(art/bg-light-city.webp) center top / 100% auto no-repeat fixed; }
-:root[data-theme="light"] body::after{ content:""; position:fixed; inset:0; z-index:-1; background:linear-gradient(rgba(245,243,241,.25),var(--bg) 72%); pointer-events:none; }
+:root[data-theme="light"] body{ background:var(--bg); }
+:root[data-theme="light"] body::after{ content:""; position:fixed; inset:0; z-index:-10; pointer-events:none; background:linear-gradient(180deg,transparent,rgba(245,243,241,.6) 55%,#f5f3f1 92%), url(art/bg-light-city.webp) center top / cover no-repeat; }
 :root[data-theme="light"] .sheet:has(.big-art){ background:#f5f3f1 url(art/bg-light-dungeon.webp) center / cover no-repeat; }
 .sheet:has(.big-art) label.f{ display:inline-block; background:var(--surface); color:var(--text); padding:4px 12px; border-radius:999px; }
 :root[data-theme="light"] .sheet:has(.lvl){ background:#f5f3f1 url(art/bg-light-levelup.webp) center / cover no-repeat; }
@@ -548,6 +548,29 @@ svg.aura{ width:100%; height:auto; display:block; overflow:visible; }
 .page-title{ text-shadow:2px 0 #FF5F5788,-2px 0 #00FFB355; }
 @media (prefers-reduced-motion: reduce){ .stage *, .stage *::after{ animation:none !important; } }
 .tq{ border-color:#FFEA00 !important; } .tq .tag{ color:#FFEA00; } .tq-done h2{ display:flex; align-items:center; gap:8px; color:var(--hud); } .tq .fit-list{ margin-top:10px; }
+.stats3.two{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+.bonus-wrap>summary{ list-style:none; cursor:pointer; display:flex; align-items:baseline; justify-content:space-between; }
+.bonus-wrap>summary::-webkit-details-marker{ display:none; }
+.bonus-wrap>summary h2::after{ content:' +'; color:var(--muted); } .bonus-wrap[open]>summary h2::after{ content:' –'; }
+
+/* ===== HUD skin for lists, habits, money, more ===== */
+.habit,.list,.pick{ border-radius:0 !important; clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px)); background:color-mix(in srgb,var(--surface) 88%,transparent); border-left:2px solid color-mix(in srgb,var(--hud) 70%,transparent); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+.habit .ico,.pick .ico{ border-radius:0 !important; clip-path:polygon(0 0,100% 0,100% 70%,70% 100%,0 100%); color:var(--hud); background:color-mix(in srgb,var(--hud) 12%,var(--surface-2)); }
+.habit .check{ border-radius:3px !important; transform:rotate(45deg) scale(.82); }
+.habit .check svg{ transform:rotate(-45deg); }
+.habit.done{ border-left-color:var(--accent); }
+.habit .name,.pick>.grow{ letter-spacing:.2px; }
+.habit .cat,.item .sub,.pick .muted{ font-family:var(--mono); font-size:12px !important; letter-spacing:.5px; }
+.st{ border-radius:0 !important; clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%); font-family:var(--mono); letter-spacing:.5px; }
+.input{ border-radius:2px !important; border:1px solid var(--line); border-bottom:2px solid color-mix(in srgb,var(--hud) 60%,transparent); background:color-mix(in srgb,var(--surface-2) 90%,transparent); }
+.input:focus{ border-bottom-color:#FFEA00; outline:none; box-shadow:0 6px 14px -10px #FFEA00; }
+.item b.num,.item .num{ font-family:var(--sport); font-size:20px; letter-spacing:.5px; }
+.section-head h2{ position:relative; padding-left:12px; }
+.section-head h2::before{ content:''; position:absolute; left:0; top:15%; bottom:15%; width:3px; background:#FFEA00; box-shadow:0 0 8px #FFEA00; }
+.pick .ico svg,.habit .ico svg{ filter:drop-shadow(0 0 4px color-mix(in srgb,var(--hud) 60%,transparent)); }
+.pick:active,.habit:active{ transform:translateX(2px); }
+.wkm{ border-color:var(--hud) !important; } .wkm .tag{ color:var(--hud) !important; }
+.cbq{ border-color:#FF5F57 !important; background:linear-gradient(160deg,rgba(255,95,87,.14),#1B1B2A) !important; } .cbq .tag{ color:#FF5F57 !important; }
 </style>
 </head>
 <body>
@@ -652,17 +675,17 @@ const ACH=[
 ];
 
 const RANKS=[
- {r:'E',min:1,t:'Beginner',d:'Every hunter starts here.',c:'#9aa6bd'},
- {r:'D',min:3,t:'Initiate',d:'The habit has noticed you.',c:'#54d69c'},
- {r:'C',min:5,t:'Challenger',d:'Your aura is starting to show.',c:'#4fb3ff'},
- {r:'B',min:7,t:'Elite',d:'Most people quit before this.',c:'#a77bff'},
- {r:'A',min:10,t:'Vanguard',d:'Discipline has become identity.',c:'#ff8858'},
- {r:'S',min:13,t:'Legend',d:'The top of the path.',c:'#ffd166'}
+ {r:'E',min:1,t:'Street Kid',d:'Necessity over style. Every runner starts here.',c:'#9aa6bd'},
+ {r:'D',min:3,t:'Scrapper',d:'Still scrappy, but the habit has noticed you.',c:'#54d69c'},
+ {r:'C',min:5,t:'Runner',d:'Loud, flashy, finally visible.',c:'#4fb3ff'},
+ {r:'B',min:7,t:'Operator',d:'Discipline as armor. Most people quit before this.',c:'#a77bff'},
+ {r:'A',min:10,t:'Elite',d:'Discipline has become identity.',c:'#ff8858'},
+ {r:'S',min:13,t:'Legend',d:'Neokitsch. The city knows your name.',c:'#ffd166'}
 ];
 const rankOf=l=>{ let k=RANKS[0]; for(const r of RANKS) if(l>=r.min) k=r; return k; };
 const nextRank=l=>RANKS.find(r=>r.min>l)||null;
 const STATS=[['STR','Strength',['Fitness']],['VIT','Vitality',['Health']],['INT','Intelligence',['Learning']],['FOC','Focus',['Mind']],['WIL','Willpower',['Productivity','Creativity','Other']]];
-function hunterStats(){
+function runnerStats(){
   const out=seasonStats(); for(const [k] of STATS){ out[k]+=10; for(const e of S.history) out[k]+=e.stats[k]||0; }
   return out;
 }
@@ -738,8 +761,8 @@ function stageHTML(c,top,big,of,meta){
 function auraCard(c){
   const rk=rankOf(c.level), nx=nextRank(c.level);
   const sub=nx?'Rank '+nx.r+' at Level '+nx.min:'Highest rank reached';
-  return '<button class="aura-card" data-a="path" style="--aura:'+rk.c+'" aria-label="Rank '+rk.r+', '+rk.t+', level '+c.level+'. Open your hunter path">'+
-   '<div class="ac-art">'+rankArt(c.level,'rank-art')+'</div><div class="aura-info"><div class="rk"><span class="rank-letter">'+rk.r+'</span><span><div class="ttl">'+rk.t+'</div><div class="sub">Rank '+rk.r+' hunter</div></span></div>'+
+  return '<button class="aura-card" data-a="path" style="--aura:'+rk.c+'" aria-label="Rank '+rk.r+', '+rk.t+', level '+c.level+'. Open your runner path">'+
+   '<div class="ac-art">'+rankArt(c.level,'rank-art')+'</div><div class="aura-info"><div class="rk"><span class="rank-letter">'+rk.r+'</span><span><div class="ttl">'+rk.t+'</div><div class="sub">Rank '+rk.r+' runner</div></span></div>'+
    '<div class="lv"><span>Level '+c.level+'</span><span class="num">'+c.intoLevel+' / '+XP_LEVEL+' XP</span></div><div class="bar"><i style="width:'+(c.intoLevel/XP_LEVEL*100)+'%"></i></div>'+
    '<div class="sub" style="margin-top:8px">'+sub+'</div></div></button>';
 }
@@ -751,7 +774,7 @@ function sidePool(){ return SIDE_POOL.concat((S.bonus&&S.bonus.custom)||[]); }
 function sideQuestFor(date){ const done=S.bonus.daily[date]; if(done) return done; const pool=sidePool(); return pool[hashStr('side'+date)%pool.length]; }
 function weekStart(date){ return addDays(S.startDate,Math.floor(diff(S.startDate,date)/7)*7); }
 function bossFor(ws){ const done=S.bonus.weekly[ws]; if(done) return done; return BOSS_POOL[hashStr('boss'+ws)%BOSS_POOL.length]; }
-const XP_HABIT=20, XP_PERFECT=50, XP_STREAK7=100, XP_LEVEL=500, TOTAL=66, MAX_SHIELDS=3;
+const XP_COMEBACK=50, XP_HABIT=20, XP_PERFECT=50, XP_STREAK7=100, XP_LEVEL=500, TOTAL=66, MAX_SHIELDS=3;
 const WD=['S','M','T','W','T','F','S'], WDL=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 /* ---------- Stay Ahead with AI: 66-day plan ---------- */
@@ -855,7 +878,8 @@ const FIT_LAD={
 };
 const FIT_T={U:{n:'Upper body',pats:['push','pull','press','core'],gear:'Bands · TRX · Bar'},L:{n:'Lower body',pats:['squat','lunge','hinge','core2'],gear:'No equipment'},C:{n:'Rope and stretch',pats:['rope'],gear:'Jump rope'}};
 const FIT_STRETCH='Finish with 3 min of stretching: calves, hips (lunge stretch) and chest (doorway), 30 s each side.';
-function fitPatBlank(){ const o={}; for(const k in FIT_LAD) o[k]={v:0,r:FIT_LAD[k][0][2]}; return o; }
+const FIT_START={push:[2,8],squat:[1,10]}; // agreed start: 3 × 8 knee push-ups, bodyweight squats
+function fitPatBlank(){ const o={}; for(const k in FIT_LAD){ const st=FIT_START[k]; o[k]=st?{v:st[0],r:st[1]}:{v:0,r:FIT_LAD[k][0][2]}; } return o; }
 function fitDose(k,st,easier){ const x=FIT_LAD[k][st.v]; if(x[1]==='x') return ''; const r=Math.max(x[2],st.r-(easier?2*(x[1]==='s'?5:1):0)); const sets=st.v===0?2:3; return sets+' × '+r+(x[1]==='s'?' s':''); }
 function fitBump(k,st,delta){ const lad=FIT_LAD[k], x=lad[st.v];
   if(x[1]==='x'){ st.v=Math.max(0,Math.min(lad.length-1,st.v+Math.sign(delta))); return; }
@@ -870,6 +894,7 @@ function fitClean(f){
   if(Array.isArray(f.best)) r.best=f.best.filter(x=>x&&isDate(x.d)&&FIT_K[x.k]&&Number.isFinite(Number(x.v))).slice(-500).map(x=>({id:typeof x.id==='string'?x.id:uid(),d:x.d,k:x.k,v:Math.max(0,Math.min(100000,Math.round(Number(x.v))))}));
   r.habitId=typeof f.habitId==='string'?f.habitId:null;
   r.pat=fitPatBlank(); if(f.pat&&typeof f.pat==='object') for(const k in FIT_LAD){ const v=f.pat[k]; if(v&&Number.isInteger(v.v)&&v.v>=0&&v.v<FIT_LAD[k].length&&Number.isInteger(v.r)&&v.r>=0&&v.r<=200) r.pat[k]={v:v.v,r:v.r}; }
+  if(!r.done.length) for(const k in FIT_START) if(r.pat[k].v===0) r.pat[k]={v:FIT_START[k][0],r:FIT_START[k][1]};
   return r;
 }
 
@@ -949,7 +974,7 @@ function compute(){
   const r={day:0,started:false,finished:false,xp:0,cur:0,best:0,perfectDays:0,anyDone:false,days:[],todayPct:0,day66perfect:false,shields:0,shieldsEarned:0,shieldsUsed:0};
   if(!start) return r;
   r.day=diff(start,t)+1; r.started=r.day>=1; r.finished=r.day>TOTAL;
-  let run=0, sh=0;
+  let run=0, sh=0, missedPrev=false; r.comebackToday=false;
   for(let i=0;i<TOTAL;i++){
     const date=addDays(start,i), dd=dayData(date);
     let status, shield=false;
@@ -958,6 +983,9 @@ function compute(){
       const perfect=dd.total>0&&dd.done===dd.total;
       if(dd.done>0) r.anyDone=true;
       r.xp+=dd.done*XP_HABIT;
+      if(date===t&&missedPrev) r.comebackToday=true;
+      if(perfect&&missedPrev){ r.xp+=XP_COMEBACK; }
+      if(dd.total>0&&date<t) missedPrev=!perfect;
       if(perfect){ r.xp+=XP_PERFECT; r.perfectDays++; run++; if(run%7===0){ r.xp+=XP_STREAK7; r.shieldsEarned++; if(sh<MAX_SHIELDS) sh++; } if(i===TOTAL-1) r.day66perfect=true; }
       else if(dd.total>0&&date<t){ if(sh>0){ sh--; r.shieldsUsed++; shield=true; } else run=0; }
       r.best=Math.max(r.best,run);
@@ -1274,12 +1302,13 @@ async function coachAsk(text){
   const key=ckGet(); if(!key||coach.busy) return;
   const chat=chGet(); chat.push({r:'u',t:text.slice(0,2000)}); chSet(chat); coach.busy=true; coach.err=''; render(); coachScroll();
   try{
-    const body=JSON.stringify({systemInstruction:{parts:[{text:coachSys()}]},contents:chat.slice(-20).map(m=>({role:m.r==='u'?'user':'model',parts:[{text:m.t}]})),generationConfig:{maxOutputTokens:2048}});
+    const body=JSON.stringify({systemInstruction:{parts:[{text:coachSys()}]},contents:chat.slice(-20).map(m=>({role:m.r==='u'?'user':'model',parts:[{text:m.t}]})),generationConfig:{maxOutputTokens:4096,thinkingConfig:{thinkingBudget:0}}}), body2=body.replace(',"thinkingConfig":{"thinkingBudget":0}','');
     let res;
     for(const mdl of ['gemini-flash-latest','gemini-2.5-flash','gemini-2.0-flash','gemini-flash-lite-latest']){
       const ac=new AbortController(), tm=setTimeout(()=>ac.abort(),45000);
-      try{ res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+mdl+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body,signal:ac.signal}); } finally{ clearTimeout(tm); }
-      if(res.status!==404) break; }
+      try{ const go=b=>fetch('https://generativelanguage.googleapis.com/v1beta/models/'+mdl+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:b,signal:ac.signal});
+        res=await go(body); if(res.status===400){ const t=await res.clone().text(); if(/thinking/i.test(t)) res=await go(body2); } } finally{ clearTimeout(tm); }
+      if(res.ok||![404,500,503].includes(res.status)) break; }
     const j=await res.json().catch(()=>null);
     if(!res.ok){ const m=j&&j.error&&j.error.message||''; coach.err=res.status===429?'Daily free limit reached. Try again later.':(res.status===400||res.status===403)&&/key/i.test(m)?'That key didn’t work. Tap Remove key and paste it again.':'The coach couldn’t answer ('+res.status+(m?': '+m.slice(0,140):'')+').'; }
     else{ const out=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[]).map(p=>p.text||'').join('').trim();
@@ -1408,13 +1437,15 @@ function trainQuest(t){
   if(!S.fit) S.fit=fitBlank();
   const f=S.fit, last=f.done[f.done.length-1], doneToday=!!last&&last.d===t;
   if(doneToday){ const w=last.s==='W'; return '<div class="quest tq tq-done"><div class="tag">MAIN QUEST · TRAINING</div><h2>'+ic('check')+(w?'Walk quest done':esc((FIT_T[last.s]||{n:'Workout'}).n)+' done')+'</h2><p class="muted small">Nice. Next workout is ready on the Fit tab.</p></div>'; }
-  const plan=fitChoose(t), k=plan.k, T=FIT_T[k], items=fitList(k,plan.comeback);
+  const plan=fitChoose(t), k=plan.k, T=FIT_T[k], wk=[5,6].includes(parse(t).getDay());
+  let items=fitList(k,plan.comeback); if(wk&&k!=='C') items=items.slice(0,2).map(x=>[x[0],x[1].replace(/^3 ×/,'2 ×'),x[2],x[3]]);
   const list='<ol class="fit-list">'+items.map((x,i)=>'<li><span class="n num">'+(i+1)+'</span><span class="grow"><a class="exl" href="https://www.youtube.com/results?search_query='+encodeURIComponent('how to do '+x[0].replace(/\s*\(.*\)/,'')+(x[3]==='rope'?' jump rope':' exercise')+' beginner')+'" target="_blank" rel="noopener"><b>'+esc(x[0])+'</b> '+ic('play')+'</a>'+(x[1]?' <span class="dose num">'+esc(x[1])+'</span>':'')+'</span></li>').join('')+'</ol>';
-  return '<div class="quest tq"><div class="tag">MAIN QUEST · TRAINING</div><h2>'+esc(T.n)+'</h2>'+
-    '<p class="ai-phase">'+(k==='C'?'15 min':'20 min')+' · '+esc(T.gear)+'</p>'+
+  return '<div class="quest tq'+(wk?' wkm':'')+'"><div class="tag">'+(wk?'WEEKEND MODE · MINIMUM QUEST':'MAIN QUEST · TRAINING')+'</div><h2>'+esc(T.n)+(wk&&k!=='C'?' lite':'')+'</h2>'+
+    '<p class="ai-phase">'+(wk?'10 min':k==='C'?'15 min':'20 min')+' · '+esc(T.gear)+'</p>'+
+    (wk?'<p class="muted small" style="margin-top:6px">It’s the weekend. Just this short version keeps your streak. Want more? The full workout is on the Fit tab.</p>':'')+
     (plan.rest?'<p class="muted small" style="margin-top:6px">2 days in a row done. Rest is fine today, or do this light session.</p>':plan.comeback?'<p class="muted small" style="margin-top:6px">Welcome back. Easier today to get you going.</p>':'')+
     '<p class="muted small" style="margin-top:6px">Warm-up 3 min. '+(k==='C'?'':'Rest 60 s between sets.')+'</p>'+list+
-    '<button class="btn btn-primary btn-block" style="margin-top:12px" data-a="fitDone" data-k="'+k+'">'+ic('check')+'Workout done</button>'+
+    '<button class="btn btn-primary btn-block" style="margin-top:12px" data-a="fitDone" data-k="'+k+'"'+(wk&&k!=='C'?' data-lite="1"':'')+'>'+ic('check')+(wk?'Minimum done':'Workout done')+'</button>'+
     '<button class="btn btn-block" style="margin-top:8px" data-a="fitWalk">'+ic('run')+'No time? Walk 30 min</button></div>';
 }
 function viewToday(c){
@@ -1428,18 +1459,20 @@ function viewToday(c){
   }else{
     hero=stageHTML(c,S.season>1?'Season '+S.season+' · Day':'Day',c.day,'/66',trackHTML(c)+'<div class="track-meta"><span>'+c.progress+'% of the challenge</span><span>'+(TOTAL-c.day)+' days to go</span></div>');
   }
-  const stats='<div class="stats3"><div class="stat"><div class="v num">'+(c.started&&!c.finished?c.todayPct+'%':'–')+'</div><div class="k">Today</div></div>'+
-    '<div class="stat"><div class="v num">'+ic('flame')+c.cur+'</div><div class="k">Day streak'+(c.shields?'<span class="shields" aria-label="'+c.shields+' streak shield'+(c.shields>1?'s':'')+'">'+ic('shield')+c.shields+'</span>':'')+'</div></div>'+
+  const live=c.started&&!c.finished;
+  const stats='<div class="stats3'+(live?' two':'')+'"><div class="stat"><div class="v num">'+(live?c.todayPct+'%':'–')+'</div><div class="k">Today</div></div>'+
+    (live?'':'<div class="stat"><div class="v num">'+ic('flame')+c.cur+'</div><div class="k">Day streak'+(c.shields?'<span class="shields" aria-label="'+c.shields+' streak shield'+(c.shields>1?'s':'')+'">'+ic('shield')+c.shields+'</span>':'')+'</div></div>')+
     '<div class="stat"><div class="v num">'+n(c.lifeXP)+'</div><div class="k">Total XP</div></div></div>'+
-    auraCard(c)+
-    '<div class="card" style="margin-top:10px"><p class="quote" style="margin:0">'+esc(m1)+(m2?'<span class="muted">'+esc(m2)+'</span>':'')+'</p></div>';
+    (c.started&&!c.finished?'':auraCard(c)+'<div class="card" style="margin-top:10px"><p class="quote" style="margin:0">'+esc(m1)+(m2?'<span class="muted">'+esc(m2)+'</span>':'')+'</p></div>');
   let list='';
   if(c.finished){
     list='<div class="card empty"><h3 style="color:var(--text)">Season '+S.season+' complete</h3><p>It’s saved on your Progress page. Your rank and level carry into the next 66 days.</p><button class="btn btn-primary" data-a="newSeason">Start Season '+(S.season+1)+'</button></div>';
   }else{
     const date=c.started?t:S.startDate;
     const active=S.habits.filter(h=>!h.archivedOn);
-    const todays=active.filter(h=>scheduled(h,date));
+    if(S.fit&&!S.fit.habitId){ const fh=active.find(h=>h.icon==='dumbbell'||/work ?out|exercise|train|gym|fit/i.test(h.name)); if(fh) S.fit.habitId=fh.id; }
+    const fitH=c.started&&S.fit?S.fit.habitId:null;
+    const todays=active.filter(h=>scheduled(h,date)&&h.id!==fitH);
     const later=active.filter(h=>h.unlock&&dayNum(date)<h.unlock).sort((a,b)=>a.unlock-b.unlock);
     const off=active.length-later.length-todays.length;
     const qd=dayData(date), clear=c.started&&qd.total>0&&qd.done===qd.total;
@@ -1457,12 +1490,12 @@ function viewToday(c){
     if(c.started){
       const sq=sideQuestFor(t), sd=!!S.bonus.daily[t], ws=weekStart(t), w=diff(S.startDate,ws)/7, bq=bossFor(ws), bd=!!S.bonus.weekly[ws];
       const wEnd=addDays(S.startDate,Math.min(w*7+6,TOTAL-1));
-      list+='<div class="section-head" style="display:block"><h2>Bonus quests</h2><p class="muted small" style="margin:2px 0 0">Optional extra XP. Skipping them never breaks your streak.</p></div>'+
+      list+='<details class="bonus-wrap"'+(sd&&bd?'':' open')+'><summary class="section-head"><h2>Bonus quests</h2><span class="muted small">'+((sd?1:0)+(bd?1:0))+'/2</span></summary><p class="muted small" style="margin:0 2px 10px">Optional extra XP. Skipping them never breaks your streak.</p>'+
         '<button class="bonus side'+(sd?' done':'')+'" data-a="side" aria-pressed="'+sd+'" aria-label="Side quest: '+esc(sq)+(sd?', completed':'')+'"><span class="bq-tag">SIDE QUEST</span><span class="bq-name">'+esc(sq)+'</span><span class="bq-xp num">+'+XP_SIDE+' XP</span><span class="check">'+ic('check')+'</span></button>'+
-        '<button class="bonus boss'+(bd?' done':'')+'" data-a="boss" aria-pressed="'+bd+'" aria-label="Boss quest of the week: '+esc(bq)+(bd?', completed':'')+'"><span class="bq-tag">BOSS QUEST, WEEK '+(w+1)+'</span><span class="bq-name">'+esc(bq)+'</span><span class="bq-xp num">+'+XP_BOSS+' XP</span><span class="bq-sub">'+(bd?'Defeated':'Ends '+nice(wEnd,{weekday:'short',day:'numeric',month:'short'}))+'</span><span class="check">'+ic('check')+'</span></button>';
+        '<button class="bonus boss'+(bd?' done':'')+'" data-a="boss" aria-pressed="'+bd+'" aria-label="Boss quest of the week: '+esc(bq)+(bd?', completed':'')+'"><span class="bq-tag">BOSS QUEST, WEEK '+(w+1)+'</span><span class="bq-name">'+esc(bq)+'</span><span class="bq-xp num">+'+XP_BOSS+' XP</span><span class="bq-sub">'+(bd?'Defeated':'Ends '+nice(wEnd,{weekday:'short',day:'numeric',month:'short'}))+'</span><span class="check">'+ic('check')+'</span></button></details>';
     }
   }
-  return '<div class="top">'+(c.started&&!c.finished?'<button class="date-line brief-btn" data-a="brief" aria-label="Open today’s System briefing">'+ic('zap')+nice(t)+'</button>':'<div class="date-line">'+nice(t)+'</div>')+'<button class="level-pill" data-a="path">'+ic('zap')+'Rank '+rankOf(c.level).r+', Lv '+c.level+'</button></div>'+hero+(c.started&&!c.finished?mainQuest(t)+trainQuest(t):'')+stats+list;
+  return '<div class="top">'+(c.started&&!c.finished?'<button class="date-line brief-btn" data-a="brief" aria-label="Open today’s System briefing">'+ic('zap')+nice(t)+'</button>':'<div class="date-line">'+nice(t)+'</div>')+(c.started&&!c.finished?'<button class="level-pill" data-a="path">'+ic('zap')+'Runner path</button>':'<button class="level-pill" data-a="path">'+ic('zap')+'Rank '+rankOf(c.level).r+', Lv '+c.level+'</button>')+'</div>'+hero+(c.started&&!c.finished?(c.comebackToday?'<div class="quest cbq"><div class="tag">COMEBACK QUEST</div><h2>Never miss twice</h2><p class="muted small">Yesterday slipped. That’s fine. Clear every habit today for <b style="color:#FFEA00">+'+XP_COMEBACK+' bonus XP</b>.</p></div>':'')+mainQuest(t)+trainQuest(t):'')+stats+list;
 }
 function viewCalendar(c){
   const startDow=parse(S.startDate).getDay();
@@ -1486,7 +1519,7 @@ function viewHabits(){
     const sub=lk?'Unlocks on Day '+h.unlock+', '+nice(addDays(S.startDate,h.unlock-1),{day:'numeric',month:'short'}):esc(h.category)+', '+freqLabel(h)+(k>=0?', level '+(k+1)+' of '+h.ladder.length:'')+(st.sched?', '+Math.round(st.rate*100)+'% done':'');
     return '<button class="habit'+(lk?' soon':'')+'" data-a="habit" data-id="'+h.id+'"><span class="ico">'+ic(lk?'lock':h.icon)+'</span><span class="txt"><span class="name" style="display:block">'+esc(lk?hName(h,addDays(S.startDate,h.unlock-1)):hName(h))+'</span><span class="cat">'+sub+'</span></span><span class="chev">'+ic('right')+'</span></button>';};
   return '<div class="row between"><h1 class="page-title">Habits</h1><button class="btn btn-primary" style="min-height:44px;padding:0 16px" data-a="newHabit">'+ic('plus')+'Add</button></div>'+
-    '<button class="pick coach-cta" data-a="coach"><span class="ico">'+ic('zap')+'</span><span class="grow">Plan with the coach<div class="muted small" style="font-weight:500">Answer 3 questions. Get a plan that starts easy and levels up.</div></span>'+ic('right')+'</button>'+
+    '<button class="pick coach-cta" data-a="coach"><span class="ico">'+ic('zap')+'</span><span class="grow">Build a habit plan<div class="muted small" style="font-weight:500">Answer 3 questions. Get a plan that starts easy and levels up.</div></span>'+ic('right')+'</button>'+
     (active.length?active.map(row).join(''):'<div class="card empty">No active habits. Add one to keep your challenge going.</div>')+
     (soon.length?'<div class="section-head"><h2>Unlocking later</h2></div>'+soon.map(row).join('')+'<p class="note">New habits unlock one at a time, so the challenge grows with you.</p>':'')+
     (arch.length?'<div class="section-head"><h2>Archived</h2></div>'+arch.map(row).join('')+'<p class="note">Archived habits keep their history but no longer appear in your daily list.</p>':'')+
@@ -1565,7 +1598,7 @@ function viewFit(){
     '<p>The app picks each workout for you: upper body, lower body or rope, based on what you trained last, so the same muscles always get rest.</p>'+
     '<p>Every workout adds a rep (or 5 seconds) to the moves you did. When a move gets easy, it switches to a harder version, like wall push-ups to knee push-ups to full push-ups. Too hard takes it back a step.</p>'+
     '<p>Aim for 4 workouts a week. Sharp pain means stop. Soreness the next day is normal.</p></details></div>';
-  return '<h1 class="page-title">Get fit at home</h1>'+card+'<button class="pick coach-cta" style="margin-top:12px" data-a="go" data-to="coach"><span class="ico">'+ic('spark')+'</span><span class="grow">Ask the coach<div class="muted small" style="font-weight:500">Questions about a move, pain, or what to do today</div></span>'+ic('right')+'</button>'+habit+score+log+rope+how;
+  return '<h1 class="page-title">Get fit at home</h1>'+card+habit+score+log+rope+how;
 }
 
 /* ---------- AI tab ---------- */
@@ -1803,7 +1836,7 @@ const SHEETS={
     const maxToday=todays.length*XP_HABIT+(todays.length?XP_PERFECT:0)+XP_SIDE+(streakBonus?XP_STREAK7:0);
     const yLine=!y?'':y.status==='done'?'Yesterday was a perfect day: <b>+'+xpOnDay(c,y.date)+' XP</b>.':y.shield?'You missed yesterday, but a <b>shield</b> saved your streak.':y.status==='rest'?'Yesterday was a rest day.':'Yesterday: '+y.done+' of '+y.total+' done, so the streak reset. Today starts a new one.';
     const weak=weakPoint(), ch=changesOn(t), next=nextEvents(2);
-    return '<div class="brief"><div class="sysbox"><div class="tag">SYSTEM · DAILY BRIEFING</div><p style="margin-top:8px">'+greet+', Hunter.</p><div class="n num">Day '+c.day+'</div><p>'+nice(t)+'. '+(TOTAL-c.day)+' days left.</p></div>'+
+    return '<div class="brief"><div class="sysbox"><div class="tag">SYSTEM · DAILY BRIEFING</div><p style="margin-top:8px">'+greet+', Runner.</p><div class="n num">Day '+c.day+'</div><p>'+nice(t)+'. '+(TOTAL-c.day)+' days left.</p></div>'+
      (yLine?'<div class="bf-row">'+ic('rotate')+'<span>'+yLine+'</span></div>':'')+
      '<div class="bf-row">'+ic('flame')+'<span><b>'+c.cur+'-day streak</b>'+(c.shields?', '+c.shields+' shield'+(c.shields>1?'s':''):'')+'. '+(doneToday?'Today is locked in.':c.cur?'Clear every mission to make it '+(c.cur+1)+'.':'Clear every mission to start a new streak.')+(streakBonus?' Day '+(c.cur+1)+' earns <b>+'+XP_STREAK7+' XP and a shield</b>.':'')+'</span></div>'+
      (ch.length?'<div class="bf-row up">'+ic('zap')+'<span>'+ch.map(x=>x.t==='new'?'New habit today: <b>'+esc(x.name)+'</b>':'Level up today: <b>'+esc(x.name)+'</b>').join('<br>')+'</span></div>':'')+
@@ -1825,7 +1858,7 @@ const SHEETS={
      (sideDone?'':'<div class="bf-row up">'+ic('star')+'<span>Side quest still open: <b>'+esc(sideQuestFor(t))+'</b> for +'+XP_SIDE+' XP.</span></div>')+
      (last?'<p class="quote" style="margin-top:16px">That was Day 66. The challenge is yours.</p>':
       '<label class="f">Tomorrow, Day '+(c.day+1)+'</label>'+(tch.length?tch.map(x=>'<div class="bf-row soft">'+ic(x.t==='new'?'lock':'zap')+'<span>'+(x.t==='new'?'New habit: ':'Level up: ')+'<b>'+esc(x.name)+'</b></span></div>').join(''):'<div class="bf-row soft">'+ic('calendar')+'<span>Same missions. Keep the chain going.</span></div>'))+
-     '<div class="actions"><button class="btn btn-primary" data-a="close">Rest well, Hunter</button></div></div>';
+     '<div class="actions"><button class="btn btn-primary" data-a="close">Rest well, Runner</button></div></div>';
   },
   evening(){
     const c=compute(), t=today(), set=new Set(S.completions[t]||[]), left=S.habits.filter(h=>scheduled(h,t)&&!set.has(h.id));
@@ -1840,17 +1873,17 @@ const SHEETS={
   },
   rank(o){
     const rk=rankOf(o.level);
-    return '<div class="rank-hero lvl big-art" style="--aura:'+rk.c+'">'+rankArt(o.level,'hero-art','Your hunter at rank '+rk.r)+'<div class="sysbox" style="margin-top:-60px;position:relative;background:rgba(10,14,26,.82)"><div class="tag">SYSTEM</div><p style="margin-top:8px">Rank up. You are now</p><div class="n" style="color:'+rk.c+';text-shadow:0 0 28px '+rk.c+'">'+rk.r+'</div><p><b style="color:#fff">'+rk.t+'.</b> '+rk.d+'</p><p class="small">Level '+o.level+'</p></div></div><div class="actions"><button class="btn btn-primary" data-a="close">Continue</button></div>';
+    return '<div class="rank-hero lvl big-art" style="--aura:'+rk.c+'">'+rankArt(o.level,'hero-art','Your runner at rank '+rk.r)+'<div class="sysbox" style="margin-top:-60px;position:relative;background:rgba(10,14,26,.82)"><div class="tag">SYSTEM</div><p style="margin-top:8px">Rank up. You are now</p><div class="n" style="color:'+rk.c+';text-shadow:0 0 28px '+rk.c+'">'+rk.r+'</div><p><b style="color:#fff">'+rk.t+'.</b> '+rk.d+'</p><p class="small">Level '+o.level+'</p></div></div><div class="actions"><button class="btn btn-primary" data-a="close">Continue</button></div>';
   },
   path(){
-    const c=compute(), rk=rankOf(c.level), st=hunterStats(), mx=Math.max(...Object.values(st),20);
+    const c=compute(), rk=rankOf(c.level), st=runnerStats(), mx=Math.max(...Object.values(st),20);
     const ladder=RANKS.map(r=>{ const on=c.level>=r.min, cur=r===rk; const need=(r.min-1)*XP_LEVEL;
       return '<div class="'+(on?'on':'')+(cur?' cur':'')+'" style="--rc:'+r.c+'"><span class="lt"><img src="'+ART+'rank-'+r.r+'.webp" alt="" loading="lazy" onerror="this.remove()"><em>'+r.r+'</em></span><span class="grow"><b>'+r.t+'</b><div class="muted small">'+(cur?'You are here':on?'Cleared':'Level '+r.min+', '+n(Math.max(0,need-c.lifeXP))+' XP to go')+'</div></span>'+(on?ic(cur?'flame':'check'):ic('lock'))+'</div>'; }).reverse().join('');
-    return head('Hunter path')+
-     '<div class="rank-hero big-art" style="--aura:'+rk.c+'">'+rankArt(c.level,'hero-art','Your hunter at rank '+rk.r)+'<div class="rank-letter" style="font-size:64px;margin-top:-40px;position:relative">'+rk.r+'</div><div style="font-weight:700;font-size:18px">'+rk.t+', Level '+c.level+'</div><div class="small" style="color:#9aa4bd;margin-top:2px">'+rk.d+'</div></div>'+
+    return head('Runner path')+
+     '<div class="rank-hero big-art" style="--aura:'+rk.c+'">'+rankArt(c.level,'hero-art','Your runner at rank '+rk.r)+'<div class="rank-letter" style="font-size:64px;margin-top:-40px;position:relative">'+rk.r+'</div><div style="font-weight:700;font-size:18px">'+rk.t+', Level '+c.level+'</div><div class="small" style="color:#9aa4bd;margin-top:2px">'+rk.d+'</div></div>'+
      '<label class="f">Stats</label><div class="card">'+STATS.map(([k,nm])=>'<div class="statrow"><b>'+nm+'</b><div class="bar"><i style="width:'+Math.round(st[k]/mx*100)+'%"></i></div><span class="num" style="text-align:right">'+st[k]+'</span></div>').join('')+
      '<p class="note" style="padding-top:12px">Every habit you complete adds a point. Fitness builds Strength, Health builds Vitality, Learning builds Intelligence, Mind builds Focus, and everything else builds Willpower.</p></div>'+
-     '<label class="f">Ranks</label><div class="ladder">'+ladder+'</div><p class="note">Your hunter powers up and changes aura colour at every rank.</p>';
+     '<label class="f">Ranks</label><div class="ladder">'+ladder+'</div><p class="note">Your runner powers up and changes aura colour at every rank.</p>';
   },
   start(){
     return head('Start date')+'<p class="muted" style="margin:-4px 0 0">Changing the start date moves all 66 days. Your check-ins stay on the dates you made them.</p><label class="f" for="sd">Day 1</label><input class="input" type="date" id="sd" value="'+S.startDate+'"><p class="note" id="sd-err" style="color:var(--danger)"></p><div class="actions"><button class="btn btn-primary" data-a="saveStart">Save start date</button></div>';
@@ -1980,8 +2013,8 @@ const A={
     const t=today(), r=el.getBoundingClientRect(), h=fitLinked(), k=FIT_T[el.dataset.k]?el.dataset.k:'U', f=S.fit;
     let ticked=false;
     commit(()=>{ const before=JSON.parse(JSON.stringify(f.pat));
-      for(const pk of FIT_T[k].pats) fitBump(pk,f.pat[pk],1);
-      f.done.push({id:uid(),d:t,s:k,f:null,prev:before}); if(f.done.length>1000) f.done=f.done.slice(-1000);
+      if(!el.dataset.lite) for(const pk of FIT_T[k].pats) fitBump(pk,f.pat[pk],1);
+      f.done.push({id:uid(),d:t,s:k,f:el.dataset.lite?0:null,prev:before}); if(f.done.length>1000) f.done=f.done.slice(-1000);
       if(h&&S.startDate&&t>=S.startDate&&scheduled(h,t)){ const arr=new Set(S.completions[t]||[]); if(!arr.has(h.id)){ arr.add(h.id); ticked=true; } S.completions[t]=[...arr]; } },r);
     toast(FIT_T[k].n+' done'+(ticked?'. Habit checked off.':''),'dumbbell',true);
   },
