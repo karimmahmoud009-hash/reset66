@@ -1267,7 +1267,21 @@ function habitRow(h,date,locked){
     '<span class="ico">'+ic(h.icon)+'</span><span class="txt"><span class="name" style="display:block">'+esc(nm)+'</span><span class="cat">'+esc(h.category)+(k>=0?', level '+(k+1)+' of '+h.ladder.length:'')+'</span></span><span class="check">'+ic('check')+'</span></button>';
 }
 /* ---------- Coach: free Gemini chat. The key and chat stay on this device only (never in backups). ---------- */
-const CK='levelup-gemini-key', CH='levelup-coach-chat';
+const CK='levelup-gemini-key', CH='levelup-coach-chat', CM='levelup-coach-model', CL='levelup-coach-models';
+/* Google keeps renaming and retiring models and moving them in and out of the free tier, so ask the key which Flash models it can use (cached a day) and try them in turn, last one that worked first */
+async function coachModels(key){
+  const pref=['gemini-flash-latest','gemini-flash-lite-latest','gemini-2.5-flash','gemini-2.5-flash-lite','gemini-2.0-flash'];
+  let found=[]; try{ const c=JSON.parse(localStorage.getItem(CL)); if(c&&Date.now()-c.t<864e5&&Array.isArray(c.m)) found=c.m; }catch(e){}
+  if(!found.length){ try{ const ac=new AbortController(), tm=setTimeout(()=>ac.abort(),10000);
+      const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':key},signal:ac.signal}); clearTimeout(tm);
+      if(r.ok){ const j=await r.json();
+        found=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>String(m.name||'').replace(/^models\//,''))
+          .filter(n=>/flash/i.test(n)&&!/(image|tts|audio|live|embed|vision|exp|preview)/i.test(n))
+          .sort((a,b)=>(parseFloat(b.replace(/^gemini-/,''))||0)-(parseFloat(a.replace(/^gemini-/,''))||0)).slice(0,6);
+        try{ localStorage.setItem(CL,JSON.stringify({t:Date.now(),m:found})); }catch(e){} } }catch(e){} }
+  let last=''; try{ last=localStorage.getItem(CM)||''; }catch(e){}
+  return [...new Set([last,...pref.filter(m=>!found.length||found.includes(m)),...found,...pref].filter(Boolean))].slice(0,8);
+}
 const coach={busy:false,err:''};
 function ckGet(){ try{ return localStorage.getItem(CK)||''; }catch(e){ return ''; } }
 function chGet(){ try{ const v=JSON.parse(localStorage.getItem(CH)); return Array.isArray(v)?v.slice(-40):[]; }catch(e){ return []; } }
@@ -1303,12 +1317,17 @@ async function coachAsk(text){
   const chat=chGet(); chat.push({r:'u',t:text.slice(0,2000)}); chSet(chat); coach.busy=true; coach.err=''; render(); coachScroll();
   try{
     const body=JSON.stringify({systemInstruction:{parts:[{text:coachSys()}]},contents:chat.slice(-20).map(m=>({role:m.r==='u'?'user':'model',parts:[{text:m.t}]})),generationConfig:{maxOutputTokens:4096,thinkingConfig:{thinkingBudget:0}}}), body2=body.replace(',"thinkingConfig":{"thinkingBudget":0}','');
-    let res;
-    for(const mdl of ['gemini-flash-latest','gemini-2.5-flash','gemini-2.0-flash','gemini-flash-lite-latest']){
-      const ac=new AbortController(), tm=setTimeout(()=>ac.abort(),45000);
+    let res, lastErr=null;
+    for(const mdl of await coachModels(key)){
+      const ac=new AbortController(), tm=setTimeout(()=>ac.abort(),40000);
       try{ const go=b=>fetch('https://generativelanguage.googleapis.com/v1beta/models/'+mdl+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:b,signal:ac.signal});
-        res=await go(body); if(res.status===400){ const t=await res.clone().text(); if(/thinking/i.test(t)) res=await go(body2); } } finally{ clearTimeout(tm); }
-      if(res.ok||![404,500,503].includes(res.status)) break; }
+        res=await go(body); if(res.status===400){ const t=await res.clone().text(); if(/thinking/i.test(t)) res=await go(body2); } }
+      catch(e){ lastErr=e; res=null; if(e&&e.name==='AbortError') continue; throw e; }
+      finally{ clearTimeout(tm); }
+      if(res.ok){ try{ localStorage.setItem(CM,mdl); }catch(e){} break; }
+      /* a bad key fails on every model: stop. Anything else (retired model, no free quota on this model, busy): try the next one */
+      if((res.status===400||res.status===401||res.status===403)&&/key/i.test(await res.clone().text())) break; }
+    if(!res) throw lastErr||new Error('no model answered');
     const j=await res.json().catch(()=>null);
     if(!res.ok){ const m=j&&j.error&&j.error.message||''; coach.err=res.status===429?'Daily free limit reached. Try again later.':(res.status===400||res.status===403)&&/key/i.test(m)?'That key didn’t work. Tap Remove key and paste it again.':'The coach couldn’t answer ('+res.status+(m?': '+m.slice(0,140):'')+').'; }
     else{ const out=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[]).map(p=>p.text||'').join('').trim();
@@ -1991,8 +2010,8 @@ const A={
   qFrom(){ const v=Math.round(Number(document.getElementById('q-pg').value)); if(!(v>=1&&v<=604)){ toast('Pick a page from 1 to 604','x'); return; }
     commit(()=>{ S.quran={pos:v-1,last:null,from:v-1}; }); toast('Starting from page '+v,'check'); },
 
-  coachKey(){ const v=(document.getElementById('ck-in').value||'').trim(); if(v.length<20){ toast('That doesn’t look like a key','x'); return; } try{ localStorage.setItem(CK,v); }catch(e){} render(); },
-  coachForget(){ ask({title:'Remove your key?',body:'The coach stops until you paste a key again.',yes:'Remove',danger:true},()=>{ try{ localStorage.removeItem(CK); }catch(e){} closeSheet(); render(); }); },
+  coachKey(){ const v=(document.getElementById('ck-in').value||'').trim(); if(v.length<20){ toast('That doesn’t look like a key','x'); return; } try{ localStorage.setItem(CK,v); localStorage.removeItem(CM); localStorage.removeItem(CL); }catch(e){} render(); },
+  coachForget(){ ask({title:'Remove your key?',body:'The coach stops until you paste a key again.',yes:'Remove',danger:true},()=>{ try{ localStorage.removeItem(CK); localStorage.removeItem(CM); localStorage.removeItem(CL); }catch(e){} closeSheet(); render(); }); },
   coachClear(){ chSet([]); coach.err=''; render(); },
   coachTip(el){ coachAsk(el.dataset.t); },
   coachSend(){ const el=document.getElementById('co-in'), v=(el.value||'').trim(); if(!v){ el.focus(); return; } coachAsk(v); },
