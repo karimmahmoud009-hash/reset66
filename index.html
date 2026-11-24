@@ -1282,7 +1282,7 @@ async function coachModels(key){
   let last=''; try{ last=localStorage.getItem(CM)||''; }catch(e){}
   return [...new Set([last,...pref.filter(m=>!found.length||found.includes(m)),...found,...pref].filter(Boolean))].slice(0,8);
 }
-const coach={busy:false,err:''};
+const coach={busy:false,err:'',step:''};
 function ckGet(){ try{ return localStorage.getItem(CK)||''; }catch(e){ return ''; } }
 function chGet(){ try{ const v=JSON.parse(localStorage.getItem(CH)); return Array.isArray(v)?v.slice(-40):[]; }catch(e){ return []; } }
 function chSet(a){ try{ localStorage.setItem(CH,JSON.stringify(a.slice(-40))); }catch(e){} }
@@ -1307,7 +1307,7 @@ function viewCoach(){
     '<p class="note">Free tier has daily limits. Google may use free-tier chats to improve its models, so keep private details out.</p></div>';
   const tips=['Plan my workout for tomorrow','How do I start learning the jump rope?','Help me wake up earlier','How was my spending this month?'];
   const msgs=chat.length?chat.map(m=>'<div class="cmsg '+(m.r==='u'?'me':'ai')+'">'+(m.r==='u'?esc(m.t):mdLite(m.t))+'</div>').join(''):'<div class="cmsg ai">Hey Karim. I can see your habits, workouts, wake-ups and spending. What do you need?</div>';
-  return '<h1 class="page-title">Coach</h1><div class="chat" id="chat">'+msgs+(coach.busy?'<div class="cmsg ai muted">Thinking…</div>':'')+(coach.err?'<div class="cmsg err">'+esc(coach.err)+'</div>':'')+'</div>'+
+  return '<h1 class="page-title">Coach</h1><div class="chat" id="chat">'+msgs+(coach.busy?'<div class="cmsg ai muted">Thinking…'+(coach.step?'<br><span class="small">'+esc(coach.step)+'</span>':'')+'</div>':'')+(coach.err?'<div class="cmsg err">'+esc(coach.err)+'</div>':'')+'</div>'+
     (chat.length?'':'<div class="mchips">'+tips.map(x=>'<button class="st st0" data-a="coachTip" data-t="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div>')+
     '<div class="row chat-in"><textarea class="input" id="co-in" rows="1" placeholder="Ask your coach" style="min-height:48px;font-size:16px;font-family:inherit"></textarea><button class="btn btn-primary" style="min-width:64px" data-a="coachSend" aria-label="Send"'+(coach.busy?' disabled':'')+'>'+ic('right')+'</button></div>'+
     '<div class="row between" style="margin-top:8px"><button class="link" data-a="coachClear">New chat</button><button class="link" data-a="coachForget" style="color:var(--muted)">Remove key</button></div>';
@@ -1317,23 +1317,27 @@ async function coachAsk(text){
   const chat=chGet(); chat.push({r:'u',t:text.slice(0,2000)}); chSet(chat); coach.busy=true; coach.err=''; render(); coachScroll();
   try{
     const body=JSON.stringify({systemInstruction:{parts:[{text:coachSys()}]},contents:chat.slice(-20).map(m=>({role:m.r==='u'?'user':'model',parts:[{text:m.t}]})),generationConfig:{maxOutputTokens:4096,thinkingConfig:{thinkingBudget:0}}}), body2=body.replace(',"thinkingConfig":{"thinkingBudget":0}','');
-    let res, lastErr=null;
+    let res, lastErr=null; const tried=[], t0=Date.now();
+    coach.step='Finding a model…'; render();
     for(const mdl of await coachModels(key)){
-      const ac=new AbortController(), tm=setTimeout(()=>ac.abort(),40000);
+      if(Date.now()-t0>75000) break;
+      coach.step='Trying '+mdl+'…'; render(); coachScroll();
+      const ac=new AbortController(), tm=setTimeout(()=>ac.abort(),20000);
       try{ const go=b=>fetch('https://generativelanguage.googleapis.com/v1beta/models/'+mdl+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:b,signal:ac.signal});
         res=await go(body); if(res.status===400){ const t=await res.clone().text(); if(/thinking/i.test(t)) res=await go(body2); } }
-      catch(e){ lastErr=e; res=null; if(e&&e.name==='AbortError') continue; throw e; }
+      catch(e){ lastErr=e; res=null; tried.push(mdl+' '+(e&&e.name==='AbortError'?'timeout':'network')); if(e&&e.name==='AbortError') continue; throw e; }
       finally{ clearTimeout(tm); }
       if(res.ok){ try{ localStorage.setItem(CM,mdl); }catch(e){} break; }
+      tried.push(mdl+' '+res.status);
       /* a bad key fails on every model: stop. Anything else (retired model, no free quota on this model, busy): try the next one */
       if((res.status===400||res.status===401||res.status===403)&&/key/i.test(await res.clone().text())) break; }
-    if(!res) throw lastErr||new Error('no model answered');
+    if(!res){ coach.err='No model answered. Tried: '+(tried.join(', ')||'none')+'.'; throw null; }
     const j=await res.json().catch(()=>null);
-    if(!res.ok){ const m=j&&j.error&&j.error.message||''; coach.err=res.status===429?'Daily free limit reached. Try again later.':(res.status===400||res.status===403)&&/key/i.test(m)?'That key didn’t work. Tap Remove key and paste it again.':'The coach couldn’t answer ('+res.status+(m?': '+m.slice(0,140):'')+').'; }
+    if(!res.ok){ const m=j&&j.error&&j.error.message||''; coach.err=(res.status===429?'Daily free limit reached on every model. Try again later.':(res.status===400||res.status===403)&&/key/i.test(m)?'That key didn’t work. Tap Remove key and paste it again.':'The coach couldn’t answer ('+res.status+(m?': '+m.slice(0,140):'')+').')+(tried.length?' Tried: '+tried.join(', ')+'.':''); }
     else{ const out=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts||[]).map(p=>p.text||'').join('').trim();
       if(out){ const c2=chGet(); c2.push({r:'a',t:out}); chSet(c2); } else coach.err='No answer came back'+(j&&j.candidates&&j.candidates[0]&&j.candidates[0].finishReason?' ('+j.candidates[0].finishReason+')':j&&j.promptFeedback&&j.promptFeedback.blockReason?' ('+j.promptFeedback.blockReason+')':'')+'. Try asking another way.'; }
-  }catch(e){ coach.err=e&&e.name==='AbortError'?'The coach took too long to answer. Try again.':'Couldn’t reach Google ('+(e&&e.message||'network error')+'). Check your internet and try again.'; }
-  coach.busy=false; render(); if(route==='coach') coachScroll();
+  }catch(e){ if(e===null){} else coach.err=e&&e.name==='AbortError'?'The coach took too long to answer. Try again.':'Couldn’t reach Google ('+(e&&e.message||'network error')+'). Check your internet and try again.'; }
+  coach.busy=false; coach.step=''; render(); if(route==='coach') coachScroll();
 }
 function coachScroll(){ requestAnimationFrame(()=>window.scrollTo(0,document.body.scrollHeight)); }
 function viewMore(){
