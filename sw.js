@@ -1,4 +1,4 @@
-const CACHE='reset66-v19';
+const CACHE='reset66-v20';
 const CORE=['./','./index.html','./fonts/amiri-quran.woff2','./fonts/uthmanic-hafs.woff2','./books/quran.json','./manifest.webmanifest','./icon-180.png','./icon-192.png','./icon-512.png','./art/hero.webp','./art/bg-city.webp','./art/bg-levelup.webp','./art/bg-dungeon.webp','./art/bg-light-city.webp','./art/bg-light-levelup.webp','./art/bg-light-dungeon.webp','./art/rank-E.webp','./art/rank-D.webp','./art/rank-C.webp','./art/rank-B.webp','./art/rank-A.webp','./art/rank-S.webp','./art/char-1.webp','./art/char-2.webp','./art/char-3.webp','./art/char-4.webp'];
 /* 'reload' / 'no-store' skip the browser's HTTP cache, so an update is never served from a stale copy */
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE.map(u=>new Request(u,{cache:'reload'})))).then(()=>self.skipWaiting()));});
@@ -13,6 +13,7 @@ self.addEventListener('fetch',e=>{
     return;
   }
   if(url.origin===location.origin||/fonts\.(googleapis|gstatic)\.com$/.test(url.hostname)){
-    e.respondWith(caches.match(r).then(hit=>hit||fetch(r).then(res=>{if(res.ok||res.type==='opaque'){const cp=res.clone();caches.open(CACHE).then(c=>c.put(r,cp));}return res;})));
+    /* network first, so a broken or stale cached copy can never hide the real file; the cache is only the offline fallback */
+    e.respondWith(fetch(r).then(res=>{if(res.ok||res.type==='opaque'){const cp=res.clone();caches.open(CACHE).then(c=>c.put(r,cp)).catch(()=>{});}return res;}).catch(()=>caches.match(r,{ignoreSearch:true}).then(hit=>hit||Response.error())));
   }
 });

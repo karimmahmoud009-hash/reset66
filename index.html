@@ -2275,6 +2275,15 @@ function standaloneExtras(){
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{
     document.addEventListener('visibilitychange',()=>{ if(!document.hidden) reg.update().catch(()=>{}); });
   }).catch(()=>{});
+  /* self-heal: if the art can't load through the service worker (iOS can leave a broken cache behind), drop the worker and its caches and reload once. Saved progress is in IndexedDB/localStorage, not in these caches. */
+  setTimeout(async()=>{
+    let ok=false; try{ const r=await fetch(ART+'char-1.webp?probe='+Date.now(),{cache:'no-store'}); ok=r.ok&&(await r.blob()).size>1000; }catch(e){}
+    if(ok||!navigator.onLine) return;
+    let done=false; try{ done=sessionStorage.getItem('lu-healed')==='1'; sessionStorage.setItem('lu-healed','1'); }catch(e){}
+    if(done) return;
+    try{ for(const r of await navigator.serviceWorker.getRegistrations()) await r.unregister(); for(const k of await caches.keys()) await caches.delete(k); }catch(e){}
+    location.reload();
+  },3000);
 }
 
 /* ---------- coach inbox: changes Claude pushes to inbox.json in the repo ----------
