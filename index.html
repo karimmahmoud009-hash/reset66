@@ -1309,11 +1309,13 @@ function viewCoach(){
   const msgs=chat.length?chat.map(m=>'<div class="cmsg '+(m.r==='u'?'me':'ai')+'">'+(m.r==='u'?esc(m.t):mdLite(m.t))+'</div>').join(''):'<div class="cmsg ai">Hey Karim. I can see your habits, workouts, wake-ups and spending. What do you need?</div>';
   return '<h1 class="page-title">Coach</h1><div class="chat" id="chat">'+msgs+(coach.busy?'<div class="cmsg ai muted">Thinking…'+(coach.step?'<br><span class="small">'+esc(coach.step)+'</span>':'')+'</div>':'')+(coach.err?'<div class="cmsg err">'+esc(coach.err)+'</div>':'')+'</div>'+
     (chat.length?'':'<div class="mchips">'+tips.map(x=>'<button class="st st0" data-a="coachTip" data-t="'+esc(x)+'">'+esc(x)+'</button>').join('')+'</div>')+
-    '<div class="row chat-in"><textarea class="input" id="co-in" rows="1" placeholder="Ask your coach" style="min-height:48px;font-size:16px;font-family:inherit"></textarea><button class="btn btn-primary" style="min-width:64px" data-a="coachSend" aria-label="Send"'+(coach.busy?' disabled':'')+'>'+ic('right')+'</button></div>'+
+    '<div class="row chat-in"><textarea class="input" id="co-in" rows="1" placeholder="Ask your coach" enterkeyhint="send" style="min-height:48px;font-size:16px;font-family:inherit"></textarea><button class="btn btn-primary" style="min-width:64px" data-a="coachSend" aria-label="Send"'+(coach.busy&&Date.now()-(coach.since||0)<120000?' disabled':'')+'>'+ic('right')+'</button></div>'+
     '<div class="row between" style="margin-top:8px"><button class="link" data-a="coachClear">New chat</button><button class="link" data-a="coachForget" style="color:var(--muted)">Remove key</button></div>';
 }
 async function coachAsk(text){
-  const key=ckGet(); if(!key||coach.busy) return;
+  const key=ckGet(); if(!key) return;
+  if(coach.busy&&Date.now()-(coach.since||0)<120000) return; /* a request that never came back must not lock the chat */
+  coach.since=Date.now();
   const chat=chGet(); chat.push({r:'u',t:text.slice(0,2000)}); chSet(chat); coach.busy=true; coach.err=''; render(); coachScroll();
   try{
     const body=JSON.stringify({systemInstruction:{parts:[{text:coachSys()}]},contents:chat.slice(-20).map(m=>({role:m.r==='u'?'user':'model',parts:[{text:m.t}]})),generationConfig:{maxOutputTokens:4096,thinkingConfig:{thinkingBudget:0}}}), body2=body.replace(',"thinkingConfig":{"thinkingBudget":0}','');
@@ -2248,6 +2250,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.target.id==='hf-name'){ e.preventDefault(); A.hfSave(); }
   if(e.key==='Enter'&&e.target.id==='sq-new'){ e.preventDefault(); A.sideAdd(); }
   if(e.key==='Enter'&&e.target.id==='at-new'){ e.preventDefault(); A.aiToolAdd(); }
+  if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.target.id==='co-in'){ e.preventDefault(); A.coachSend(); }
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='ob-date'&&isDate(e.target.value)){ OB.start=e.target.value; keepScroll(render); }
